@@ -1,0 +1,49 @@
+# Dipendenze
+node_modules/
+.pnp
+.pnp.js
+
+# Build
+dist/
+dist-ssr/
+
+# Variabili d'ambiente (mai committare valori reali)
+.env
+.env.local
+.env.*.local
+
+# Log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo
+node_modules/.tmp/
+
+# Supabase locale
+supabase/.branches/
+supabase/.temp/
+supabase/functions/
+
+# Cache
+.cache/
+
+coverage/
+.vite/
+*.log

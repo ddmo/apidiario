@@ -1,0 +1,47 @@
+{
+  "name": "apidiario",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsr generate && tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "type-check": "tsr generate && tsc --noEmit",
+    "router:gen": "tsr generate",
+    "db:types": "node scripts/gen-db-types.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2",
+    "@tanstack/query-async-storage-persister": "^5",
+    "@tanstack/react-query": "^5",
+    "@tanstack/react-query-persist-client": "^5",
+    "@tanstack/react-router": "^1",
+    "dexie": "^4",
+    "lucide-react": "^0.469.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9",
+    "@tailwindcss/vite": "^4",
+    "@tanstack/router-plugin": "^1",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@vitejs/plugin-react": "^4",
+    "eslint": "^9",
+    "eslint-plugin-react-hooks": "^5",
+    "eslint-plugin-react-refresh": "^0.4",
+    "globals": "^15",
+    "prettier": "^3",
+    "supabase": "^2",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "typescript-eslint": "^8",
+    "vite": "^6",
+    "vite-plugin-pwa": "^0.21"
+  }
+}

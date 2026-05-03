@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+@theme {
+  /* Cream / superfici */
+  --color-cream-50:  #FAF6ED;
+  --color-cream-100: #F5EEDE;
+  --color-cream-200: #E9DFC8;
+
+  /* Wood / neutrali */
+  --color-wood-300: #C9B896;
+  --color-wood-400: #A6916C;
+  --color-wood-500: #7A6444;
+  --color-wood-600: #5A4830;
+  --color-wood-700: #3F311F;
+  --color-wood-800: #2A2014;
+  --color-wood-900: #1A130C;
+
+  /* Honey / accent */
+  --color-honey-300: #F0C77A;
+  --color-honey-400: #E5A938;
+  --color-honey-500: #C7891A;
+  --color-honey-600: #A06D14;
+  --color-honey-700: #76500F;
+
+  /* Stati semantici */
+  --color-success-100: #EAEED9;
+  --color-success-500: #6E8347;
+  --color-warning-100: #F8E6D1;
+  --color-warning-500: #D4761F;
+  --color-danger-100:  #F2DBD0;
+  --color-danger-500:  #B0492E;
+
+  /* Tipografia */
+  --font-sans:    "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Fraunces", "Inter", serif;
+  --font-mono:    ui-monospace, "JetBrains Mono", monospace;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Spaziatura aggiuntiva */
+  --spacing-13: 3.25rem; /* 52px — bottone lg */
+
+  /* Ombre (nota marrone, mai grigio puro) */
+  --shadow-xs: 0 1px 2px rgba(60, 40, 20, 0.04);
+  --shadow-sm: 0 2px 8px rgba(60, 40, 20, 0.06);
+  --shadow-lg: 0 12px 32px rgba(60, 40, 20, 0.12);
+}
+
+/* Tema scuro: stessi token, valori invertiti */
+@layer base {
+  :root[data-theme="dark"] {
+    --color-cream-50:  #1A130C;
+    --color-cream-100: #241B11;
+    --color-cream-200: #3A2D1D;
+    --color-wood-300:  #5A4830;
+    --color-wood-400:  #7A6444;
+    --color-wood-500:  #B5A282;
+    --color-wood-700:  #EBE0CB;
+    --color-wood-800:  #F5EEDE;
+    --color-honey-500: #E5A938;
+    --color-honey-600: #F0C77A;
+  }
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--color-cream-50);
+    color: var(--color-wood-700);
+    min-height: 100dvh;
+    line-height: 1.5;
+    /* Funzionalità ottiche Inter */
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Focus ring globale honey — mai rimuovere senza alternativa visibile */
+  :focus-visible {
+    outline: 2px solid var(--color-honey-500);
+    outline-offset: 2px;
+  }
+
+  /* Rispetta preferenza di riduzione animazioni */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
