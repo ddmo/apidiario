@@ -168,8 +168,12 @@ Sotto-entità:
 ### 6.3 Ispezioni (cuore dell'app)
 
 L'ispezione ha due modalità di input nello stesso form:
-- **Standard**: tutti i campi visibili, scroll verticale.
-- **Express**: solo i 5-6 campi critici visibili come icone tap-to-cycle, con un pulsante "espandi" per aprire il resto.
+
+- **Standard**: solo i campi essenziali per un controllo veloce (regina, covata, popolazione, note). Pensata per ispezioni di routine in 20-30 secondi.
+- **Express**: tutti i campi visibili in scroll verticale, per ispezioni approfondite (telaini, celle reali, patologie, comportamento, varroa, interventi, foto).
+
+Quando l'utente salva in modalità Express, i campi non visibili in Express vengono salvati come NULL (semantica: "non rilevato"), distinta dalla loro forma "vuota ma osservata" disponibile solo in Standard.
+
 
 Campi:
 
@@ -193,6 +197,9 @@ Campi:
 | Interventi eseguiti | multi-enum + testo libero | nessuno | no |
 | Foto/video | media multipli | — | no |
 | Note libere | testo + dettatura vocale | vuoto | no |
+
+**Modalità**:
+I campi Express sono: data/ora, meteo, regina vista, covata uova/larve/opercolata, popolazione, note libere. Tutto il resto è Standard.
 
 Stati derivati per la "overview" arnia (calcolati dall'ultima ispezione):
 - **Livello scorte** (verde / giallo / rosso) → in base ai telaini di miele
