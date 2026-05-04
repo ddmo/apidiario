@@ -1,12 +1,20 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/query-client'
 import { useAuth } from '@/hooks/use-auth'
+import { useToast } from '@/hooks/use-toast'
 import { InspectionScreen } from '@/features/inspections/inspection-screen'
 import type { InspectionFormState } from '@/features/inspections/types'
+import type { TablesInsert } from '@/types/database'
 
-export const Route = createFileRoute('/_auth/inspections/$hiveId/new')({
+export const Route = createFileRoute('/inspections/$hiveId/new')({
+  beforeLoad: async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+    if (!session) throw redirect({ to: '/login' })
+  },
   component: NewInspectionPage,
 })
 
@@ -14,6 +22,7 @@ function NewInspectionPage() {
   const { hiveId } = Route.useParams()
   const navigate = useNavigate()
   const { session } = useAuth()
+  const { showToast } = useToast()
 
   const { data: hive } = useQuery({
     queryKey: ['hive', hiveId],
@@ -42,7 +51,8 @@ function NewInspectionPage() {
     enabled: !!hive?.apiary_id,
   })
 
-  const { data: lastInspection } = useQuery({
+  // isPending = true while loading, false once settled (null or object)
+  const { data: lastInspection, isPending: isLoadingHistory } = useQuery({
     queryKey: ['lastInspection', hiveId],
     queryFn: async () => {
       const { data } = await supabase
@@ -61,7 +71,7 @@ function NewInspectionPage() {
       if (!session?.user?.id) throw new Error('Not authenticated')
       const isExpress = mode === 'express'
 
-      const { error } = await supabase.from('inspections').insert({
+      const payload: TablesInsert<'inspections'> = {
         hive_id: hiveId,
         performed_by: session.user.id,
         queen_seen: formState.queen,
@@ -70,29 +80,33 @@ function NewInspectionPage() {
         brood_capped: formState.brood.opercolata,
         population: formState.population,
         notes: formState.notes || null,
-        // standard-only fields: null in express mode
         brood_frame_count: isExpress ? null : formState.frames.covata,
         honey_frame_count: isExpress ? null : formState.frames.miele,
         pollen_frame_count: isExpress ? null : formState.frames.polline,
         melari_count: isExpress ? 0 : formState.supers,
-        queen_cells: isExpress ? 'nessuna' : formState.queenCells,
+        queen_cells: isExpress ? null : formState.queenCells,
         pollen_importation: isExpress ? null : formState.pollenIncoming,
         behavior: isExpress ? null : formState.behavior,
-        pathologies: isExpress ? [] : Array.from(formState.pathologies),
+        pathologies: isExpress ? null : Array.from(formState.pathologies),
         varroa_count: isExpress || !formState.varroaCount ? null : Number(formState.varroaCount),
         varroa_count_method: isExpress || !formState.varroaCount ? null : formState.varroaMethod,
         interventions: isExpress ? [] : Array.from(formState.interventions),
-      })
+      }
+      const { error } = await supabase.from('inspections').insert(payload)
       if (error) throw error
     },
     onSuccess: () => {
+      showToast('Ispezione salvata', 'success')
       void queryClient.invalidateQueries({ queryKey: ['lastInspection', hiveId] })
       void navigate({ to: '/home' })
     },
+    onError: () => {
+      showToast('Salvataggio fallito. Riprova.', 'error')
+    },
   })
 
-  const prefillState = lastInspection
-    ? ({
+  const prefillState: Partial<InspectionFormState> | undefined = lastInspection
+    ? {
         queen: lastInspection.queen_seen,
         brood: {
           uova: lastInspection.brood_eggs ?? false,
@@ -106,27 +120,27 @@ function NewInspectionPage() {
           polline: lastInspection.pollen_frame_count ?? 0,
         },
         supers: lastInspection.melari_count ?? 0,
-        queenCells: lastInspection.queen_cells,
+        queenCells: lastInspection.queen_cells ?? 'nessuna',
         pollenIncoming: lastInspection.pollen_importation ?? false,
         behavior: lastInspection.behavior ?? 'calmo',
-      } satisfies Partial<InspectionFormState>)
+      }
     : undefined
 
   const prefillDate = lastInspection
-    ? new Date(lastInspection.performed_at).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })
+    ? new Date(lastInspection.performed_at).toLocaleDateString('it-IT', {
+        day: 'numeric',
+        month: 'short',
+      })
     : undefined
 
   return (
     <InspectionScreen
       hiveId={hiveId}
-      hiveInfo={
-        hive && apiary
-          ? { identifier: hive.identifier, apiaryName: apiary.name }
-          : undefined
-      }
+      hiveInfo={hive && apiary ? { identifier: hive.identifier, apiaryName: apiary.name } : undefined}
       prefillState={prefillState}
-      hasPrefill={lastInspection !== undefined}
+      hasPrefill={lastInspection !== null && lastInspection !== undefined}
       prefillDate={prefillDate}
+      isLoadingHistory={isLoadingHistory}
       isSaving={isSaving}
       onSave={(formState, mode) => saveInspection({ formState, mode })}
       onBack={() => void navigate({ to: '/home' })}

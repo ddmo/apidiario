@@ -14,7 +14,7 @@ export function FormSubmitBar({ onCancel, onSave, saveLabel = 'Salva ispezione',
         Annulla
       </Button>
       <Button type="button" variant="primary" size="md" onClick={onSave} loading={isSaving} className="flex-1">
-        {saveLabel}
+        {isSaving ? 'Salvataggio…' : saveLabel}
       </Button>
     </div>
   )

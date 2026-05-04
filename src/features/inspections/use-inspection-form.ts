@@ -4,10 +4,9 @@ import { DEFAULT_STATE } from './types'
 
 interface UseInspectionFormOptions {
   prefillState?: Partial<InspectionFormState>
-  hasPrefill?: boolean
 }
 
-export function useInspectionForm({ prefillState, hasPrefill = false }: UseInspectionFormOptions = {}) {
+export function useInspectionForm({ prefillState }: UseInspectionFormOptions = {}) {
   const initialState: InspectionFormState = prefillState
     ? { ...DEFAULT_STATE, ...prefillState }
     : DEFAULT_STATE
@@ -18,7 +17,6 @@ export function useInspectionForm({ prefillState, hasPrefill = false }: UseInspe
   const [showSheet, setShowSheet] = useState(false)
 
   const hasChanges = dirtyFields.size > 0
-  const isPrefilled = hasPrefill && !hasChanges
 
   function update<K extends keyof InspectionFormState>(key: K, value: InspectionFormState[K]) {
     setState((prev) => ({ ...prev, [key]: value }))

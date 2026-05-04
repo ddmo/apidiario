@@ -14,9 +14,9 @@ export const t = {
   nav: {
     apiari: 'Apiari',
     arnie: 'Arnie',
-    home: 'Home',
-    promemoria: 'Promemoria',
-    altro: 'Altro',
+    visita: 'Visita',
+    calendario: 'Calendario',
+    altro: 'Più',
   },
   common: {
     loading: 'Caricamento…',

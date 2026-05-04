@@ -13,12 +13,13 @@ const MODE_OPTIONS = [
   { value: 'standard', label: 'Standard' },
 ]
 
-// Header height: 24px status bar + 56px nav = 80px
-// Mode tabs: 56px
-// Banner: 41px when visible, else 0
+// Header: 56px nav bar (no status bar — handled by OS)
+// Mode tabs: 52px (p-1 top + p-2 bottom + 40px control)
+// Banner: 41px (always reserved to avoid layout shift)
 // Submit bar: 68px
-const HEADER_H = 80
-const TABS_H = 56
+const HEADER_H = 56
+const TABS_H = 52
+const BANNER_H = 41
 const SUBMIT_H = 68
 
 interface HiveInfo {
@@ -30,8 +31,9 @@ interface InspectionScreenProps {
   hiveId: string
   hiveInfo?: HiveInfo
   prefillState?: Partial<InspectionFormState>
-  hasPrefill?: boolean
+  hasPrefill: boolean
   prefillDate?: string
+  isLoadingHistory?: boolean
   isSaving?: boolean
   onSave: (state: InspectionFormState, mode: string) => void
   onBack: () => void
@@ -40,14 +42,15 @@ interface InspectionScreenProps {
 export function InspectionScreen({
   hiveInfo,
   prefillState,
-  hasPrefill = false,
+  hasPrefill,
   prefillDate,
+  isLoadingHistory = false,
   isSaving = false,
   onSave,
   onBack,
 }: InspectionScreenProps) {
   const { state, dirtyFields, mode, setMode, update, reset, hasChanges, showSheet, setShowSheet } =
-    useInspectionForm({ prefillState, hasPrefill })
+    useInspectionForm({ prefillState })
 
   const now = new Date()
   const datetime = now.toLocaleString('it-IT', {
@@ -70,8 +73,7 @@ export function InspectionScreen({
     onSave(state, mode)
   }
 
-  const bannerH = hasPrefill ? 41 : 0
-  const scrollH = `calc(100dvh - ${HEADER_H + TABS_H + bannerH + SUBMIT_H}px)`
+  const scrollH = `calc(100dvh - ${HEADER_H + TABS_H + BANNER_H + SUBMIT_H}px)`
 
   return (
     <div className="bg-cream-50 text-wood-700 flex flex-col min-h-dvh">
@@ -101,7 +103,7 @@ export function InspectionScreen({
               <span>{datetime}</span>
               <span aria-hidden="true">·</span>
               <span className="inline-flex items-center gap-1">
-                <Sun size={12} />
+                <Sun size={12} aria-hidden="true" />
               </span>
             </div>
           </div>
@@ -125,20 +127,18 @@ export function InspectionScreen({
         />
       </div>
 
-      {/* Prefill banner */}
-      {hasPrefill && (
-        <PrefillBanner
-          kind={prefillDate ? 'prefilled' : 'first'}
-          lastDate={prefillDate}
-          onReset={reset}
-        />
-      )}
-      {!hasPrefill && (
-        <PrefillBanner kind="first" />
-      )}
+      {/* Banner — always 41px reserved to avoid layout shift */}
+      <div className="h-[41px]">
+        {!isLoadingHistory && hasPrefill && (
+          <PrefillBanner kind="prefilled" lastDate={prefillDate} onReset={reset} />
+        )}
+        {!isLoadingHistory && !hasPrefill && (
+          <PrefillBanner kind="first" />
+        )}
+      </div>
 
       {/* Scrollable body */}
-      <div className="overflow-y-auto flex-1" style={{ maxHeight: scrollH }}>
+      <div className="overflow-y-auto" style={{ height: scrollH }}>
         {mode === 'express' ? (
           <ExpressBody state={state} dirtyFields={dirtyFields} onUpdate={update} />
         ) : (

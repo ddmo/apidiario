@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Camera, Flower } from 'lucide-react'
+import { Input } from '@/components/ui/input'
 import { SectionLabel } from './components/section-label'
 import { QueenSightingPicker } from './components/queen-sighting-picker'
 import { BroodStageToggles } from './components/brood-stage-toggles'
@@ -35,13 +36,13 @@ export function StandardBody({ state, dirtyFields, onUpdate }: StandardBodyProps
 
   const togglePathology = (p: PathologyType) => {
     const next = new Set(state.pathologies)
-    next.has(p) ? next.delete(p) : next.add(p)
+    if (next.has(p)) { next.delete(p) } else { next.add(p) }
     onUpdate('pathologies', next)
   }
 
   const toggleIntervention = (i: string) => {
     const next = new Set(state.interventions)
-    next.has(i) ? next.delete(i) : next.add(i)
+    if (next.has(i)) { next.delete(i) } else { next.add(i) }
     onUpdate('interventions', next)
   }
 
@@ -134,13 +135,14 @@ export function StandardBody({ state, dirtyFields, onUpdate }: StandardBodyProps
       <section>
         <SectionLabel>Conteggio varroa</SectionLabel>
         <div className="flex flex-col gap-2">
-          <input
+          <Input
+            id="varroa-count"
+            aria-label="Numero acari"
             type="number"
             inputMode="decimal"
             placeholder="Numero acari"
             value={state.varroaCount}
             onChange={(e) => onUpdate('varroaCount', e.target.value)}
-            className="w-full h-12 rounded-md border border-cream-200 bg-cream-50 px-4 text-base text-wood-700 placeholder:text-wood-400 focus:border-honey-500 focus:outline-none focus:ring-2 focus:ring-honey-500/20"
           />
           <SegmentedControl
             ariaLabel="Metodo conteggio varroa"

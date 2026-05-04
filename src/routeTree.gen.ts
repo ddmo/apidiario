@@ -13,7 +13,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthHomeRouteImport } from './routes/_auth.home'
-import { Route as AuthInspectionsHiveIdNewRouteImport } from './routes/_auth.inspections.$hiveId.new'
+import { Route as InspectionsHiveIdNewRouteImport } from './routes/inspections.$hiveId.new'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -34,24 +34,23 @@ const AuthHomeRoute = AuthHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => AuthRoute,
 } as any)
-const AuthInspectionsHiveIdNewRoute =
-  AuthInspectionsHiveIdNewRouteImport.update({
-    id: '/inspections/$hiveId/new',
-    path: '/inspections/$hiveId/new',
-    getParentRoute: () => AuthRoute,
-  } as any)
+const InspectionsHiveIdNewRoute = InspectionsHiveIdNewRouteImport.update({
+  id: '/inspections/$hiveId/new',
+  path: '/inspections/$hiveId/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/home': typeof AuthHomeRoute
-  '/inspections/$hiveId/new': typeof AuthInspectionsHiveIdNewRoute
+  '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/home': typeof AuthHomeRoute
-  '/inspections/$hiveId/new': typeof AuthInspectionsHiveIdNewRoute
+  '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -59,7 +58,7 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteWithChildren
   '/login': typeof LoginRoute
   '/_auth/home': typeof AuthHomeRoute
-  '/_auth/inspections/$hiveId/new': typeof AuthInspectionsHiveIdNewRoute
+  '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -72,13 +71,14 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/login'
     | '/_auth/home'
-    | '/_auth/inspections/$hiveId/new'
+    | '/inspections/$hiveId/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
   LoginRoute: typeof LoginRoute
+  InspectionsHiveIdNewRoute: typeof InspectionsHiveIdNewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -111,24 +111,22 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthHomeRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_auth/inspections/$hiveId/new': {
-      id: '/_auth/inspections/$hiveId/new'
+    '/inspections/$hiveId/new': {
+      id: '/inspections/$hiveId/new'
       path: '/inspections/$hiveId/new'
       fullPath: '/inspections/$hiveId/new'
-      preLoaderRoute: typeof AuthInspectionsHiveIdNewRouteImport
-      parentRoute: typeof AuthRoute
+      preLoaderRoute: typeof InspectionsHiveIdNewRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
 interface AuthRouteChildren {
   AuthHomeRoute: typeof AuthHomeRoute
-  AuthInspectionsHiveIdNewRoute: typeof AuthInspectionsHiveIdNewRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthHomeRoute: AuthHomeRoute,
-  AuthInspectionsHiveIdNewRoute: AuthInspectionsHiveIdNewRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
@@ -137,6 +135,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
   LoginRoute: LoginRoute,
+  InspectionsHiveIdNewRoute: InspectionsHiveIdNewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
