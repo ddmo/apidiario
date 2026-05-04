@@ -329,13 +329,13 @@ export type Database = {
           interventions: string[]
           melari_count: number
           notes: string | null
-          pathologies: Database["public"]["Enums"]["pathology"][]
+          pathologies: Database["public"]["Enums"]["pathology"][] | null
           performed_at: string
           performed_by: string
           pollen_frame_count: number | null
           pollen_importation: boolean | null
           population: Database["public"]["Enums"]["population_strength"] | null
-          queen_cells: Database["public"]["Enums"]["queen_cells_type"]
+          queen_cells: Database["public"]["Enums"]["queen_cells_type"] | null
           queen_seen: Database["public"]["Enums"]["queen_seen_state"]
           temperature_c: number | null
           updated_at: string
@@ -358,13 +358,13 @@ export type Database = {
           interventions?: string[]
           melari_count?: number
           notes?: string | null
-          pathologies?: Database["public"]["Enums"]["pathology"][]
+          pathologies?: Database["public"]["Enums"]["pathology"][] | null
           performed_at?: string
           performed_by: string
           pollen_frame_count?: number | null
           pollen_importation?: boolean | null
           population?: Database["public"]["Enums"]["population_strength"] | null
-          queen_cells?: Database["public"]["Enums"]["queen_cells_type"]
+          queen_cells?: Database["public"]["Enums"]["queen_cells_type"] | null
           queen_seen?: Database["public"]["Enums"]["queen_seen_state"]
           temperature_c?: number | null
           updated_at?: string
@@ -387,13 +387,13 @@ export type Database = {
           interventions?: string[]
           melari_count?: number
           notes?: string | null
-          pathologies?: Database["public"]["Enums"]["pathology"][]
+          pathologies?: Database["public"]["Enums"]["pathology"][] | null
           performed_at?: string
           performed_by?: string
           pollen_frame_count?: number | null
           pollen_importation?: boolean | null
           population?: Database["public"]["Enums"]["population_strength"] | null
-          queen_cells?: Database["public"]["Enums"]["queen_cells_type"]
+          queen_cells?: Database["public"]["Enums"]["queen_cells_type"] | null
           queen_seen?: Database["public"]["Enums"]["queen_seen_state"]
           temperature_c?: number | null
           updated_at?: string
@@ -980,3 +980,4 @@ export const Constants = {
     },
   },
 } as const
+
