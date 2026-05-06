@@ -1,13 +1,6 @@
 import { Trees, ChevronRight } from 'lucide-react'
 import { t } from '@/i18n/it'
-
-export interface ApiaryListItemData {
-  id: string
-  name: string
-  hiveCount: number
-  lastVisitLabel?: string
-  photoUrl?: string | null
-}
+import type { ApiaryListItem as ApiaryListItemData } from '../hooks/use-apiaries'
 
 interface ApiaryListItemProps {
   apiary: ApiaryListItemData
@@ -15,12 +8,12 @@ interface ApiaryListItemProps {
 }
 
 export function ApiaryListItem({ apiary, onClick }: ApiaryListItemProps) {
-  const { name, hiveCount, lastVisitLabel, photoUrl } = apiary
+  const { name, hiveCount, photoUrl } = apiary
 
   const meta =
     hiveCount === 0
       ? t.apiaries.noHives
-      : `${t.apiaries.hiveCount(hiveCount)}${lastVisitLabel ? ` · ${t.apiaries.lastVisit(lastVisitLabel)}` : ''}`
+      : t.apiaries.hiveCount(hiveCount)
 
   return (
     <button
