@@ -17,19 +17,19 @@ export function BottomNav() {
         aria-label="Navigazione principale"
       >
         <ul className="flex h-full items-center" role="list">
-          {/* Apiari */}
+          {/* Apiari — home at / */}
           <li className="flex-1">
-            <a
-              href="/apiari"
+            <Link
+              to="/"
               className={cn(
                 'flex flex-col items-center gap-1 py-2 w-full min-h-[44px] justify-center transition-colors duration-150',
-                location.pathname === '/apiari' ? 'text-honey-500' : 'text-wood-500',
+                location.pathname === '/' ? 'text-honey-500' : 'text-wood-500',
               )}
-              aria-current={location.pathname === '/apiari' ? 'page' : undefined}
+              aria-current={location.pathname === '/' ? 'page' : undefined}
             >
               <Trees size={24} strokeWidth={1.75} aria-hidden="true" />
               <span className="text-xs font-medium">{t.nav.apiari}</span>
-            </a>
+            </Link>
           </li>
 
           {/* Arnie */}
@@ -47,7 +47,7 @@ export function BottomNav() {
             </a>
           </li>
 
-          {/* Visita — primary action, raised circular button */}
+          {/* Visita — primary action */}
           <li className="flex-1">
             <button
               type="button"
@@ -79,8 +79,8 @@ export function BottomNav() {
 
           {/* Più */}
           <li className="flex-1">
-            <Link
-              to="/home"
+            <a
+              href="/piu"
               className={cn(
                 'flex flex-col items-center gap-1 py-2 w-full min-h-[44px] justify-center transition-colors duration-150',
                 'text-wood-500',
@@ -88,7 +88,7 @@ export function BottomNav() {
             >
               <MoreHorizontal size={24} strokeWidth={1.75} aria-hidden="true" />
               <span className="text-xs font-medium">{t.nav.altro}</span>
-            </Link>
+            </a>
           </li>
         </ul>
       </nav>

@@ -46,4 +46,5 @@ supabase/functions/
 
 coverage/
 .vite/
-*.logApidiario-handoff.zip
+*.log
+Apidiario-handoff.zip

@@ -8,7 +8,7 @@ export const Route = createFileRoute('/login')({
       data: { session },
     } = await supabase.auth.getSession()
     if (session) {
-      throw redirect({ to: '/home' })
+      throw redirect({ to: '/' })
     }
   },
   component: LoginPage,

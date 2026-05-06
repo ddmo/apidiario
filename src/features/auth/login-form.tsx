@@ -52,7 +52,7 @@ export function LoginForm() {
       setStatus('error')
       setErrorMsg(error.message)
     } else {
-      await navigate({ to: '/home' })
+      await navigate({ to: '/' })
     }
   }
 
