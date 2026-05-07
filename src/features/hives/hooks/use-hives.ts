@@ -197,7 +197,11 @@ export function useToggleHiveAccessory() {
       field: 'has_apiscampo' | 'has_propolis_net' | 'has_pollen_trap'
       value: boolean
     }) => {
-      const { error } = await supabase.from('hives').update({ [field]: value }).eq('id', hiveId)
+      const update =
+        field === 'has_apiscampo'    ? { has_apiscampo: value } :
+        field === 'has_propolis_net' ? { has_propolis_net: value } :
+                                       { has_pollen_trap: value }
+      const { error } = await supabase.from('hives').update(update).eq('id', hiveId)
       if (error) throw error
     },
     onSuccess: () => {

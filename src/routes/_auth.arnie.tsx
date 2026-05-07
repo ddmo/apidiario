@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useAllHives } from '@/features/hives/hooks/use-hives'
 import { HiveCard } from '@/features/hives/components/hive-card'
 import { EmptyState } from '@/components/ui/empty-state'
+import { Box } from 'lucide-react'
 import { t } from '@/i18n/it'
 
 export const Route = createFileRoute('/_auth/arnie')({
@@ -25,6 +26,7 @@ function ArniePage() {
         ) : hives.length === 0 ? (
           <div className="px-4 pt-12">
             <EmptyState
+              icon={<Box size={40} strokeWidth={1.25} />}
               title={t.hive.allHives.emptyTitle}
               description={t.hive.allHives.emptyDescription}
             />

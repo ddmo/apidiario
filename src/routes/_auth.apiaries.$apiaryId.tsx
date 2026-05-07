@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, Plus } from 'lucide-react'
+import { ArrowLeft, Box, Plus } from 'lucide-react'
 import { useApiary } from '@/features/apiaries/hooks/use-apiaries'
 import { useHivesByApiary } from '@/features/hives/hooks/use-hives'
 import { HiveCard } from '@/features/hives/components/hive-card'
@@ -41,6 +41,7 @@ function ApiaryDetailPage() {
         ) : hives.length === 0 ? (
           <div className="px-4 pt-12">
             <EmptyState
+              icon={<Box size={40} strokeWidth={1.25} />}
               title={t.apiary.detail.emptyTitle}
               description={t.apiary.detail.emptyDescription}
             />
