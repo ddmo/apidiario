@@ -1,6 +1,6 @@
 # SPEC.md — App di Gestione Apiari
 
-> **Stato**: bozza Fase 0 · **Versione**: 0.1 · **Nome app**: Apidiario
+> **Stato**: in sviluppo · **Versione**: 0.4 · **Nome app**: Apidiario
 
 ---
 
@@ -9,6 +9,27 @@
 Un'applicazione web mobile-first (PWA installabile) per apicoltori che permette di gestire apiari e arnie in modo semplice, veloce e collaborativo. L'uso primario avviene **sul campo, su smartphone, spesso senza connessione**, durante le ispezioni alle arnie. Il design privilegia l'ergonomia di input (tap su icone, pochi campi obbligatori, valori di default intelligenti) sopra tutto il resto.
 
 L'app deve servire bene un apicoltore con 10 arnie e scalare senza ridisegno fino a qualche centinaio.
+
+## Stato implementazione
+
+| User story | Titolo | Stato |
+|---|---|---|
+| US-01 | Ispezione rapida sul campo | ✅ chiusa (mag 2026) |
+| US-02 | Overview visiva dell'arnia | ⬜ |
+| US-03 | Lista arnie di un apiario | ⬜ |
+| US-04 | Anagrafica arnia | ✅ chiusa (mag 2026) |
+| US-05 | Anagrafica apiario | ✅ chiusa (mag 2026) |
+| US-06 | Registrazione trattamento | ⬜ |
+| US-07 | Registrazione raccolto | ⬜ |
+| US-08 | Storia regina | 🟡 base implementata (regina di default creata con ogni arnia) |
+| US-09 | Promemoria custom | ⬜ |
+| US-10 | Condivisione apiario / arnia | ⬜ |
+| US-11 | Foto e video | 🟡 foto principale apiario implementata |
+| US-12 | Note vocali | ⬜ |
+| US-13 | Anagrafe BDA | 🟡 campo presente, reminder rimandato |
+| US-14 | Storico e report | ⬜ |
+
+**Home dell'app (post-login)**: lista apiari (US-05 dettaglio "Lista" sotto). In una fase successiva (post US-09 e US-14) sarà arricchita con una "strip insights" sopra la lista, che mostrerà promemoria di oggi, arnie con allarmi, ispezioni in coda di sincronizzazione. Per la v1 la home è solo lista apiari.
 
 ## 2. Principi di prodotto
 
@@ -78,6 +99,7 @@ Elementi visivi richiesti:
 - Presenza/numero di melari.
 - Icone di stato: livello scorte, presenza covata, regina vista/non vista, importazione polline, presenza celle reali.
 - Colori semaforici (verde/giallo/rosso) per leggibilità immediata.
+- Stato visivo aggiuntivo "non rilevato" (grigio o tratteggio) per i campi che vengono salvati come NULL nelle ispezioni Express.
 - Data ultima ispezione + chi l'ha fatta.
 
 **US-03 — Lista arnie di un apiario**
@@ -90,6 +112,10 @@ Criteri:
 
 **US-04 — Anagrafica arnia**
 > Come apicoltore, voglio creare una nuova arnia inserendo identificativo, tipo, razza, regina e origine.
+
+Note implementative:
+- Alla creazione di un'arnia viene creata automaticamente una "regina di default" associata, con `marking_color = 'non_marcata'`, `origin = 'sconosciuta'`, `start_date = installed_on` (o `current_date` se assente). Questo garantisce che il vincolo `queens_one_active_per_hive` sia sempre soddisfatto e che US-08 possa partire da uno stato coerente.
+- Operazione atomica via funzione RPC `create_hive_with_queen`.
 
 **US-05 — Anagrafica apiario**
 > Come apicoltore, voglio creare un apiario indicando nome, posizione GPS (auto o manuale), note, e foto di riferimento.
@@ -142,8 +168,10 @@ Campi:
 - Indirizzo testuale opzionale
 - Codice aziendale BDA (opzionale)
 - Note ambientali (esposizione, fioriture, fonte d'acqua) — testo libero
-- Foto di riferimento (multiple)
+- Foto principale (singola, in v1; gestione multipla in roadmap)
 - Data creazione, owner, membri condivisi
+
+**Acquisizione posizione GPS**: alla creazione di un apiario, l'app propone "Usa la mia posizione attuale" tramite browser Geolocation API (con consenso esplicito). In alternativa l'utente può inserire manualmente latitudine e longitudine, oppure cercare un indirizzo testuale (geocoding rimandato a roadmap). La posizione è opzionale: alcuni apicoltori non vogliono salvare le coordinate esatte degli apiari.
 
 Operazioni:
 - Crea, modifica, archivia (soft-delete), condividi.
@@ -154,7 +182,7 @@ Operazioni:
 Campi:
 - Identificativo/numero (obbligatorio, univoco nell'apiario)
 - Tipo arnia (Dadant-Blatt, Langstroth, Top-bar, altro)
-- Razza ape (Ligustica, Buckfast, Carnica, ibrida, sconosciuta)
+- Razza ape (Ligustica, Buckfast, Carnica, Sicula, ibrida, sconosciuta)
 - Origine (sciame catturato, nucleo acquistato, divisione, pacco, sciamatura interna)
 - Data insediamento
 - Stato: attiva, sciamata, morta, riunita, venduta, ceduta
@@ -163,16 +191,16 @@ Campi:
 - Note libere
 
 Sotto-entità:
-- **Storia regina**: anno nascita, marcatura colore (bianco/giallo/rosso/verde/blu secondo standard internazionale), origine (figlia, introdotta, sciamatura, sostituzione spontanea), data inizio, data sostituzione.
+- **Storia regina**: anno nascita, marcatura colore (bianco/giallo/rosso/verde/blu secondo standard internazionale), origine (figlia, introdotta, sciamatura, sostituzione spontanea), data inizio, data sostituzione. Alla creazione di un'arnia viene generata una regina di default con marcatura `non_marcata` e origine `sconosciuta` (vedi US-04).
 
 ### 6.3 Ispezioni (cuore dell'app)
 
 L'ispezione ha due modalità di input nello stesso form:
 
-- **Standard**: solo i campi essenziali per un controllo veloce (regina, covata, popolazione, note). Pensata per ispezioni di routine in 20-30 secondi.
-- **Express**: tutti i campi visibili in scroll verticale, per ispezioni approfondite (telaini, celle reali, patologie, comportamento, varroa, interventi, foto).
+- **Express**: solo i campi essenziali per un controllo veloce (regina, covata, popolazione, note). Pensata per ispezioni di routine in 20-30 secondi.
+- **Standard**: tutti i campi visibili in scroll verticale, per ispezioni approfondite (telaini, celle reali, patologie, comportamento, varroa, interventi, foto).
 
-Quando l'utente salva in modalità Express, i campi non visibili in Express vengono salvati come NULL (semantica: "non rilevato"), distinta dalla loro forma "vuota ma osservata" disponibile solo in Standard.
+**Semantica del salvataggio in modalità Express**: i campi non visibili in modalità Express (telaini, celle reali, patologie, comportamento, importazione polline, conteggio varroa, interventi, foto, melari count) vengono salvati come **NULL** nel database. La semantica è "non rilevato durante l'ispezione veloce", esplicitamente distinta dai loro valori "vuoti ma osservati" (es. `queen_cells = 'nessuna'` significa "guardato e non c'erano celle reali"; `queen_cells = NULL` significa "non ho controllato"). Questa distinzione è importante per la successiva US-02 (Overview arnia) che mostrerà uno stato visivo "non rilevato" oltre a verde/giallo/rosso.
 
 
 Campi:
@@ -202,11 +230,11 @@ Campi:
 I campi Express sono: data/ora, meteo, regina vista, covata uova/larve/opercolata, popolazione, note libere. Tutto il resto è Standard.
 
 Stati derivati per la "overview" arnia (calcolati dall'ultima ispezione):
-- **Livello scorte** (verde / giallo / rosso) → in base ai telaini di miele
+- **Livello scorte** (verde / giallo / rosso / non rilevato) → in base ai telaini di miele
 - **Stato regina** (verde / grigio / rosso) → vista / non cercata / non vista da troppo tempo
-- **Stato covata** (verde / giallo / rosso) → presente con tutte le fasi / parziale / assente
-- **Allarme celle reali** → giallo/rosso se di sciamatura
-- **Allarme patologie** → rosso se segni recenti
+- **Stato covata** (verde / giallo / rosso / non rilevato) → presente con tutte le fasi / parziale / assente
+- **Allarme celle reali** → giallo/rosso se di sciamatura, neutro se non rilevato
+- **Allarme patologie** → rosso se segni recenti, neutro se non rilevato
 
 ### 6.4 Trattamenti
 
@@ -302,9 +330,9 @@ canManagePermissions(user, apiary):
 - Indicatore visibile dello stato di sincronizzazione (icona globale).
 
 ### 8.3 Sicurezza e privacy
-- Autenticazione: email + magic link via Supabase Auth (Google OAuth in roadmap).
+- Autenticazione: email + OTP a 6 cifre via Supabase Auth (Google OAuth in roadmap).
 - Tutte le tabelle protette da Row Level Security (RLS).
-- Foto/video soggetti alle stesse policy della risorsa associata.
+- Foto/video soggetti alle stesse policy della risorsa associata, gestite tramite SECURITY DEFINER helper su `storage.objects` per evitare ricorsione RLS.
 - Backup giornalieri (forniti da Supabase su piano a pagamento).
 - Nessun dato personale di terzi raccolto (solo email degli utenti registrati).
 
@@ -317,15 +345,17 @@ canManagePermissions(user, apiary):
 ### 8.5 Internazionalizzazione
 - v1: solo italiano.
 - v2 in roadmap: inglese.
-- Strutturare i testi in file di traduzione fin da subito.
+- Strutturare i testi in file di traduzione fin da subito (`src/i18n/it.ts`).
 
-## 9. Stack tecnologico (riassunto, dettagli in altri doc)
+## 9. Stack tecnologico
 
-- **Frontend**: React + Vite + TypeScript + Tailwind, PWA con vite-plugin-pwa.
-- **Backend**: Supabase (Postgres + Auth + Storage + Realtime).
-- **Stato lato client**: TanStack Query + IndexedDB (Dexie) per la cache offline.
-- **Hosting frontend**: Cloudflare Pages o Vercel.
-- **CI/CD**: GitHub Actions.
+- **Frontend**: React 18 + Vite + TypeScript strict + Tailwind v4, PWA con vite-plugin-pwa.
+- **Routing**: TanStack Router file-based (convenzione flat con underscore).
+- **Stato server**: TanStack Query.
+- **Backend**: Supabase (Postgres + Auth + Storage). Niente backend custom.
+- **Compressione immagini lato client**: `browser-image-compression`.
+- **Hosting frontend**: Cloudflare Pages (target).
+- **CI/CD**: GitHub Actions (rimandata a fase di hardening).
 
 ## 10. Fuori scope per la v1
 
@@ -338,13 +368,15 @@ canManagePermissions(user, apiary):
 - App nativa (iOS/Android store).
 - Integrazione con bilance elettroniche o sensori IoT in arnia.
 - Gestione finanziaria (costi/ricavi).
+- Login con magic link (sostituito da OTP a 6 cifre, più affidabile cross-platform).
+- Dashboard piena come home (lista apiari semplice in v1, dashboard più ricca in roadmap).
 
 ## 11. Decisioni aperte (da risolvere prima dello sviluppo)
 
-1. **Nome dell'app** → Apidiario.
-2. **Identità visiva**: palette definitiva, font, logo. Da definire nel DESIGN.md.
-3. **Ripartizione produzione per arnia**: fuori scope per v1
-4. **Audio dettato**: solo salvataggio file audio.
+1. ~~**Nome dell'app**~~ ✅ Apidiario.
+2. ~~**Identità visiva**~~ ✅ definita in DESIGN.md (palette caldo legno-miele, Inter come font, Fraunces solo per il wordmark).
+3. ~~**Ripartizione produzione per arnia**~~ ✅ fuori scope per v1.
+4. **Audio dettato**: deciso di usare Web Speech API del browser per la v1 (gratis, niente backend STT da gestire). Limite noto: su iOS Safari il supporto è altalenante, accettabile per v1. Implementazione rimandata.
 5. **Cancellazione account**: flusso e tempistiche di rimozione dati (per GDPR).
 
 ## 12. Glossario
@@ -364,4 +396,4 @@ canManagePermissions(user, apiary):
 
 ---
 
-*Fine documento. Prossimi artefatti Fase 0: `SCHEMA.sql` e `DESIGN.md`.*
+*Fine documento.*
