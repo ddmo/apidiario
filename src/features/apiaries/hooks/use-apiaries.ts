@@ -17,6 +17,22 @@ export type ApiaryListItem = {
   photoUrl: string | null
 }
 
+export function useApiary(apiaryId: string) {
+  return useQuery({
+    queryKey: ['apiary', apiaryId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('apiaries')
+        .select('id, name')
+        .eq('id', apiaryId)
+        .single()
+      if (error) throw error
+      return data
+    },
+    enabled: !!apiaryId,
+  })
+}
+
 export function useApiaries() {
   const { session } = useAuth()
 

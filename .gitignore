@@ -48,3 +48,4 @@ coverage/
 .vite/
 *.log
 Apidiario-handoff.zip
+.tanstack/tmp/
