@@ -233,7 +233,19 @@ export function ApiaryForm({ userId, onSuccess, onCancel }: ApiaryFormProps) {
                   <MapPin size={18} strokeWidth={1.75} aria-hidden="true" />
                   {t.apiary.new.useLocationBtn}
                 </Button>
-                <p className="text-xs text-wood-400">{t.apiary.new.locationRationale}</p>
+                {geoState.status === 'denied' && (
+                  <p className="text-xs text-danger-500 leading-relaxed">
+                    Permesso negato. Vai in Impostazioni → Safari → Posizione e consenti l'accesso, poi riprova.
+                  </p>
+                )}
+                {geoState.status === 'error' && (
+                  <p className="text-xs text-danger-500">
+                    Impossibile ottenere la posizione. Inserisci manualmente.
+                  </p>
+                )}
+                {geoState.status === 'idle' && (
+                  <p className="text-xs text-wood-400">{t.apiary.new.locationRationale}</p>
+                )}
                 <button
                   type="button"
                   className="self-start text-xs font-medium text-honey-600 hover:text-honey-700 transition-colors"
