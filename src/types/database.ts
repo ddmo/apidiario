@@ -767,6 +767,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_hive_with_queen: {
+        Args: {
+          p_id: string
+          p_apiary_id: string
+          p_identifier: string
+          p_hive_type: Database['public']['Enums']['hive_type']
+          p_bee_race: Database['public']['Enums']['bee_race']
+          p_installed_on: string | null
+          p_origin_notes: string | null
+          p_nido_frame_count: number
+          p_notes: string | null
+        }
+        Returns: undefined
+      }
       user_can_read_apiary: { Args: { p_apiary_id: string }; Returns: boolean }
       user_can_read_hive: { Args: { p_hive_id: string }; Returns: boolean }
       user_can_write_apiary: { Args: { p_apiary_id: string }; Returns: boolean }

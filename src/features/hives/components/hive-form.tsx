@@ -1,0 +1,304 @@
+import { useState } from 'react'
+import { ArrowLeft } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
+import { FrameCounter } from '@/features/inspections/components/frame-counter'
+import { useHivesByApiary, useCreateHive } from '../hooks/use-hives'
+import { useToast } from '@/hooks/use-toast'
+import { t } from '@/i18n/it'
+import type { Database } from '@/types/database'
+
+type HiveType = Database['public']['Enums']['hive_type']
+type BeeRace = Database['public']['Enums']['bee_race']
+
+const HIVE_TYPE_OPTIONS = (
+  Object.entries(t.hive.hiveTypeLabels) as [HiveType, string][]
+).map(([value, label]) => ({ value, label }))
+
+const BEE_RACE_OPTIONS = (
+  Object.entries(t.hive.beeRaceLabels) as [BeeRace, string][]
+).map(([value, label]) => ({ value, label }))
+
+interface HiveFormProps {
+  apiaryId: string
+  userId: string
+  onSuccess: () => void
+  onCancel: () => void
+}
+
+export function HiveForm({ apiaryId, onSuccess, onCancel }: HiveFormProps) {
+  const { showToast } = useToast()
+  const { mutate: createHive, isPending } = useCreateHive()
+  const { data: existingHives, isLoading: hivesLoading } = useHivesByApiary(apiaryId)
+
+  const [identifier, setIdentifier] = useState('')
+  const [hiveType, setHiveType] = useState<HiveType>('dadant_blatt')
+  const [beeRace, setBeeRace] = useState<BeeRace>('ligustica')
+  const [installedOn, setInstalledOn] = useState('')
+  const [originNotes, setOriginNotes] = useState('')
+  const [nidoFrameCount, setNidoFrameCount] = useState(10)
+  const [notes, setNotes] = useState('')
+
+  const [identifierError, setIdentifierError] = useState('')
+  const [isDirty, setIsDirty] = useState(false)
+  const [showUnsaved, setShowUnsaved] = useState(false)
+
+  const markDirty = () => setIsDirty(true)
+
+  const handleCancel = () => {
+    if (isDirty) {
+      setShowUnsaved(true)
+    } else {
+      onCancel()
+    }
+  }
+
+  const doSubmit = () => {
+    const trimmed = identifier.trim()
+
+    if (!trimmed) {
+      setIdentifierError(t.hive.new.identifierRequired)
+      return
+    }
+
+    const duplicate = existingHives?.some(
+      (h) => h.identifier.toLowerCase() === trimmed.toLowerCase(),
+    )
+    if (duplicate) {
+      setIdentifierError(t.hive.new.identifierDuplicate)
+      return
+    }
+
+    setIdentifierError('')
+
+    createHive(
+      {
+        apiaryId,
+        identifier: trimmed,
+        hiveType,
+        beeRace,
+        installedOn: installedOn || null,
+        originNotes: originNotes.trim() || null,
+        nidoFrameCount,
+        notes: notes.trim() || null,
+      },
+      {
+        onSuccess: () => {
+          showToast(t.hive.new.saved, 'success')
+          onSuccess()
+        },
+        onError: () => showToast(t.hive.new.errorSave, 'error'),
+      },
+    )
+  }
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Nav header */}
+      <header className="bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2 shrink-0">
+        <button
+          type="button"
+          aria-label="Indietro"
+          onClick={handleCancel}
+          className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
+        >
+          <ArrowLeft size={22} strokeWidth={1.75} />
+        </button>
+        <div className="flex-1 min-w-0 px-1">
+          <h1 className="text-base font-semibold text-wood-800 truncate tracking-tight">
+            {t.hive.new.title}
+          </h1>
+        </div>
+      </header>
+
+      {/* Scrollable form body */}
+      <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6">
+        <div className="flex flex-col gap-5">
+
+          {/* Identificazione */}
+          <section className="flex flex-col gap-3">
+            <div className="text-xs uppercase tracking-wider font-semibold text-wood-500 mb-1">
+              {t.hive.new.sectionIdentity}
+            </div>
+            <Input
+              id="hive-identifier"
+              label={t.hive.new.identifierLabel}
+              placeholder={t.hive.new.identifierPlaceholder}
+              value={identifier}
+              onChange={(e) => { setIdentifier(e.target.value); markDirty() }}
+              error={identifierError || undefined}
+              required
+              autoComplete="off"
+              autoCapitalize="words"
+            />
+          </section>
+
+          {/* Tipo e razza */}
+          <section className="flex flex-col gap-3">
+            <div className="text-xs uppercase tracking-wider font-semibold text-wood-500 mb-1">
+              {t.hive.new.sectionDetails}
+            </div>
+            <Select
+              id="hive-type"
+              label={t.hive.new.hiveTypeLabel}
+              options={HIVE_TYPE_OPTIONS}
+              value={hiveType}
+              onChange={(e) => { setHiveType(e.target.value as HiveType); markDirty() }}
+            />
+            <Select
+              id="hive-bee-race"
+              label={t.hive.new.beeRaceLabel}
+              options={BEE_RACE_OPTIONS}
+              value={beeRace}
+              onChange={(e) => { setBeeRace(e.target.value as BeeRace); markDirty() }}
+            />
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="hive-installed-on"
+                className="text-sm font-medium text-wood-700"
+              >
+                {t.hive.new.installedOnLabel}
+              </label>
+              <input
+                id="hive-installed-on"
+                type="date"
+                value={installedOn}
+                onChange={(e) => { setInstalledOn(e.target.value); markDirty() }}
+                className="h-12 rounded-md border border-cream-200 bg-cream-50 px-4 text-base text-wood-700 transition-colors duration-150 focus:border-honey-500 focus:outline-none focus:ring-2 focus:ring-honey-500/20"
+              />
+            </div>
+            <Input
+              id="hive-origin-notes"
+              label={t.hive.new.originNotesLabel}
+              placeholder={t.hive.new.originNotesPlaceholder}
+              value={originNotes}
+              onChange={(e) => { setOriginNotes(e.target.value); markDirty() }}
+              autoComplete="off"
+            />
+          </section>
+
+          {/* Favi nido */}
+          <section>
+            <div className="text-xs uppercase tracking-wider font-semibold text-wood-500 mb-3">
+              {t.hive.new.nidoFrameCountLabel}
+            </div>
+            <FrameCounter
+              label={t.hive.new.nidoFrameCountLabel}
+              value={nidoFrameCount}
+              onChange={(v) => { setNidoFrameCount(v); markDirty() }}
+              min={1}
+              max={30}
+              dirty={isDirty}
+            />
+          </section>
+
+          {/* Note */}
+          <section>
+            <label
+              htmlFor="hive-notes"
+              className="text-sm font-medium text-wood-700 mb-1.5 block"
+            >
+              {t.hive.new.notesLabel}
+            </label>
+            <textarea
+              id="hive-notes"
+              rows={4}
+              placeholder={t.hive.new.notesPlaceholder}
+              value={notes}
+              onChange={(e) => { setNotes(e.target.value); markDirty() }}
+              className="w-full bg-cream-50 border border-cream-200 rounded-md px-4 py-3 text-sm text-wood-700 placeholder:text-wood-400 focus:border-honey-500 focus:outline-none focus:ring-2 focus:ring-honey-500/20 resize-none transition-colors"
+            />
+            {notes && (
+              <p className="mt-1 text-xs text-wood-400">{notes.length} caratteri</p>
+            )}
+          </section>
+
+        </div>
+      </div>
+
+      {/* Sticky CTA bar */}
+      <div
+        className="sticky bottom-0 bg-cream-50/95 backdrop-blur-sm border-t border-cream-200 px-4 py-3 flex items-center gap-2 shrink-0"
+        style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+      >
+        <Button
+          type="button"
+          variant="ghost"
+          size="md"
+          className="flex-none px-4"
+          onClick={handleCancel}
+        >
+          {t.hive.new.cancel}
+        </Button>
+        <Button
+          type="button"
+          variant="primary"
+          size="md"
+          className="flex-1"
+          onClick={doSubmit}
+          loading={isPending}
+          disabled={hivesLoading}
+        >
+          {t.hive.new.save}
+        </Button>
+      </div>
+
+      {/* Unsaved changes sheet */}
+      {showUnsaved && (
+        <>
+          <div
+            className="fixed inset-0 z-30 bg-wood-900/40"
+            onClick={() => setShowUnsaved(false)}
+            aria-hidden="true"
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={t.hive.new.unsavedTitle}
+            className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg"
+          >
+            <div className="flex justify-center pt-2.5 pb-1">
+              <span className="block w-9 h-1 rounded-full bg-cream-200" aria-hidden="true" />
+            </div>
+            <div className="px-5 pt-3 pb-4">
+              <h2 className="text-lg font-semibold text-wood-800 mb-1">
+                {t.hive.new.unsavedTitle}
+              </h2>
+              <p className="text-sm text-wood-500 leading-relaxed">{t.hive.new.unsavedBody}</p>
+            </div>
+            <div
+              className="px-4 flex flex-col gap-2"
+              style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
+            >
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={() => { setShowUnsaved(false); doSubmit() }}
+                className="w-full"
+              >
+                {t.hive.new.unsavedSave}
+              </Button>
+              <Button
+                variant="secondary"
+                size="lg"
+                onClick={onCancel}
+                className="w-full"
+              >
+                {t.hive.new.unsavedDiscard}
+              </Button>
+              <Button
+                variant="ghost"
+                size="md"
+                onClick={() => setShowUnsaved(false)}
+                className="w-full"
+              >
+                {t.hive.new.unsavedCancel}
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
