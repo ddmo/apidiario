@@ -64,8 +64,8 @@ export function BottomNav() {
 
           {/* Calendario */}
           <li className="flex-1">
-            <a
-              href="/calendario"
+            <Link
+              to="/calendario"
               className={cn(
                 'flex flex-col items-center gap-1 py-2 w-full min-h-[44px] justify-center transition-colors duration-150',
                 location.pathname === '/calendario' ? 'text-honey-500' : 'text-wood-500',
@@ -74,7 +74,7 @@ export function BottomNav() {
             >
               <Calendar size={24} strokeWidth={1.75} aria-hidden="true" />
               <span className="text-xs font-medium">{t.nav.calendario}</span>
-            </a>
+            </Link>
           </li>
 
           {/* Più */}

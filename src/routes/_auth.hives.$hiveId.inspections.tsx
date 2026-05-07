@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
+import { createFileRoute, useRouter, Link } from '@tanstack/react-router'
 import { ArrowLeft, Plus } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
@@ -14,7 +14,7 @@ export const Route = createFileRoute('/_auth/hives/$hiveId/inspections')({
 
 function InspectionListPage() {
   const { hiveId } = Route.useParams()
-  const navigate = useNavigate()
+  const router = useRouter()
 
   const { data: hive } = useQuery({
     queryKey: ['hive', hiveId],
@@ -37,7 +37,7 @@ function InspectionListPage() {
         <button
           type="button"
           aria-label="Indietro"
-          onClick={() => void navigate({ to: -1 as never })}
+          onClick={() => router.history.back()}
           className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
         >
           <ArrowLeft size={22} strokeWidth={1.75} />

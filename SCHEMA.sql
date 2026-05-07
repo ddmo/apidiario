@@ -274,6 +274,13 @@ create table public.hives (
   origin_notes        text,  -- es: "sciame catturato 2024-04-12 in giardino vicino"
   nido_frame_count    smallint not null default 10
                        check (nido_frame_count between 1 and 30),
+  -- accessori montati sull'arnia (stato corrente, aggiornato dall'utente)
+  has_apiscampo       boolean not null default false,
+  has_propolis_net    boolean not null default false,
+  has_pollen_trap     boolean not null default false,
+  -- numero di melari attualmente montati (stato live, aggiornato anche dall'ispezione)
+  melari_count        smallint not null default 0
+                       check (melari_count between 0 and 10),
   notes               text,
   archived_at         timestamptz,
   created_at          timestamptz not null default now(),

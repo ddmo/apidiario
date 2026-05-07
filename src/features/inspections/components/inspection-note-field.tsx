@@ -40,7 +40,7 @@ export function InspectionNoteField({ value, expanded, onExpand, onChange, dirty
         autoFocus
         rows={4}
         placeholder="Aggiungi nota o detta…"
-        className="w-full bg-transparent px-4 py-3 text-sm text-wood-700 placeholder:text-wood-400 focus:outline-none resize-none"
+        className="w-full bg-transparent px-4 py-3 text-base text-wood-700 placeholder:text-wood-400 focus:outline-none resize-none"
       />
       <div className="flex items-center justify-between border-t border-cream-200 px-2 py-1.5">
         <button

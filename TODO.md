@@ -24,6 +24,13 @@ Cose deliberatamente rinviate, da affrontare nelle fasi successive.
       nell'ultima ispezione, distinto da "verde / giallo / rosso". Questo NULL deriva
       da ispezioni salvate in Express mode, dove i campi non visibili vengono
       intenzionalmente lasciati NULL ("non rilevato" ≠ "nessuna/tutto ok").
+- [ ] **Filtri e ordinamento lista arnie (US-03)**: per completare US-03 mancano filtri
+      rapidi ("da controllare", "con problemi", "sciamate", "morte") e ordinamento
+      (per nome, data ultima visita, stato).
+- [ ] **Pagina /piu**: il tab "Più" in bottom nav punta a `/piu` come `<a href>` hardcoded
+      (non è ancora una route TanStack). Da creare come route con impostazioni/profilo/logout.
+- [ ] **Note vocali (US-12)**: il bottone microfono nel campo note è presente ma non funzionale.
+      Implementare con Web Speech API (gratis, senza backend STT).
 
 ## Generale
 

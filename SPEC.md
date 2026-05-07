@@ -15,8 +15,8 @@ L'app deve servire bene un apicoltore con 10 arnie e scalare senza ridisegno fin
 | User story | Titolo | Stato |
 |---|---|---|
 | US-01 | Ispezione rapida sul campo | ✅ chiusa (mag 2026) |
-| US-02 | Overview visiva dell'arnia | ⬜ |
-| US-03 | Lista arnie di un apiario | ⬜ |
+| US-02 | Overview visiva dell'arnia | 🟡 schematico SVG implementato, icone stato avanzate mancanti |
+| US-03 | Lista arnie di un apiario | 🟡 lista per apiario e lista globale implementate; filtering/ordering non ancora |
 | US-04 | Anagrafica arnia | ✅ chiusa (mag 2026) |
 | US-05 | Anagrafica apiario | ✅ chiusa (mag 2026) |
 | US-06 | Registrazione trattamento | ⬜ |
@@ -27,7 +27,7 @@ L'app deve servire bene un apicoltore con 10 arnie e scalare senza ridisegno fin
 | US-11 | Foto e video | 🟡 foto principale apiario implementata |
 | US-12 | Note vocali | ⬜ |
 | US-13 | Anagrafe BDA | 🟡 campo presente, reminder rimandato |
-| US-14 | Storico e report | ⬜ |
+| US-14 | Storico e report | 🟡 storico ispezioni per arnia ✅; calendario mensile ispezioni ✅; report aggregati ⬜ |
 
 **Home dell'app (post-login)**: lista apiari (US-05 dettaglio "Lista" sotto). In una fase successiva (post US-09 e US-14) sarà arricchita con una "strip insights" sopra la lista, che mostrerà promemoria di oggi, arnie con allarmi, ispezioni in coda di sincronizzazione. Per la v1 la home è solo lista apiari.
 

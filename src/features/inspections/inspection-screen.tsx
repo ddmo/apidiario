@@ -13,15 +13,6 @@ const MODE_OPTIONS = [
   { value: 'standard', label: 'Standard' },
 ]
 
-// Header: 56px nav bar (no status bar — handled by OS)
-// Mode tabs: 52px (p-1 top + p-2 bottom + 40px control)
-// Banner: 41px (always reserved to avoid layout shift)
-// Submit bar: 68px
-const HEADER_H = 56
-const TABS_H = 52
-const BANNER_H = 41
-const SUBMIT_H = 68
-
 interface HiveInfo {
   identifier: string
   apiaryName: string
@@ -75,10 +66,8 @@ export function InspectionScreen({
     onSave(state, mode)
   }
 
-  const scrollH = `calc(100dvh - ${HEADER_H + TABS_H + BANNER_H + SUBMIT_H}px)`
-
   return (
-    <div className="bg-cream-50 text-wood-700 flex flex-col min-h-dvh">
+    <div className="fixed inset-0 bg-cream-50 text-wood-700 flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-cream-50/95 backdrop-blur-sm border-b border-cream-200">
         <div className="flex items-center gap-3 h-14 px-2">
@@ -140,7 +129,7 @@ export function InspectionScreen({
       </div>
 
       {/* Scrollable body */}
-      <div className="overflow-y-auto" style={{ height: scrollH }}>
+      <div className="flex-1 overflow-y-auto min-h-0">
         {mode === 'express' ? (
           <ExpressBody state={state} dirtyFields={dirtyFields} onUpdate={update} />
         ) : (

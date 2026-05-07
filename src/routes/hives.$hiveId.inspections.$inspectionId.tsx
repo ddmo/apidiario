@@ -1,8 +1,7 @@
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate, useRouter } from '@tanstack/react-router'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/query-client'
-import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-toast'
 import { InspectionScreen } from '@/features/inspections/inspection-screen'
 import type { InspectionFormState, InspectionMode } from '@/features/inspections/types'
@@ -21,7 +20,7 @@ export const Route = createFileRoute('/hives/$hiveId/inspections/$inspectionId')
 function EditInspectionPage() {
   const { hiveId, inspectionId } = Route.useParams()
   const navigate = useNavigate()
-  const { session } = useAuth()
+  const router = useRouter()
   const { showToast } = useToast()
 
   const { data: hive } = useQuery({
@@ -66,7 +65,8 @@ function EditInspectionPage() {
 
   const { mutate: updateInspection, isPending: isSaving } = useMutation({
     mutationFn: async ({ formState, mode }: { formState: InspectionFormState; mode: string }) => {
-      if (!session?.user?.id) throw new Error('Not authenticated')
+      const { data: { session: s } } = await supabase.auth.getSession()
+      if (!s?.user?.id) throw new Error('Not authenticated')
       const isExpress = mode === 'express'
 
       const payload: TablesUpdate<'inspections'> = {
@@ -95,14 +95,15 @@ function EditInspectionPage() {
       if (error) throw error
     },
     onSuccess: () => {
-      showToast('Visita aggiornata', 'success')
       void queryClient.invalidateQueries({ queryKey: ['inspection', inspectionId] })
       void queryClient.invalidateQueries({ queryKey: ['inspections', hiveId] })
       void queryClient.invalidateQueries({ queryKey: ['lastInspection', hiveId] })
       void queryClient.invalidateQueries({ queryKey: ['hives'] })
-      void navigate({ to: '/hives/$hiveId/inspections', params: { hiveId } })
+      showToast('Visita aggiornata', 'success')
+      void navigate({ to: '/hives/$hiveId/inspections', params: { hiveId }, replace: true })
     },
-    onError: () => {
+    onError: (err) => {
+      console.error('[EditInspection] save failed', err)
       showToast('Salvataggio fallito. Riprova.', 'error')
     },
   })
@@ -158,7 +159,7 @@ function EditInspectionPage() {
       isLoadingHistory={false}
       isSaving={isSaving}
       onSave={(formState, mode) => updateInspection({ formState, mode })}
-      onBack={() => void navigate({ to: '/hives/$hiveId/inspections', params: { hiveId } })}
+      onBack={() => router.history.back()}
     />
   )
 }

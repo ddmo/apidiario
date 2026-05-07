@@ -238,11 +238,14 @@ export function HiveCard({ hive }: HiveCardProps) {
         </div>
       </div>
 
-      {/* Overlay: close swipe when tapping card content while revealed */}
+      {/* Overlay: intercepts touch AND click on card area while revealed */}
       {revealed && (
         <div
           className="absolute inset-y-0 left-0"
           style={{ right: REVEAL_W }}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
           onClick={close}
         />
       )}
