@@ -1,7 +1,10 @@
-import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, Plus } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { useApiary } from '@/features/apiaries/hooks/use-apiaries'
+import { useHivesByApiary } from '@/features/hives/hooks/use-hives'
+import { HiveCard } from '@/features/hives/components/hive-card'
+import { EmptyState } from '@/components/ui/empty-state'
+import { Fab } from '@/components/ui/fab'
 import { t } from '@/i18n/it'
 
 export const Route = createFileRoute('/_auth/apiaries/$apiaryId')({
@@ -12,6 +15,7 @@ function ApiaryDetailPage() {
   const { apiaryId } = Route.useParams()
   const navigate = useNavigate()
   const { data: apiary } = useApiary(apiaryId)
+  const { data: hives = [], isLoading } = useHivesByApiary(apiaryId)
 
   return (
     <div className="flex flex-col min-h-full bg-cream-50">
@@ -29,15 +33,34 @@ function ApiaryDetailPage() {
         </h1>
       </header>
 
-      <div className="flex-1 flex flex-col items-center justify-center px-4 gap-4">
-        <p className="text-sm text-wood-400">{t.apiary.detail.comingSoon}</p>
-        <Link to="/apiaries/$apiaryId/hives/new" params={{ apiaryId }}>
-          <Button variant="primary" size="md">
-            <Plus size={18} strokeWidth={2} aria-hidden="true" />
-            {t.apiary.detail.addHive}
-          </Button>
-        </Link>
+      <div className="flex-1 overflow-y-auto pb-24">
+        {isLoading ? (
+          <div className="flex items-center justify-center h-40 text-sm text-wood-400">
+            {t.common.loading}
+          </div>
+        ) : hives.length === 0 ? (
+          <div className="px-4 pt-12">
+            <EmptyState
+              title={t.apiary.detail.emptyTitle}
+              description={t.apiary.detail.emptyDescription}
+            />
+          </div>
+        ) : (
+          <ul className="px-4 pt-4 flex flex-col gap-3">
+            {hives.map((hive) => (
+              <li key={hive.id}>
+                <HiveCard hive={hive} />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
+
+      <Fab
+        icon={<Plus size={24} strokeWidth={2} aria-hidden="true" />}
+        label={t.apiary.detail.addHive}
+        onClick={() => void navigate({ to: '/apiaries/$apiaryId/hives/new', params: { apiaryId } })}
+      />
     </div>
   )
 }

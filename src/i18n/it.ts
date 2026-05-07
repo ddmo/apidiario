@@ -2,13 +2,14 @@ export const t = {
   auth: {
     emailLabel: 'Email',
     emailPlaceholder: 'la-tua@email.com',
-    sendMagicLink: 'Accedi con link email',
-    magicLinkSent: 'Codice inviato!',
-    checkEmail: 'Controlla la tua email e inserisci il codice a 6 cifre.',
-    otpLabel: 'Codice a 6 cifre',
-    otpPlaceholder: '123456',
-    verifyOtp: 'Verifica codice',
-    backToEmail: 'Usa un\'altra email',
+    passwordLabel: 'Password',
+    passwordConfirmLabel: 'Conferma password',
+    signIn: 'Accedi',
+    signUp: 'Registrati',
+    noAccount: 'Non hai un account? Registrati',
+    hasAccount: 'Hai già un account? Accedi',
+    invalidCredentials: 'Email o password non corretti.',
+    passwordMismatch: 'Le password non coincidono.',
     errorGeneric: 'Qualcosa è andato storto. Riprova.',
   },
   nav: {
@@ -84,11 +85,21 @@ export const t = {
       unsavedCancel: 'Annulla',
     },
     detail: {
-      comingSoon: 'Dettaglio apiario — in arrivo',
       addHive: 'Aggiungi arnia',
+      emptyTitle: 'Nessuna arnia',
+      emptyDescription: 'Aggiungi la prima arnia per iniziare a registrare ispezioni.',
     },
   },
   hive: {
+    card: {
+      lastVisit: (label: string) => `Ultima visita: ${label}`,
+      noVisit: 'Nessuna visita',
+      inspect: 'Ispeziona',
+      melari: 'Melari',
+      apiscampo: 'Apiscampo',
+      propoilsNet: 'Rete propoli',
+      pollenTrap: 'Trappola polline',
+    },
     new: {
       title: 'Nuova arnia',
       cancel: 'Annulla',
@@ -115,6 +126,10 @@ export const t = {
       unsavedSave: 'Salva',
       unsavedDiscard: 'Esci senza salvare',
       unsavedCancel: 'Annulla',
+    },
+    allHives: {
+      emptyTitle: 'Nessuna arnia',
+      emptyDescription: 'Crea un apiario e aggiungi la prima arnia.',
     },
     hiveTypeLabels: {
       dadant_blatt: 'Dadant-Blatt',

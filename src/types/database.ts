@@ -293,10 +293,14 @@ export type Database = {
           archived_at: string | null
           bee_race: Database["public"]["Enums"]["bee_race"]
           created_at: string
+          has_apiscampo: boolean
+          has_pollen_trap: boolean
+          has_propolis_net: boolean
           hive_type: Database["public"]["Enums"]["hive_type"]
           id: string
           identifier: string
           installed_on: string | null
+          melari_count: number
           nido_frame_count: number
           notes: string | null
           origin_notes: string | null
@@ -308,10 +312,14 @@ export type Database = {
           archived_at?: string | null
           bee_race?: Database["public"]["Enums"]["bee_race"]
           created_at?: string
+          has_apiscampo?: boolean
+          has_pollen_trap?: boolean
+          has_propolis_net?: boolean
           hive_type?: Database["public"]["Enums"]["hive_type"]
           id?: string
           identifier: string
           installed_on?: string | null
+          melari_count?: number
           nido_frame_count?: number
           notes?: string | null
           origin_notes?: string | null
@@ -323,10 +331,14 @@ export type Database = {
           archived_at?: string | null
           bee_race?: Database["public"]["Enums"]["bee_race"]
           created_at?: string
+          has_apiscampo?: boolean
+          has_pollen_trap?: boolean
+          has_propolis_net?: boolean
           hive_type?: Database["public"]["Enums"]["hive_type"]
           id?: string
           identifier?: string
           installed_on?: string | null
+          melari_count?: number
           nido_frame_count?: number
           notes?: string | null
           origin_notes?: string | null

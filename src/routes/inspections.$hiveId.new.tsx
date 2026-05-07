@@ -98,6 +98,7 @@ function NewInspectionPage() {
     onSuccess: () => {
       showToast('Ispezione salvata', 'success')
       void queryClient.invalidateQueries({ queryKey: ['lastInspection', hiveId] })
+      void queryClient.invalidateQueries({ queryKey: ['hives'] })
       void navigate({ to: '/home' })
     },
     onError: () => {

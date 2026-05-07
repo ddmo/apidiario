@@ -6,28 +6,73 @@ import type { Database } from '@/types/database'
 export type HiveListItem = {
   id: string
   identifier: string
+  apiaryName?: string
   hiveType: Database['public']['Enums']['hive_type']
   beeRace: Database['public']['Enums']['bee_race']
+  nidoFrameCount: number
+  melariCount: number
+  status: Database['public']['Enums']['hive_status']
+  hasApiscampo: boolean
+  hasPropolisNet: boolean
+  hasPollenTrap: boolean
+  hasActiveQueen: boolean
+  lastInspection: { performedAt: string } | null
 }
 
 export function useHivesByApiary(apiaryId: string) {
   return useQuery({
     queryKey: ['hives', apiaryId],
     queryFn: async (): Promise<HiveListItem[]> => {
-      const { data, error } = await supabase
+      const { data: hivesData, error: hivesError } = await supabase
         .from('hives')
-        .select('id, identifier, hive_type, bee_race')
+        .select(
+          'id, identifier, hive_type, bee_race, nido_frame_count, melari_count, status, has_apiscampo, has_propolis_net, has_pollen_trap',
+        )
         .eq('apiary_id', apiaryId)
         .is('archived_at', null)
         .order('created_at', { ascending: true })
 
-      if (error) throw error
+      if (hivesError) throw hivesError
+      if (!hivesData.length) return []
 
-      return data.map((r) => ({
-        id: r.id,
-        identifier: r.identifier,
-        hiveType: r.hive_type,
-        beeRace: r.bee_race,
+      const hiveIds = hivesData.map((h) => h.id)
+
+      const [{ data: inspData }, { data: queensData }] = await Promise.all([
+        supabase
+          .from('inspections')
+          .select('hive_id, performed_at')
+          .in('hive_id', hiveIds)
+          .order('hive_id')
+          .order('performed_at', { ascending: false }),
+        supabase
+          .from('queens')
+          .select('hive_id')
+          .in('hive_id', hiveIds)
+          .is('end_date', null),
+      ])
+
+      const lastInspMap = new Map<string, { performedAt: string }>()
+      for (const insp of inspData ?? []) {
+        if (!lastInspMap.has(insp.hive_id)) {
+          lastInspMap.set(insp.hive_id, { performedAt: insp.performed_at })
+        }
+      }
+
+      const activeQueenSet = new Set((queensData ?? []).map((q) => q.hive_id))
+
+      return hivesData.map((h) => ({
+        id: h.id,
+        identifier: h.identifier,
+        hiveType: h.hive_type,
+        beeRace: h.bee_race,
+        nidoFrameCount: h.nido_frame_count,
+        melariCount: h.melari_count,
+        status: h.status,
+        hasApiscampo: h.has_apiscampo,
+        hasPropolisNet: h.has_propolis_net,
+        hasPollenTrap: h.has_pollen_trap,
+        hasActiveQueen: activeQueenSet.has(h.id),
+        lastInspection: lastInspMap.get(h.id) ?? null,
       }))
     },
     enabled: !!apiaryId,
@@ -78,6 +123,100 @@ export function useCreateHive() {
     onSuccess: (_, variables) => {
       void queryClient.invalidateQueries({ queryKey: ['hives', variables.apiaryId] })
       void queryClient.invalidateQueries({ queryKey: ['apiaries'] })
+    },
+  })
+}
+
+export function useAllHives() {
+  return useQuery({
+    queryKey: ['hives', 'all'],
+    queryFn: async (): Promise<HiveListItem[]> => {
+      const { data: hivesData, error: hivesError } = await supabase
+        .from('hives')
+        .select(
+          'id, identifier, hive_type, bee_race, nido_frame_count, melari_count, status, has_apiscampo, has_propolis_net, has_pollen_trap, apiaries(name)',
+        )
+        .is('archived_at', null)
+        .order('identifier', { ascending: true })
+
+      if (hivesError) throw hivesError
+      if (!hivesData.length) return []
+
+      const hiveIds = hivesData.map((h) => h.id)
+
+      const [{ data: inspData }, { data: queensData }] = await Promise.all([
+        supabase
+          .from('inspections')
+          .select('hive_id, performed_at')
+          .in('hive_id', hiveIds)
+          .order('hive_id')
+          .order('performed_at', { ascending: false }),
+        supabase
+          .from('queens')
+          .select('hive_id')
+          .in('hive_id', hiveIds)
+          .is('end_date', null),
+      ])
+
+      const lastInspMap = new Map<string, { performedAt: string }>()
+      for (const insp of inspData ?? []) {
+        if (!lastInspMap.has(insp.hive_id)) {
+          lastInspMap.set(insp.hive_id, { performedAt: insp.performed_at })
+        }
+      }
+
+      const activeQueenSet = new Set((queensData ?? []).map((q) => q.hive_id))
+
+      return hivesData.map((h) => ({
+        id: h.id,
+        identifier: h.identifier,
+        apiaryName: Array.isArray(h.apiaries) ? h.apiaries[0]?.name : (h.apiaries as { name: string } | null)?.name,
+        hiveType: h.hive_type,
+        beeRace: h.bee_race,
+        nidoFrameCount: h.nido_frame_count,
+        melariCount: h.melari_count,
+        status: h.status,
+        hasApiscampo: h.has_apiscampo,
+        hasPropolisNet: h.has_propolis_net,
+        hasPollenTrap: h.has_pollen_trap,
+        hasActiveQueen: activeQueenSet.has(h.id),
+        lastInspection: lastInspMap.get(h.id) ?? null,
+      }))
+    },
+  })
+}
+
+export function useToggleHiveAccessory() {
+  return useMutation({
+    mutationFn: async ({
+      hiveId,
+      field,
+      value,
+    }: {
+      hiveId: string
+      field: 'has_apiscampo' | 'has_propolis_net' | 'has_pollen_trap'
+      value: boolean
+    }) => {
+      const { error } = await supabase.from('hives').update({ [field]: value }).eq('id', hiveId)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['hives'] })
+    },
+  })
+}
+
+export function useUpdateMelariCount() {
+  return useMutation({
+    mutationFn: async ({ hiveId, count }: { hiveId: string; count: number }) => {
+      const { error } = await supabase
+        .from('hives')
+        .update({ melari_count: count })
+        .eq('id', hiveId)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['hives'] })
     },
   })
 }

@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthIndexRouteImport } from './routes/_auth.index'
 import { Route as ApiariesNewRouteImport } from './routes/apiaries.new'
 import { Route as AuthHomeRouteImport } from './routes/_auth.home'
+import { Route as AuthArnieRouteImport } from './routes/_auth.arnie'
 import { Route as InspectionsHiveIdNewRouteImport } from './routes/inspections.$hiveId.new'
 import { Route as AuthApiariesApiaryIdRouteImport } from './routes/_auth.apiaries.$apiaryId'
 import { Route as ApiariesApiaryIdHivesNewRouteImport } from './routes/apiaries.$apiaryId.hives.new'
@@ -42,6 +43,11 @@ const AuthHomeRoute = AuthHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthArnieRoute = AuthArnieRouteImport.update({
+  id: '/arnie',
+  path: '/arnie',
+  getParentRoute: () => AuthRoute,
+} as any)
 const InspectionsHiveIdNewRoute = InspectionsHiveIdNewRouteImport.update({
   id: '/inspections/$hiveId/new',
   path: '/inspections/$hiveId/new',
@@ -62,6 +68,7 @@ const ApiariesApiaryIdHivesNewRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AuthIndexRoute
   '/login': typeof LoginRoute
+  '/arnie': typeof AuthArnieRoute
   '/home': typeof AuthHomeRoute
   '/apiaries/new': typeof ApiariesNewRoute
   '/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/arnie': typeof AuthArnieRoute
   '/home': typeof AuthHomeRoute
   '/apiaries/new': typeof ApiariesNewRoute
   '/': typeof AuthIndexRoute
@@ -81,6 +89,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteWithChildren
   '/login': typeof LoginRoute
+  '/_auth/arnie': typeof AuthArnieRoute
   '/_auth/home': typeof AuthHomeRoute
   '/apiaries/new': typeof ApiariesNewRoute
   '/_auth/': typeof AuthIndexRoute
@@ -93,6 +102,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/arnie'
     | '/home'
     | '/apiaries/new'
     | '/apiaries/$apiaryId'
@@ -101,6 +111,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
+    | '/arnie'
     | '/home'
     | '/apiaries/new'
     | '/'
@@ -111,6 +122,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_auth'
     | '/login'
+    | '/_auth/arnie'
     | '/_auth/home'
     | '/apiaries/new'
     | '/_auth/'
@@ -164,6 +176,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthHomeRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/arnie': {
+      id: '/_auth/arnie'
+      path: '/arnie'
+      fullPath: '/arnie'
+      preLoaderRoute: typeof AuthArnieRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/inspections/$hiveId/new': {
       id: '/inspections/$hiveId/new'
       path: '/inspections/$hiveId/new'
@@ -189,12 +208,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthRouteChildren {
+  AuthArnieRoute: typeof AuthArnieRoute
   AuthHomeRoute: typeof AuthHomeRoute
   AuthIndexRoute: typeof AuthIndexRoute
   AuthApiariesApiaryIdRoute: typeof AuthApiariesApiaryIdRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
+  AuthArnieRoute: AuthArnieRoute,
   AuthHomeRoute: AuthHomeRoute,
   AuthIndexRoute: AuthIndexRoute,
   AuthApiariesApiaryIdRoute: AuthApiariesApiaryIdRoute,

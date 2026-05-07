@@ -34,8 +34,8 @@ export function BottomNav() {
 
           {/* Arnie */}
           <li className="flex-1">
-            <a
-              href="/arnie"
+            <Link
+              to="/arnie"
               className={cn(
                 'flex flex-col items-center gap-1 py-2 w-full min-h-[44px] justify-center transition-colors duration-150',
                 location.pathname === '/arnie' ? 'text-honey-500' : 'text-wood-500',
@@ -44,7 +44,7 @@ export function BottomNav() {
             >
               <Box size={24} strokeWidth={1.75} aria-hidden="true" />
               <span className="text-xs font-medium">{t.nav.arnie}</span>
-            </a>
+            </Link>
           </li>
 
           {/* Visita — primary action */}
