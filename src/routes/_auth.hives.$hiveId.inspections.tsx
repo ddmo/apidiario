@@ -85,8 +85,8 @@ function InspectionListPage() {
               return (
                 <li key={insp.id}>
                   <Link
-                    to="/ispezione/$inspectionId"
-                    params={{ inspectionId: insp.id }}
+                    to="/hives/$hiveId/inspections/$inspectionId"
+                    params={{ hiveId, inspectionId: insp.id }}
                     className="block bg-cream-100 border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-200 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-2">

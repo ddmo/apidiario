@@ -4,16 +4,17 @@ import { DEFAULT_STATE } from './types'
 
 interface UseInspectionFormOptions {
   prefillState?: Partial<InspectionFormState>
+  initialMode?: InspectionMode
 }
 
-export function useInspectionForm({ prefillState }: UseInspectionFormOptions = {}) {
+export function useInspectionForm({ prefillState, initialMode }: UseInspectionFormOptions = {}) {
   const initialState: InspectionFormState = prefillState
     ? { ...DEFAULT_STATE, ...prefillState }
     : DEFAULT_STATE
 
   const [state, setState] = useState<InspectionFormState>(initialState)
   const [dirtyFields, setDirtyFields] = useState<Set<string>>(new Set())
-  const [mode, setMode] = useState<InspectionMode>('express')
+  const [mode, setMode] = useState<InspectionMode>(initialMode ?? 'express')
   const [showSheet, setShowSheet] = useState(false)
 
   const hasChanges = dirtyFields.size > 0

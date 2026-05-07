@@ -16,8 +16,8 @@ import { Route as ApiariesNewRouteImport } from './routes/apiaries.new'
 import { Route as AuthHomeRouteImport } from './routes/_auth.home'
 import { Route as AuthArnieRouteImport } from './routes/_auth.arnie'
 import { Route as InspectionsHiveIdNewRouteImport } from './routes/inspections.$hiveId.new'
-import { Route as AuthIspezioneInspectionIdRouteImport } from './routes/_auth.ispezione.$inspectionId'
 import { Route as AuthApiariesApiaryIdRouteImport } from './routes/_auth.apiaries.$apiaryId'
+import { Route as HivesHiveIdInspectionsInspectionIdRouteImport } from './routes/hives.$hiveId.inspections.$inspectionId'
 import { Route as ApiariesApiaryIdHivesNewRouteImport } from './routes/apiaries.$apiaryId.hives.new'
 import { Route as AuthHivesHiveIdInspectionsRouteImport } from './routes/_auth.hives.$hiveId.inspections'
 
@@ -55,17 +55,17 @@ const InspectionsHiveIdNewRoute = InspectionsHiveIdNewRouteImport.update({
   path: '/inspections/$hiveId/new',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthIspezioneInspectionIdRoute =
-  AuthIspezioneInspectionIdRouteImport.update({
-    id: '/ispezione/$inspectionId',
-    path: '/ispezione/$inspectionId',
-    getParentRoute: () => AuthRoute,
-  } as any)
 const AuthApiariesApiaryIdRoute = AuthApiariesApiaryIdRouteImport.update({
   id: '/apiaries/$apiaryId',
   path: '/apiaries/$apiaryId',
   getParentRoute: () => AuthRoute,
 } as any)
+const HivesHiveIdInspectionsInspectionIdRoute =
+  HivesHiveIdInspectionsInspectionIdRouteImport.update({
+    id: '/hives/$hiveId/inspections/$inspectionId',
+    path: '/hives/$hiveId/inspections/$inspectionId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiariesApiaryIdHivesNewRoute =
   ApiariesApiaryIdHivesNewRouteImport.update({
     id: '/apiaries/$apiaryId/hives/new',
@@ -86,10 +86,10 @@ export interface FileRoutesByFullPath {
   '/home': typeof AuthHomeRoute
   '/apiaries/new': typeof ApiariesNewRoute
   '/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
-  '/ispezione/$inspectionId': typeof AuthIspezioneInspectionIdRoute
   '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
   '/hives/$hiveId/inspections': typeof AuthHivesHiveIdInspectionsRoute
   '/apiaries/$apiaryId/hives/new': typeof ApiariesApiaryIdHivesNewRoute
+  '/hives/$hiveId/inspections/$inspectionId': typeof HivesHiveIdInspectionsInspectionIdRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -98,10 +98,10 @@ export interface FileRoutesByTo {
   '/apiaries/new': typeof ApiariesNewRoute
   '/': typeof AuthIndexRoute
   '/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
-  '/ispezione/$inspectionId': typeof AuthIspezioneInspectionIdRoute
   '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
   '/hives/$hiveId/inspections': typeof AuthHivesHiveIdInspectionsRoute
   '/apiaries/$apiaryId/hives/new': typeof ApiariesApiaryIdHivesNewRoute
+  '/hives/$hiveId/inspections/$inspectionId': typeof HivesHiveIdInspectionsInspectionIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -112,10 +112,10 @@ export interface FileRoutesById {
   '/apiaries/new': typeof ApiariesNewRoute
   '/_auth/': typeof AuthIndexRoute
   '/_auth/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
-  '/_auth/ispezione/$inspectionId': typeof AuthIspezioneInspectionIdRoute
   '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
   '/_auth/hives/$hiveId/inspections': typeof AuthHivesHiveIdInspectionsRoute
   '/apiaries/$apiaryId/hives/new': typeof ApiariesApiaryIdHivesNewRoute
+  '/hives/$hiveId/inspections/$inspectionId': typeof HivesHiveIdInspectionsInspectionIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -126,10 +126,10 @@ export interface FileRouteTypes {
     | '/home'
     | '/apiaries/new'
     | '/apiaries/$apiaryId'
-    | '/ispezione/$inspectionId'
     | '/inspections/$hiveId/new'
     | '/hives/$hiveId/inspections'
     | '/apiaries/$apiaryId/hives/new'
+    | '/hives/$hiveId/inspections/$inspectionId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -138,10 +138,10 @@ export interface FileRouteTypes {
     | '/apiaries/new'
     | '/'
     | '/apiaries/$apiaryId'
-    | '/ispezione/$inspectionId'
     | '/inspections/$hiveId/new'
     | '/hives/$hiveId/inspections'
     | '/apiaries/$apiaryId/hives/new'
+    | '/hives/$hiveId/inspections/$inspectionId'
   id:
     | '__root__'
     | '/_auth'
@@ -151,10 +151,10 @@ export interface FileRouteTypes {
     | '/apiaries/new'
     | '/_auth/'
     | '/_auth/apiaries/$apiaryId'
-    | '/_auth/ispezione/$inspectionId'
     | '/inspections/$hiveId/new'
     | '/_auth/hives/$hiveId/inspections'
     | '/apiaries/$apiaryId/hives/new'
+    | '/hives/$hiveId/inspections/$inspectionId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -163,6 +163,7 @@ export interface RootRouteChildren {
   ApiariesNewRoute: typeof ApiariesNewRoute
   InspectionsHiveIdNewRoute: typeof InspectionsHiveIdNewRoute
   ApiariesApiaryIdHivesNewRoute: typeof ApiariesApiaryIdHivesNewRoute
+  HivesHiveIdInspectionsInspectionIdRoute: typeof HivesHiveIdInspectionsInspectionIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -216,19 +217,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InspectionsHiveIdNewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/ispezione/$inspectionId': {
-      id: '/_auth/ispezione/$inspectionId'
-      path: '/ispezione/$inspectionId'
-      fullPath: '/ispezione/$inspectionId'
-      preLoaderRoute: typeof AuthIspezioneInspectionIdRouteImport
-      parentRoute: typeof AuthRoute
-    }
     '/_auth/apiaries/$apiaryId': {
       id: '/_auth/apiaries/$apiaryId'
       path: '/apiaries/$apiaryId'
       fullPath: '/apiaries/$apiaryId'
       preLoaderRoute: typeof AuthApiariesApiaryIdRouteImport
       parentRoute: typeof AuthRoute
+    }
+    '/hives/$hiveId/inspections/$inspectionId': {
+      id: '/hives/$hiveId/inspections/$inspectionId'
+      path: '/hives/$hiveId/inspections/$inspectionId'
+      fullPath: '/hives/$hiveId/inspections/$inspectionId'
+      preLoaderRoute: typeof HivesHiveIdInspectionsInspectionIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/apiaries/$apiaryId/hives/new': {
       id: '/apiaries/$apiaryId/hives/new'
@@ -252,7 +253,6 @@ interface AuthRouteChildren {
   AuthHomeRoute: typeof AuthHomeRoute
   AuthIndexRoute: typeof AuthIndexRoute
   AuthApiariesApiaryIdRoute: typeof AuthApiariesApiaryIdRoute
-  AuthIspezioneInspectionIdRoute: typeof AuthIspezioneInspectionIdRoute
   AuthHivesHiveIdInspectionsRoute: typeof AuthHivesHiveIdInspectionsRoute
 }
 
@@ -261,7 +261,6 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthHomeRoute: AuthHomeRoute,
   AuthIndexRoute: AuthIndexRoute,
   AuthApiariesApiaryIdRoute: AuthApiariesApiaryIdRoute,
-  AuthIspezioneInspectionIdRoute: AuthIspezioneInspectionIdRoute,
   AuthHivesHiveIdInspectionsRoute: AuthHivesHiveIdInspectionsRoute,
 }
 
@@ -273,6 +272,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiariesNewRoute: ApiariesNewRoute,
   InspectionsHiveIdNewRoute: InspectionsHiveIdNewRoute,
   ApiariesApiaryIdHivesNewRoute: ApiariesApiaryIdHivesNewRoute,
+  HivesHiveIdInspectionsInspectionIdRoute:
+    HivesHiveIdInspectionsInspectionIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -6,7 +6,7 @@ import { PrefillBanner } from './components/prefill-banner'
 import { FormSubmitBar } from './components/form-submit-bar'
 import { UnsavedChangesSheet } from './components/unsaved-changes-sheet'
 import { useInspectionForm } from './use-inspection-form'
-import type { InspectionFormState } from './types'
+import type { InspectionFormState, InspectionMode } from './types'
 
 const MODE_OPTIONS = [
   { value: 'express', label: 'Express' },
@@ -31,6 +31,7 @@ interface InspectionScreenProps {
   hiveId: string
   hiveInfo?: HiveInfo
   prefillState?: Partial<InspectionFormState>
+  initialMode?: InspectionMode
   hasPrefill: boolean
   prefillDate?: string
   isLoadingHistory?: boolean
@@ -42,6 +43,7 @@ interface InspectionScreenProps {
 export function InspectionScreen({
   hiveInfo,
   prefillState,
+  initialMode,
   hasPrefill,
   prefillDate,
   isLoadingHistory = false,
@@ -50,7 +52,7 @@ export function InspectionScreen({
   onBack,
 }: InspectionScreenProps) {
   const { state, dirtyFields, mode, setMode, update, reset, hasChanges, showSheet, setShowSheet } =
-    useInspectionForm({ prefillState })
+    useInspectionForm({ prefillState, initialMode })
 
   const now = new Date()
   const datetime = now.toLocaleString('it-IT', {

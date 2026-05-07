@@ -72,7 +72,13 @@ export function HiveCard({ hive }: HiveCardProps) {
   function handleTouchEnd() {
     if (!trackingRef.current) return
     startRef.current = null
-    snapTo(offsetX < -(REVEAL_W / 3) ? -REVEAL_W : 0)
+    // When already revealed, snap closed if dragged > 1/3 to the right (offsetX > -2/3*REVEAL_W)
+    // When closed, snap open if dragged > 1/3 to the left (offsetX < -1/3*REVEAL_W)
+    if (revealed) {
+      snapTo(offsetX > -(REVEAL_W * 2 / 3) ? 0 : -REVEAL_W)
+    } else {
+      snapTo(offsetX < -(REVEAL_W / 3) ? -REVEAL_W : 0)
+    }
   }
 
   function close() {
