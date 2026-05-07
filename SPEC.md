@@ -23,7 +23,7 @@ L'app deve servire bene un apicoltore con 10 arnie e scalare senza ridisegno fin
 | US-07 | Registrazione raccolto | ⬜ |
 | US-08 | Storia regina | 🟡 base implementata (regina di default creata con ogni arnia) |
 | US-09 | Promemoria custom | ⬜ |
-| US-10 | Condivisione apiario / arnia | ⬜ |
+| US-10 | Condivisione apiario | ⬜ |
 | US-11 | Foto e video | 🟡 foto principale apiario implementata |
 | US-12 | Note vocali | ⬜ |
 | US-13 | Anagrafe BDA | 🟡 campo presente, reminder rimandato |
@@ -53,7 +53,6 @@ L'app deve servire bene un apicoltore con 10 arnie e scalare senza ridisegno fin
 
 I permessi si applicano a:
 - **Un intero apiario** (e di conseguenza tutte le sue arnie).
-- **Una singola arnia** (visibilità limitata a quell'arnia, con metadati minimi dell'apiario per navigazione).
 
 I permessi sono additivi: vale sempre il livello più alto tra quelli ottenuti.
 
@@ -69,8 +68,7 @@ User
  │                        ├─ has ──► Reminder
  │                        └─ has ──► Media (foto generali apiario)
  │
- ├─ shares ────► ApiaryAccess (apiary_id, user_id, role)
- └─ shares ────► HiveAccess   (hive_id,  user_id, role)
+ └─ shares ────► ApiaryAccess (apiary_id, user_id, role)
 ```
 
 Dettagli per entità nel paragrafo 6.
@@ -134,8 +132,8 @@ Note implementative:
 **US-09 — Promemoria custom**
 > Come apicoltore, voglio creare promemoria personali (su un apiario o su un'arnia specifica) con notifica push.
 
-**US-10 — Condivisione apiario / arnia**
-> Come proprietario, voglio invitare un'altra persona a leggere o modificare un apiario o una singola arnia.
+**US-10 — Condivisione apiario**
+> Come proprietario, voglio invitare un altro utente registrato a leggere o modificare un mio apiario, scegliendo il ruolo (reader / editor).
 
 ### P2 — Supporto e contesto
 
@@ -293,12 +291,10 @@ Promemoria di sistema (non cancellabili):
 canRead(user, hive):
     return  isOwner(user, hive.apiary)
          OR hasApiaryAccess(user, hive.apiary, role IN ['reader','editor'])
-         OR hasHiveAccess(user, hive, role IN ['reader','editor'])
 
 canWrite(user, hive):
     return  isOwner(user, hive.apiary)
          OR hasApiaryAccess(user, hive.apiary, role = 'editor')
-         OR hasHiveAccess(user, hive, role = 'editor')
 
 canManagePermissions(user, apiary):
     return isOwner(user, apiary)
@@ -307,14 +303,14 @@ canManagePermissions(user, apiary):
 ### Casi d'uso
 
 - **Stefano possiede l'Apiario A**, condivide come editor con Marco. Marco vede tutte le arnie di A e può registrare ispezioni.
-- **Stefano condivide solo l'Arnia 7** dell'Apiario A con Luca come reader. Luca vede solo l'Arnia 7 e i suoi metadati minimi (nome apiario, posizione), niente altro dell'Apiario A.
 - **Stefano cancella la condivisione** con Marco. Marco perde l'accesso immediatamente.
 - **Stefano viene aggiunto come editor** all'Apiario B di Anna. Vede A (che possiede) e B (a cui è invitato) nella sua home.
 
 ### Inviti
 
-- Invito tramite email. Se l'invitato non è registrato, l'invito è in stato "pending" e si attiva alla registrazione con quella email.
-- Invito revocabile in qualsiasi momento dall'owner.
+La condivisione di un apiario può avvenire solo verso utenti già registrati nel sistema. Se un owner vuole condividere con una persona che non ha ancora un account, deve prima richiederne la creazione all'amministratore di sistema (vedi §X — Amministrazione, sezione futura).
+
+La revoca è immediata: alla cancellazione del record `apiary_access`, l'utente perde l'accesso alla query successiva (garantito da RLS).
 
 ## 8. Requisiti non funzionali
 
