@@ -8,7 +8,7 @@
 
 begin;
 
-select plan(4);
+select plan(6);
 
 
 -- ---------------------------------------------------------------------
@@ -58,9 +58,16 @@ select is(
   'L''apiario che Anna vede � il suo'
 );
 
+select is(
+  (select count(*)::int from public.apiaries
+   where name = 'Apiario di Stefano'),
+  0,
+  'Anna NON vede l''apiario di Stefano (esclusivit�)'
+);
+
 
 -- ---------------------------------------------------------------------
--- TEST 3+4: Stefano vede SOLO il suo apiario
+-- TEST 3+4+5+6: Stefano vede SOLO il suo apiario
 -- ---------------------------------------------------------------------
 reset role;
 set local role authenticated;
@@ -77,6 +84,13 @@ select is(
   (select name from public.apiaries),
   'Apiario di Stefano',
   'L''apiario che Stefano vede � il suo'
+);
+
+select is(
+  (select count(*)::int from public.apiaries
+   where name = 'Apiario di Anna'),
+  0,
+  'Stefano NON vede l''apiario di Anna (esclusivit�)'
 );
 
 
