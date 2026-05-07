@@ -5,101 +5,62 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { t } from '@/i18n/it'
 
-type Step = 'email' | 'otp'
+type Mode = 'login' | 'register'
 type Status = 'idle' | 'loading' | 'error'
 
 export function LoginForm() {
   const navigate = useNavigate()
-  const [step, setStep] = useState<Step>('email')
+  const [mode, setMode] = useState<Mode>('login')
   const [email, setEmail] = useState('')
-  const [otp, setOtp] = useState('')
+  const [password, setPassword] = useState('')
+  const [passwordConfirm, setPasswordConfirm] = useState('')
   const [status, setStatus] = useState<Status>('idle')
   const [errorMsg, setErrorMsg] = useState('')
 
-  async function handleSendOtp(e: React.FormEvent) {
-    e.preventDefault()
-    if (!email) return
-    setStatus('loading')
+  function switchMode(next: Mode) {
+    setMode(next)
+    setPassword('')
+    setPasswordConfirm('')
+    setStatus('idle')
     setErrorMsg('')
-
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: true },
-    })
-
-    if (error) {
-      setStatus('error')
-      setErrorMsg(error.message)
-    } else {
-      setStatus('idle')
-      setStep('otp')
-    }
   }
 
-  async function handleVerifyOtp(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!otp) return
     setStatus('loading')
     setErrorMsg('')
 
-    const { error } = await supabase.auth.verifyOtp({
-      email,
-      token: otp,
-      type: 'email',
-    })
+    if (mode === 'register') {
+      if (password !== passwordConfirm) {
+        setStatus('error')
+        setErrorMsg(t.auth.passwordMismatch)
+        return
+      }
+      const { error } = await supabase.auth.signUp({ email, password })
+      if (error) {
+        setStatus('error')
+        setErrorMsg(error.message)
+      } else {
+        await navigate({ to: '/' })
+      }
+      return
+    }
 
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
       setStatus('error')
-      setErrorMsg(error.message)
+      setErrorMsg(
+        error.message === 'Invalid login credentials'
+          ? t.auth.invalidCredentials
+          : error.message,
+      )
     } else {
       await navigate({ to: '/' })
     }
   }
 
-  if (step === 'otp') {
-    return (
-      <form onSubmit={handleVerifyOtp} className="flex flex-col gap-4">
-        <div className="rounded-lg bg-success-100 p-4 text-sm text-wood-700">
-          <p className="font-medium">{t.auth.magicLinkSent}</p>
-          <p className="mt-1 text-wood-500">{t.auth.checkEmail}</p>
-        </div>
-        <Input
-          id="otp"
-          type="text"
-          inputMode="numeric"
-          pattern="[0-9]{6}"
-          maxLength={6}
-          label={t.auth.otpLabel}
-          placeholder={t.auth.otpPlaceholder}
-          value={otp}
-          onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-          autoComplete="one-time-code"
-          required
-        />
-        {status === 'error' && <p className="text-sm text-danger-500">{errorMsg}</p>}
-        <Button type="submit" variant="primary" size="md" loading={status === 'loading'} className="w-full">
-          {t.auth.verifyOtp}
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="w-full"
-          onClick={() => {
-            setStep('email')
-            setOtp('')
-            setStatus('idle')
-            setErrorMsg('')
-          }}
-        >
-          {t.auth.backToEmail}
-        </Button>
-      </form>
-    )
-  }
-
   return (
-    <form onSubmit={handleSendOtp} className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <Input
         id="email"
         type="email"
@@ -111,10 +72,50 @@ export function LoginForm() {
         inputMode="email"
         required
       />
+      <Input
+        id="password"
+        type="password"
+        label={t.auth.passwordLabel}
+        placeholder="••••••••"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
+        required
+        minLength={6}
+      />
+      {mode === 'register' && (
+        <Input
+          id="password-confirm"
+          type="password"
+          label={t.auth.passwordConfirmLabel}
+          placeholder="••••••••"
+          value={passwordConfirm}
+          onChange={(e) => setPasswordConfirm(e.target.value)}
+          autoComplete="new-password"
+          required
+          minLength={6}
+        />
+      )}
+
       {status === 'error' && <p className="text-sm text-danger-500">{errorMsg}</p>}
-      <Button type="submit" variant="primary" size="md" loading={status === 'loading'} className="w-full">
-        {t.auth.sendMagicLink}
+
+      <Button
+        type="submit"
+        variant="primary"
+        size="md"
+        loading={status === 'loading'}
+        className="w-full"
+      >
+        {mode === 'login' ? t.auth.signIn : t.auth.signUp}
       </Button>
+
+      <button
+        type="button"
+        className="text-sm text-wood-500 underline-offset-2 hover:underline self-center"
+        onClick={() => switchMode(mode === 'login' ? 'register' : 'login')}
+      >
+        {mode === 'login' ? t.auth.noAccount : t.auth.hasAccount}
+      </button>
     </form>
   )
 }
