@@ -240,7 +240,8 @@ export function useUpdateApiary() {
 
       const { error } = await supabase
         .from('apiaries')
-        .update(update)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .update(update as any)
         .eq('id', apiaryId)
 
       if (error) throw error
