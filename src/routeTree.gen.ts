@@ -22,6 +22,7 @@ import { Route as AuthHomeRouteImport } from './routes/_auth.home'
 import { Route as AuthCalendarioRouteImport } from './routes/_auth.calendario'
 import { Route as AuthArnieRouteImport } from './routes/_auth.arnie'
 import { Route as InspectionsHiveIdNewRouteImport } from './routes/inspections.$hiveId.new'
+import { Route as ApiariesApiaryIdMeteoRouteImport } from './routes/apiaries.$apiaryId.meteo'
 import { Route as ApiariesApiaryIdEditRouteImport } from './routes/apiaries.$apiaryId.edit'
 import { Route as AuthApiariesApiaryIdRouteImport } from './routes/_auth.apiaries.$apiaryId'
 import { Route as HivesHiveIdInspectionsInspectionIdRouteImport } from './routes/hives.$hiveId.inspections.$inspectionId'
@@ -92,6 +93,11 @@ const InspectionsHiveIdNewRoute = InspectionsHiveIdNewRouteImport.update({
   path: '/inspections/$hiveId/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiariesApiaryIdMeteoRoute = ApiariesApiaryIdMeteoRouteImport.update({
+  id: '/apiaries/$apiaryId/meteo',
+  path: '/apiaries/$apiaryId/meteo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiariesApiaryIdEditRoute = ApiariesApiaryIdEditRouteImport.update({
   id: '/apiaries/$apiaryId/edit',
   path: '/apiaries/$apiaryId/edit',
@@ -135,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackRoute
   '/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
   '/apiaries/$apiaryId/edit': typeof ApiariesApiaryIdEditRoute
+  '/apiaries/$apiaryId/meteo': typeof ApiariesApiaryIdMeteoRoute
   '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
   '/hives/$hiveId/inspections': typeof AuthHivesHiveIdInspectionsRoute
   '/apiaries/$apiaryId/hives/new': typeof ApiariesApiaryIdHivesNewRoute
@@ -154,6 +161,7 @@ export interface FileRoutesByTo {
   '/': typeof AuthIndexRoute
   '/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
   '/apiaries/$apiaryId/edit': typeof ApiariesApiaryIdEditRoute
+  '/apiaries/$apiaryId/meteo': typeof ApiariesApiaryIdMeteoRoute
   '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
   '/hives/$hiveId/inspections': typeof AuthHivesHiveIdInspectionsRoute
   '/apiaries/$apiaryId/hives/new': typeof ApiariesApiaryIdHivesNewRoute
@@ -175,6 +183,7 @@ export interface FileRoutesById {
   '/_auth/': typeof AuthIndexRoute
   '/_auth/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
   '/apiaries/$apiaryId/edit': typeof ApiariesApiaryIdEditRoute
+  '/apiaries/$apiaryId/meteo': typeof ApiariesApiaryIdMeteoRoute
   '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
   '/_auth/hives/$hiveId/inspections': typeof AuthHivesHiveIdInspectionsRoute
   '/apiaries/$apiaryId/hives/new': typeof ApiariesApiaryIdHivesNewRoute
@@ -196,6 +205,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/apiaries/$apiaryId'
     | '/apiaries/$apiaryId/edit'
+    | '/apiaries/$apiaryId/meteo'
     | '/inspections/$hiveId/new'
     | '/hives/$hiveId/inspections'
     | '/apiaries/$apiaryId/hives/new'
@@ -215,6 +225,7 @@ export interface FileRouteTypes {
     | '/'
     | '/apiaries/$apiaryId'
     | '/apiaries/$apiaryId/edit'
+    | '/apiaries/$apiaryId/meteo'
     | '/inspections/$hiveId/new'
     | '/hives/$hiveId/inspections'
     | '/apiaries/$apiaryId/hives/new'
@@ -235,6 +246,7 @@ export interface FileRouteTypes {
     | '/_auth/'
     | '/_auth/apiaries/$apiaryId'
     | '/apiaries/$apiaryId/edit'
+    | '/apiaries/$apiaryId/meteo'
     | '/inspections/$hiveId/new'
     | '/_auth/hives/$hiveId/inspections'
     | '/apiaries/$apiaryId/hives/new'
@@ -251,6 +263,7 @@ export interface RootRouteChildren {
   ApiariesNewRoute: typeof ApiariesNewRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   ApiariesApiaryIdEditRoute: typeof ApiariesApiaryIdEditRoute
+  ApiariesApiaryIdMeteoRoute: typeof ApiariesApiaryIdMeteoRoute
   InspectionsHiveIdNewRoute: typeof InspectionsHiveIdNewRoute
   ApiariesApiaryIdHivesNewRoute: typeof ApiariesApiaryIdHivesNewRoute
   HivesHiveIdInspectionsInspectionIdRoute: typeof HivesHiveIdInspectionsInspectionIdRoute
@@ -349,6 +362,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InspectionsHiveIdNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/apiaries/$apiaryId/meteo': {
+      id: '/apiaries/$apiaryId/meteo'
+      path: '/apiaries/$apiaryId/meteo'
+      fullPath: '/apiaries/$apiaryId/meteo'
+      preLoaderRoute: typeof ApiariesApiaryIdMeteoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/apiaries/$apiaryId/edit': {
       id: '/apiaries/$apiaryId/edit'
       path: '/apiaries/$apiaryId/edit'
@@ -417,6 +437,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiariesNewRoute: ApiariesNewRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   ApiariesApiaryIdEditRoute: ApiariesApiaryIdEditRoute,
+  ApiariesApiaryIdMeteoRoute: ApiariesApiaryIdMeteoRoute,
   InspectionsHiveIdNewRoute: InspectionsHiveIdNewRoute,
   ApiariesApiaryIdHivesNewRoute: ApiariesApiaryIdHivesNewRoute,
   HivesHiveIdInspectionsInspectionIdRoute:

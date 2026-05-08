@@ -218,7 +218,7 @@ export function HiveCard({ hive, onDelete }: HiveCardProps) {
                 }
                 className={`text-xs px-2 py-1 rounded-md border transition-colors ${
                   hive.hasPollenTrap
-                    ? 'bg-honey-600 border-honey-700 text-white'
+                    ? 'bg-honey-400 border-honey-500 text-white'
                     : 'bg-cream-50 border-cream-200 text-wood-400'
                 }`}
               >

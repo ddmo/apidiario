@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate, useRouter } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
-import { ArrowLeft, Box, Plus } from 'lucide-react'
+import { ArrowLeft, Box, CloudSun, Plus } from 'lucide-react'
 import { useApiary } from '@/features/apiaries/hooks/use-apiaries'
 import { useHivesByApiary, useDeleteHive } from '@/features/hives/hooks/use-hives'
 import { HiveCard } from '@/features/hives/components/hive-card'
@@ -46,6 +46,15 @@ function ApiaryDetailPage() {
         <h1 className="text-2xl font-bold text-wood-800 tracking-tight truncate flex-1 px-1">
           {apiary?.name ?? '…'}
         </h1>
+        {apiary?.latitude != null && apiary?.longitude != null && (
+          <Link
+            to="/apiaries/$apiaryId/meteo"
+            params={{ apiaryId }}
+            className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
+          >
+            <CloudSun size={22} strokeWidth={1.75} />
+          </Link>
+        )}
       </header>
 
       <div className="flex-1 overflow-y-auto pb-24">
