@@ -17,7 +17,6 @@ const PROP_H = 8
 
 const NIDO_X = 4, NIDO_W = 64
 const MEL_X  = 8, MEL_W  = 56
-const FRAME_X1 = 10, FRAME_X2 = 62
 
 export function HiveSchematic({
   nidoFrameCount,
