@@ -29,6 +29,7 @@ export const Route = createFileRoute('/admin/users')({
 })
 
 function AdminUsersPage() {
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
   const [pageStatus, setPageStatus] = useState<PageStatus>('loading')
   const [users, setUsers] = useState<UserInfo[]>([])
   const [pageError, setPageError] = useState('')
@@ -38,7 +39,15 @@ function AdminUsersPage() {
   const [inviteStatus, setInviteStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [inviteMsg, setInviteMsg] = useState('')
 
-  useEffect(() => { fetchUsers() }, [])
+  // Revoke state (user_id being revoked)
+  const [revoking, setRevoking] = useState<string | null>(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setCurrentUserId(session.user.id)
+    })
+    fetchUsers()
+  }, [])
 
   async function fetchUsers() {
     setPageStatus('loading')
@@ -79,6 +88,22 @@ function AdminUsersPage() {
     } else {
       setInviteStatus('success')
       setEmail('')
+      fetchUsers()
+    }
+  }
+
+  async function handleRevoke(targetUserId: string) {
+    if (!window.confirm('Rimuovere questo utente dagli amministratori?')) return
+    setRevoking(targetUserId)
+
+    const { error } = await supabase.functions.invoke('admin-remove-admin', {
+      body: { user_id: targetUserId },
+    })
+
+    setRevoking(null)
+    if (error) {
+      alert(error.message || 'Errore durante la revoca.')
+    } else {
       fetchUsers()
     }
   }
@@ -175,7 +200,7 @@ function AdminUsersPage() {
                 <span className="font-medium text-wood-800 text-sm truncate">
                   {user.email}
                 </span>
-                <div className="flex gap-2 shrink-0">
+                <div className="flex gap-2 shrink-0 items-center">
                   <span
                     className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
                       user.isAdmin
@@ -185,6 +210,16 @@ function AdminUsersPage() {
                   >
                     {user.isAdmin ? t.admin.admin : t.admin.notAdmin}
                   </span>
+                  {user.isAdmin && user.id !== currentUserId && (
+                    <button
+                      type="button"
+                      onClick={() => handleRevoke(user.id)}
+                      disabled={revoking === user.id}
+                      className="text-xs text-danger-500 hover:text-danger-700 underline underline-offset-2 whitespace-nowrap"
+                    >
+                      {revoking === user.id ? '…' : 'Rimuovi'}
+                    </button>
+                  )}
                   <span
                     className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
                       user.isConfirmed
