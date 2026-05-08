@@ -23,7 +23,8 @@ export function usePhenologySpecies() {
     queryKey: ['phenology-species', 'v2'],
     queryFn: async (): Promise<PhenologySpecies[]> => {
       const { data, error } = await supabase
-        .from('phenology_species')
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .from('phenology_species' as any)
         .select('*')
         .order('common_name_it')
       if (error) throw error
@@ -98,7 +99,7 @@ export function useWeatherData(lat: number | null, lng: number | null, year: num
 
       const days: WeatherDay[] = []
       for (let i = 0; i < times.length; i++) {
-        days.push({ date: times[i], tmin: tminArr[i], tmax: tmaxArr[i] })
+        days.push({ date: times[i]!, tmin: tminArr[i]!, tmax: tmaxArr[i]! })
       }
       return days
     },
