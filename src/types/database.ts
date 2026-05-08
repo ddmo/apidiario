@@ -133,57 +133,6 @@ export type Database = {
           },
         ]
       }
-      apiary_invites: {
-        Row: {
-          accepted_at: string | null
-          apiary_id: string
-          created_at: string
-          email: string
-          expires_at: string
-          id: string
-          invited_by: string
-          role: Database["public"]["Enums"]["access_role"]
-          token: string
-        }
-        Insert: {
-          accepted_at?: string | null
-          apiary_id: string
-          created_at?: string
-          email: string
-          expires_at?: string
-          id?: string
-          invited_by: string
-          role: Database["public"]["Enums"]["access_role"]
-          token?: string
-        }
-        Update: {
-          accepted_at?: string | null
-          apiary_id?: string
-          created_at?: string
-          email?: string
-          expires_at?: string
-          id?: string
-          invited_by?: string
-          role?: Database["public"]["Enums"]["access_role"]
-          token?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "apiary_invites_apiary_id_fkey"
-            columns: ["apiary_id"]
-            isOneToOne: false
-            referencedRelation: "apiaries"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "apiary_invites_invited_by_fkey"
-            columns: ["invited_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       harvests: {
         Row: {
           apiary_id: string
@@ -235,52 +184,6 @@ export type Database = {
           {
             foreignKeyName: "harvests_recorded_by_fkey"
             columns: ["recorded_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      hive_access: {
-        Row: {
-          granted_at: string
-          granted_by: string
-          hive_id: string
-          role: Database["public"]["Enums"]["access_role"]
-          user_id: string
-        }
-        Insert: {
-          granted_at?: string
-          granted_by: string
-          hive_id: string
-          role: Database["public"]["Enums"]["access_role"]
-          user_id: string
-        }
-        Update: {
-          granted_at?: string
-          granted_by?: string
-          hive_id?: string
-          role?: Database["public"]["Enums"]["access_role"]
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "hive_access_granted_by_fkey"
-            columns: ["granted_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "hive_access_hive_id_fkey"
-            columns: ["hive_id"]
-            isOneToOne: false
-            referencedRelation: "hives"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "hive_access_user_id_fkey"
-            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -781,17 +684,21 @@ export type Database = {
     Functions: {
       create_hive_with_queen: {
         Args: {
-          p_id: string
           p_apiary_id: string
+          p_bee_race: Database["public"]["Enums"]["bee_race"]
+          p_hive_type: Database["public"]["Enums"]["hive_type"]
+          p_id: string
           p_identifier: string
-          p_hive_type: Database['public']['Enums']['hive_type']
-          p_bee_race: Database['public']['Enums']['bee_race']
-          p_installed_on: string | null
-          p_origin_notes: string | null
+          p_installed_on: string
           p_nido_frame_count: number
-          p_notes: string | null
+          p_notes: string
+          p_origin_notes: string
         }
         Returns: undefined
+      }
+      storage_owns_apiary_media: {
+        Args: { object_name: string }
+        Returns: boolean
       }
       user_can_read_apiary: { Args: { p_apiary_id: string }; Returns: boolean }
       user_can_read_hive: { Args: { p_hive_id: string }; Returns: boolean }
