@@ -17,6 +17,7 @@ type InspectionEvent = {
   hive_id: string
   hiveIdentifier: string
   apiaryName: string
+  performerDisplayName: string | null
 }
 
 function useInspectionEvents(year: number, month: number) {
@@ -27,7 +28,7 @@ function useInspectionEvents(year: number, month: number) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('inspections')
-        .select('id, performed_at, hive_id, hives!inner(identifier, apiaries!inner(name))')
+        .select('id, performed_at, hive_id, performed_by, hives!inner(identifier, apiaries!inner(name)), profiles!inner(display_name)')
         .gte('performed_at', start)
         .lt('performed_at', end)
         .order('performed_at', { ascending: true })
@@ -35,14 +36,15 @@ function useInspectionEvents(year: number, month: number) {
       return (data ?? []).map((row) => {
         const hive = Array.isArray(row.hives) ? row.hives[0] : row.hives
         const apiary = Array.isArray(hive?.apiaries) ? hive.apiaries[0] : hive?.apiaries
+        const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles
         return {
           id: row.id,
           performed_at: row.performed_at,
           hive_id: row.hive_id,
           hiveIdentifier: (hive as { identifier: string } | null)?.identifier ?? '?',
           apiaryName: (apiary as { name: string } | null)?.name ?? '?',
+          performerDisplayName: (profile as { display_name: string } | null)?.display_name ?? null,
         } satisfies InspectionEvent
-      })
     },
   })
 }
@@ -241,6 +243,9 @@ function CalendarioPage() {
                           <div>
                             <p className="text-sm font-semibold text-wood-800">{ev.hiveIdentifier}</p>
                             <p className="text-xs text-honey-600">{ev.apiaryName}</p>
+                            {ev.performerDisplayName && (
+                              <p className="text-[11px] text-wood-400 mt-0.5">da {ev.performerDisplayName}</p>
+                            )}
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="text-xs text-wood-400">
@@ -308,6 +313,9 @@ function CalendarioPage() {
                                 <div>
                                   <p className="text-sm font-semibold text-wood-800">{ev.hiveIdentifier}</p>
                                   <p className="text-xs text-wood-400">{ev.apiaryName}</p>
+                                  {ev.performerDisplayName && (
+                                    <p className="text-[11px] text-wood-300">da {ev.performerDisplayName}</p>
+                                  )}
                                 </div>
                               </div>
                               <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="text-wood-300 shrink-0">

@@ -95,6 +95,11 @@ function InspectionListPage() {
                           <span className="text-sm font-semibold text-wood-800">
                             {day} {year}
                           </span>
+                          {insp.performer_display_name && (
+                            <span className="text-xs text-wood-400">
+                              da {insp.performer_display_name}
+                            </span>
+                          )}
                           <span
                             className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-sm ${
                               isExpress
