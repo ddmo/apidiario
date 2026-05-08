@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import type { Tables } from '@/types/database'
 
@@ -63,6 +63,25 @@ export function useInspection(inspectionId: string) {
         .single()
       if (error) throw error
       return data as InspectionRow
+    },
+  })
+}
+
+export function useDeleteInspection() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ inspectionId, hiveId }: { inspectionId: string; hiveId: string }) => {
+      const { error } = await supabase
+        .from('inspections')
+        .delete()
+        .eq('id', inspectionId)
+      if (error) throw error
+      return { inspectionId, hiveId }
+    },
+    onSuccess: ({ hiveId }) => {
+      void queryClient.invalidateQueries({ queryKey: ['inspections', hiveId] })
+      void queryClient.invalidateQueries({ queryKey: ['lastInspection', hiveId] })
+      void queryClient.invalidateQueries({ queryKey: ['hives'] })
     },
   })
 }

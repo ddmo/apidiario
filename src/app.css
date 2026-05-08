@@ -3,8 +3,8 @@
 @theme {
   /* Cream / superfici */
   --color-cream-50:  #FAF6ED;
-  --color-cream-100: #F5EEDE;
-  --color-cream-200: #E9DFC8;
+  --color-cream-100: #EDE3CE;
+  --color-cream-200: #E0D2B5;
 
   /* Wood / neutrali */
   --color-wood-300: #C9B896;
@@ -72,6 +72,7 @@
     font-family: var(--font-sans);
     -webkit-text-size-adjust: 100%;
     -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
     touch-action: pan-x pan-y;
   }
 
@@ -80,6 +81,7 @@
     color: var(--color-wood-700);
     min-height: 100dvh;
     line-height: 1.5;
+    overscroll-behavior-y: none;
     /* Funzionalità ottiche Inter */
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }

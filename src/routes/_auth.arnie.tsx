@@ -13,9 +13,9 @@ function ArniePage() {
   const { data: hives = [], isLoading } = useAllHives()
 
   return (
-    <div className="flex flex-col min-h-full bg-cream-50">
-      <header className="bg-cream-50 border-b border-cream-200 px-4 h-14 flex items-center shrink-0">
-        <h1 className="text-base font-semibold text-wood-800">{t.nav.arnie}</h1>
+    <div className="flex flex-col h-full bg-cream-50">
+      <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-4 h-14 flex items-center">
+        <h1 className="text-2xl font-bold text-wood-800 tracking-tight flex-1">{t.nav.arnie}</h1>
       </header>
 
       <div className="flex-1 overflow-y-auto pb-24">
