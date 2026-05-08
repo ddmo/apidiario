@@ -61,9 +61,11 @@ serve(async (req) => {
 
   // 3. Parsing body
   let email: string
+  let redirectTo: string | undefined
   try {
     const body = await req.json()
     email = body.email?.trim() ?? ''
+    redirectTo = body.redirect_to?.trim() || undefined
   } catch {
     return new Response(
       JSON.stringify({ error: 'Invalid JSON body' }),
@@ -79,8 +81,10 @@ serve(async (req) => {
     )
   }
 
-  // 5. Invito
-  const { data, error: inviteErr } = await supabase.auth.admin.inviteUserByEmail(email)
+  // 5. Invito (con redirectTo per portare utente su /auth/callback)
+  const { data, error: inviteErr } = await supabase.auth.admin.inviteUserByEmail(email, {
+    options: redirectTo ? { redirectTo } : undefined,
+  })
   if (inviteErr) {
     return new Response(
       JSON.stringify({ error: inviteErr.message }),

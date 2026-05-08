@@ -81,7 +81,10 @@ function AdminUsersPage() {
     setInviteMsg('')
 
     const { error: inviteErr } = await supabase.functions.invoke('admin-invite-user', {
-      body: { email: email.trim() },
+      body: {
+        email: email.trim(),
+        redirect_to: window.location.origin + '/auth/callback',
+      },
     })
 
     if (inviteErr) {
