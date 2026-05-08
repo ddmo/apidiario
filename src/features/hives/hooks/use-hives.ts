@@ -110,10 +110,10 @@ export function useCreateHive() {
         p_identifier: identifier,
         p_hive_type: hiveType,
         p_bee_race: beeRace,
-        p_installed_on: installedOn,
-        p_origin_notes: originNotes,
+        p_installed_on: installedOn as string,
+        p_origin_notes: originNotes as string,
         p_nido_frame_count: nidoFrameCount,
-        p_notes: notes,
+        p_notes: notes as string,
       })
 
       if (error) throw error
