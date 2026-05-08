@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthIndexRouteImport } from './routes/_auth.index'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ApiariesNewRouteImport } from './routes/apiaries.new'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AuthHomeRouteImport } from './routes/_auth.home'
 import { Route as AuthCalendarioRouteImport } from './routes/_auth.calendario'
 import { Route as AuthArnieRouteImport } from './routes/_auth.arnie'
@@ -51,6 +52,11 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
 const ApiariesNewRoute = ApiariesNewRouteImport.update({
   id: '/apiaries/new',
   path: '/apiaries/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/admin/users',
+  path: '/admin/users',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthHomeRoute = AuthHomeRouteImport.update({
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/arnie': typeof AuthArnieRoute
   '/calendario': typeof AuthCalendarioRoute
   '/home': typeof AuthHomeRoute
+  '/admin/users': typeof AdminUsersRoute
   '/apiaries/new': typeof ApiariesNewRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
@@ -118,6 +125,7 @@ export interface FileRoutesByTo {
   '/arnie': typeof AuthArnieRoute
   '/calendario': typeof AuthCalendarioRoute
   '/home': typeof AuthHomeRoute
+  '/admin/users': typeof AdminUsersRoute
   '/apiaries/new': typeof ApiariesNewRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/': typeof AuthIndexRoute
@@ -135,6 +143,7 @@ export interface FileRoutesById {
   '/_auth/arnie': typeof AuthArnieRoute
   '/_auth/calendario': typeof AuthCalendarioRoute
   '/_auth/home': typeof AuthHomeRoute
+  '/admin/users': typeof AdminUsersRoute
   '/apiaries/new': typeof ApiariesNewRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/_auth/': typeof AuthIndexRoute
@@ -153,6 +162,7 @@ export interface FileRouteTypes {
     | '/arnie'
     | '/calendario'
     | '/home'
+    | '/admin/users'
     | '/apiaries/new'
     | '/auth/callback'
     | '/apiaries/$apiaryId'
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/arnie'
     | '/calendario'
     | '/home'
+    | '/admin/users'
     | '/apiaries/new'
     | '/auth/callback'
     | '/'
@@ -183,6 +194,7 @@ export interface FileRouteTypes {
     | '/_auth/arnie'
     | '/_auth/calendario'
     | '/_auth/home'
+    | '/admin/users'
     | '/apiaries/new'
     | '/auth/callback'
     | '/_auth/'
@@ -197,6 +209,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   LoginRoute: typeof LoginRoute
   SetPasswordRoute: typeof SetPasswordRoute
+  AdminUsersRoute: typeof AdminUsersRoute
   ApiariesNewRoute: typeof ApiariesNewRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   InspectionsHiveIdNewRoute: typeof InspectionsHiveIdNewRoute
@@ -246,6 +259,13 @@ declare module '@tanstack/react-router' {
       path: '/apiaries/new'
       fullPath: '/apiaries/new'
       preLoaderRoute: typeof ApiariesNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/admin/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth/home': {
@@ -331,6 +351,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   LoginRoute: LoginRoute,
   SetPasswordRoute: SetPasswordRoute,
+  AdminUsersRoute: AdminUsersRoute,
   ApiariesNewRoute: ApiariesNewRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   InspectionsHiveIdNewRoute: InspectionsHiveIdNewRoute,
