@@ -1,6 +1,6 @@
 # DESIGN.md — Apidiario
 
-> **Versione**: 0.1 · **Stato**: bozza Fase 0
+> **Versione**: 0.2 · **Stato**: bozza Fase 2 (revisione dark theme)
 > **Vibe**: caldo, sobrio, essenziale. Legno e miele.
 
 ---
@@ -50,31 +50,59 @@ Tutto ruota intorno a tre famiglie: **cream** (sfondi e superfici), **wood** (te
 
 I successi vanno verso un verde oliva spento, gli avvisi verso un'ambra più arancio (distinta da `honey-500`), i pericoli verso un terracotta. Nessun rosso semaforo, nessun verde elettrico.
 
+> **Importante — distinzione "toggle attivo" vs "stato semantico positivo".**
+> Il verde `success` significa "condizione semantica positiva" (regina vista, scorte alte, esito OK). NON è il colore di "selezionato" o "toggle on". Per toggle attivi (es. attrezzatura montata sull'arnia: apiscampo on/off) si usa il fill honey accent. Due segnali distinti, mai sovrapposti.
+
 ### Tema scuro
 
-Il tema scuro non è un'inversione: è una "stanza al buio illuminata da una lampada". Sfondi marroni profondi, testo cream, accent honey leggermente più chiaro per contrasto.
+Il tema scuro è una "stanza al buio illuminata da una lampada": lo sfondo dell'app è molto scuro e silenzioso, e le superfici di lavoro (card, sheet) sono sensibilmente più chiare, così "galleggiano" anche senza ombra. La separazione fra layer è chiara, ma l'atmosfera resta calda e raccolta.
 
-| Token          | Hex (chiaro → scuro)        | Uso                            |
-|----------------|------------------------------|--------------------------------|
-| Sfondo app     | `cream-50` → `#1A130C`       | Background                     |
-| Sfondo card    | `cream-100` → `#241B11`      | Surface                        |
-| Bordo soft     | `cream-200` → `#3A2D1D`      | Divider                        |
-| Testo body     | `wood-700` → `#EBE0CB`       | Testo principale               |
-| Testo secondario| `wood-500` → `#B5A282`      | Testo secondario               |
-| Accent         | `honey-500` → `#E5A938`      | Accent (più chiaro per leggibilità) |
-| Accent hover   | `honey-600` → `#F0C77A`      |                                |
+**Principio operativo.** Se in light theme la separazione fra app e card è di ~5% di luminosità, in dark deve essere di ~10–12%. Un dark theme con delta troppo piccoli sembra un PDF stampato male; ne serve di più, non di meno. Stessa logica per i bordi: in dark devono essere *visibili*, non timidi. Un bordo che si vede non rompe la sobrietà — il problema sarebbe solo se fosse freddo o saturo. Marrone caldo a media opacità resta perfettamente nel vibe.
+
+| Token                   | Hex (light → dark)        | Note                                       |
+|-------------------------|---------------------------|--------------------------------------------|
+| Sfondo app              | `#FAF6ED` → `#15100A`     | Quasi nero, calibrato caldo                |
+| Sfondo card             | `#F5EEDE` → `#2B2114`     | Delta significativo dall'app               |
+| Sfondo card hover       | —        → `#33281A`     | Stato interattivo                          |
+| Bordo soft              | `#E9DFC8` → `#4A3925`     | Visibile, non timido                       |
+| Bordo focus/active      | —        → `#705636`     | Per separare stati attivi                  |
+| Testo body              | `#3F311F` → `#EBE0CB`     | Cream caldo, mai bianco puro               |
+| Testo secondario        | `#7A6444` → `#B5A282`     |                                            |
+| Testo terziario         | `#A6916C` → `#8A7656`     | Etichette, timestamp                       |
+| Accent                  | `#C7891A` → `#E0A744`     | Honey ammorbidito per evitare vibrazione   |
+| Accent hover            | `#A06D14` → `#EDB95A`     |                                            |
+| Accent fill leggero     | —        → `#3D2E15`     | Per toggle attivo, badge accent            |
+
+### Pulsanti e controlli secondari in dark
+
+I pulsanti secondari in dark **hanno sempre un fill**, mai solo outline. Outline-only su dark si perde nel rumore visivo del campo.
+
+| Variante                       | bg dark         | Border dark    | Testo dark   |
+|--------------------------------|-----------------|----------------|--------------|
+| `primary`                      | `#E0A744`       | —              | `#15100A`    |
+| `secondary`                    | `#3A2D1D`       | `#4A3925`      | `#EBE0CB`    |
+| `ghost`                        | trasparente     | —              | `#EBE0CB`    |
+| `secondary` attivo (toggle on) | `#3D2E15`       | `#E0A744`/40   | `#E0A744`    |
+| `destructive`                  | `#B0492E`       | —              | `#FAF6ED`    |
 
 ### Test di contrasto (WCAG)
 
 Verificati AA (ratio ≥ 4.5:1 per testo normale, ≥ 3:1 per testo large e icone).
 
+**Light theme:**
 - `wood-700` su `cream-50` → 11.2:1 ✓ AAA
 - `wood-500` su `cream-50` → 5.4:1 ✓ AA
 - `cream-50` su `honey-500` → 4.6:1 ✓ AA (testo dei pulsanti primari)
 - `honey-700` su `cream-50` → 5.8:1 ✓ AA (link in linea)
-- `cream-50` su `wood-800` → 12.8:1 ✓ AAA (tema scuro testo body)
 
 `honey-500` come testo su `cream-50` per testi normali è al limite (4.6:1): da usare solo per testi grandi (≥18px) o pulsanti.
+
+**Dark theme:**
+- `#EBE0CB` su `#15100A` (body su app bg) → 13.8:1 ✓ AAA
+- `#EBE0CB` su `#2B2114` (body su card) → 11.2:1 ✓ AAA
+- `#B5A282` su `#2B2114` (secondario su card) → 5.6:1 ✓ AA
+- `#E0A744` su `#2B2114` (accent text/icon su card) → 8.1:1 ✓ AAA
+- `#15100A` su `#E0A744` (testo button primary) → 11.0:1 ✓ AAA
 
 ## 3. Tipografia
 
@@ -132,12 +160,14 @@ Niente `rounded-none` (troppo crudo per il vibe), niente `rounded-2xl` o `3xl` (
 
 ### Bordi
 
-Bordi sottili, colorati con `cream-200` (chiaro) o `wood-700/30` (scuro).
+Bordi sottili, colorati con `cream-200` (chiaro) o `cream-200` token in dark (che mappa a `#4A3925`).
 
 ```
 border-width:  1px
-border-color:  cream-200 in light, wood-700 @ 30% in dark
+border-color:  cream-200
 ```
+
+In dark, i bordi sono **visibili e calibrati**, non al 30-40% di opacità: la separazione fra superfici si fa con bordo + delta di sfondo, non con ombre.
 
 ### Ombre
 
@@ -205,6 +235,8 @@ Dimensioni:
 
 Tutti: `rounded-md`, font weight 500, transition 150ms.
 
+> **In dark**, i `secondary` mantengono sempre un fill (vedi §2 "Pulsanti e controlli secondari in dark"). Gli outline-only sono vietati in dark theme.
+
 ### Card
 
 ```
@@ -215,7 +247,7 @@ padding:       p-4 mobile, p-5 ≥ tablet
 shadow:        none
 ```
 
-In tema scuro: bg `#241B11`, border `wood-700/40`.
+In tema scuro: bg `#2B2114`, border `#4A3925`. Su sfondo app `#15100A` la card appare come una "zona illuminata" senza bisogno di ombra.
 
 ### Input / form fields
 
@@ -230,6 +262,19 @@ disabled:      bg cream-100, text wood-300
 ```
 
 Label sopra l'input, `text-sm`, weight 500, color `wood-700`. Placeholder `wood-400`.
+
+### Stepper numerico (per contatori da campo: melari, telaini)
+
+Per scelte numeriche piccole (0–5) usare **segmented control** (pillole), non stepper +/−. Lo stepper è ammesso solo per range più ampi (es. conteggio varroa).
+
+```
+container:    bg cream-200, rounded-md, p-1
+opzione:      h-11 (44px), px-4, text-base, weight 500
+attiva:       bg honey-500, text cream-50, in dark bg accent-fill-soft + text honey
+inattiva:     text wood-500, hover bg cream-100
+```
+
+Touch target garantito 44pt; nessun rischio di "premere il +/− sbagliato con il guanto".
 
 ### IconBadge (stato visivo arnia)
 
@@ -259,6 +304,25 @@ tab inattivo:  color wood-500
 transition:    180ms ease-out
 ```
 
+### Toggle attrezzatura (chip stateful)
+
+Per attrezzatura montata sull'arnia (apiscampo, rete propoli, trappola polline). Sono stati persistenti, non azioni; sono pochi e indipendenti.
+
+```
+inattivo:
+  bg:           cream-100 (light) / cream-200 token in dark
+  border:       1px cream-200
+  text:         wood-500
+  icona:        opacity 60%
+attivo:
+  bg:           honey-100 (light) / accent-fill-soft (dark, #3D2E15)
+  border:       1px honey-500/40
+  text:         honey-700 (light) / honey-500 (dark)
+  icona:        honey-500, full opacity
+```
+
+Touch target 40×40 minimo (chip a tutto larghezza riga, non quadrati piccoli). Sempre con icona + label, mai solo label.
+
 ### Bottom navigation (mobile)
 
 Fissa in basso, 4-5 voci, icona + label.
@@ -279,15 +343,17 @@ Voci proposte: **Apiari · Arnie · Visita · Calendario · Più**.
 Disegno schematico di un'arnia in SVG. È il **cuore visivo dell'app**, va trattato con cura.
 
 **Composizione**:
-- Base: corpo dell'arnia (nido) come rettangolo con linee verticali a indicare i telaini.
-- Sopra: 0-3 melari, rettangoli più bassi e più stretti, impilati.
+- Base: corpo dell'arnia (nido) come rettangolo con linee verticali a indicare i telaini *effettivi* (es. 10 favi = 10 linee verticali leggibili). La cifra "10" non si scrive, si vede.
+- Sopra: 0–3 melari, rettangoli più bassi e più stretti, impilati in modo crescente. Nessun melario = nessun rettangolo.
 - Tetto: trapezio o rettangolo sottile.
-- Tutto a tratto singolo, senza riempimento, colore `wood-600` (`wood-300` in tema scuro).
+- Tutto a tratto singolo, senza riempimento, colore `wood-600` in light e `cream-200` token in dark (`#4A3925`). Mai marroni saturi, mai texture legno.
+- Stato regina: piccolo simbolo `Crown` (12–14px) in alto al centro del nido, colore `honey-500` se vista, `wood-300` (assente/incerta), nascosto se non rilevata l'ultima ispezione.
+- Attrezzatura: piccoli simboli laterali (apiscampo, rete propoli, trappola polline) accanto al disegno, attivi solo se presenti.
 
-**Sovrimpressioni di stato**: 4-5 IconBadge piccole (24×24) ai lati o sopra il disegno, con tooltip sul tap.
+**Sovrimpressioni di stato**: 4–5 IconBadge piccole (24×24) ai lati o sopra il disegno, con tooltip sul tap. Usate solo nelle view di dettaglio (`md`, `lg`); nella card lista, gli stati sono visibili dal disegno stesso.
 
 **Dimensioni**:
-- `sm`: 80×100, mostrata in card lista arnie, niente badge.
+- `sm`: 80×100, mostrata in card lista arnie compatta, niente badge sovrimpressi.
 - `md`: 140×180, schermata dettaglio arnia, 3 badge principali.
 - `lg`: 200×260, vista overview piena, tutti i badge.
 
@@ -296,6 +362,7 @@ Disegno schematico di un'arnia in SVG. È il **cuore visivo dell'app**, va tratt
 - Niente texture legno.
 - Niente colore "natura" (verde foglia, marrone realistico).
 - Niente animazioni di apine in volo.
+- Niente label numeriche sovrapposte al disegno (es. "10 favi" sopra il nido): se l'informazione è già nel disegno, scriverla è ridondanza visiva. La descrizione testuale dei dati sta accanto al disegno, non sopra.
 
 L'estetica giusta è quella di un disegno tecnico a inchiostro, di una pagina di manuale di apicoltura del 1950 reinterpretata in chiave contemporanea.
 
@@ -346,11 +413,17 @@ Niente bounce/spring (Framer Motion va usato con `tween`, non `spring`).
 Implementata fin dalla v1. Toggle nelle impostazioni, default = sistema.
 
 Regole:
-- Sfondi: `wood-900` → `wood-800` per la gerarchia (mai pure black).
-- Testo: `cream-100` come body, `cream-50` come titoli (non bianco puro).
-- Accent: si schiarisce per contrasto (`honey-500` → `honey-400`).
-- Bordi: `wood-700/40`.
+- Sfondo app `#15100A`, sfondo card `#2B2114` (delta significativo, ~10–12% di luminosità).
+- Mai pure black, mai bianco puro per il testo.
+- Testo body `#EBE0CB`, titoli `#F5EEDE`, secondario `#B5A282`.
+- Accent honey ammorbidito a `#E0A744` per evitare vibrazione su sfondo molto scuro.
+- Bordi `#4A3925`, *visibili*: la separazione fra superfici si fa con bordo + sfondo, mai con ombre.
 - Ombre: aumentano leggermente di opacità (0.04 → 0.10) ma restano discrete.
+- Pulsanti `secondary` hanno sempre fill, mai outline-only (vedi §2).
+
+**Regola anti-fragilità.** Ogni componente in dark deve essere testato anche in condizioni di luce esterna intensa simulata (riducendo la luminosità del display al 30%). Se a luminosità ridotta gli elementi interattivi non sono distinguibili dallo sfondo card, il design è fallato — non si compensa con "alziamo la luminosità", si rivede il contrasto fra layer.
+
+**Regola del campo.** Apidiario si usa con guanti, sole forte, telefono sporco di propoli. Ogni schermata in dark deve passare il test "lo vedo a un metro di distanza?". Le decorazioni sottili sono accettabili solo se l'informazione critica resta leggibile anche senza vederle.
 
 ## 9. Accessibilità
 
@@ -426,19 +499,34 @@ Da incollare nel file CSS principale (es. `src/app.css`):
   --shadow-lg: 0 12px 32px rgba(60, 40, 20, 0.12);
 }
 
-/* Tema scuro: stessi token, valori diversi */
+/* Tema scuro: stessi token semantici, valori ricalibrati per il campo */
 @layer base {
   :root[data-theme="dark"] {
-    --color-cream-50:  #1A130C;
-    --color-cream-100: #241B11;
-    --color-cream-200: #3A2D1D;
-    --color-wood-300:  #5A4830;
-    --color-wood-400:  #7A6444;
-    --color-wood-500:  #B5A282;
-    --color-wood-700:  #EBE0CB;
-    --color-wood-800:  #F5EEDE;
-    --color-honey-500: #E5A938;
-    --color-honey-600: #F0C77A;
+    --color-cream-50:  #15100A;       /* sfondo app — più scuro */
+    --color-cream-100: #2B2114;       /* sfondo card — più chiaro, delta visibile */
+    --color-cream-150: #33281A;       /* hover su card */
+    --color-cream-200: #4A3925;       /* bordi soft, visibili */
+    --color-cream-300: #705636;       /* bordi attivi/focus */
+
+    --color-wood-300:  #8A7656;       /* testo terziario / disabilitato */
+    --color-wood-400:  #A6916C;
+    --color-wood-500:  #B5A282;       /* testo secondario */
+    --color-wood-700:  #EBE0CB;       /* testo body */
+    --color-wood-800:  #F5EEDE;       /* titoli */
+
+    --color-honey-300: #EDB95A;
+    --color-honey-500: #E0A744;       /* accent ammorbidito */
+    --color-honey-600: #EDB95A;
+
+    --color-accent-fill-soft: #3D2E15; /* fill leggero per toggle attivo */
+
+    /* Stati semantici: bg leggermente più caldi e meno luminosi */
+    --color-success-100: #2A3318;
+    --color-success-500: #8FA862;
+    --color-warning-100: #3A2812;
+    --color-warning-500: #E89346;
+    --color-danger-100:  #3A1C13;
+    --color-danger-500:  #C96A4F;
   }
 }
 ```
@@ -452,11 +540,15 @@ Da incollare nel file CSS principale (es. `src/app.css`):
 - Backgrounds cream, mai bianco puro.
 - Testo `wood-700`, mai nero puro.
 - Accent solo `honey-500` (eccezioni motivate solo per stati semantici).
-- Bordi sottili al posto delle ombre.
+- Bordi sottili al posto delle ombre — *visibili in dark*, non timidi.
+- In dark, delta significativo (~10–12% luminosità) fra app e card.
+- In dark, pulsanti secondari sempre con fill, mai outline-only.
+- Distinzione netta fra "toggle attivo" (honey) e "stato semantico positivo" (success).
 - Spazio bianco generoso fra le sezioni.
 - Type scale coerente: solo i 7 livelli definiti.
 - Icone Lucide con stroke 1.75.
-- Touch target 44pt minimo.
+- Touch target 44pt minimo (segmented control invece di stepper +/− per range piccoli).
+- Per HiveSchematic: l'informazione è nel disegno, non nelle label sovrapposte.
 
 **Non fare**
 
@@ -469,7 +561,10 @@ Da incollare nel file CSS principale (es. `src/app.css`):
 - Niente animazioni decorative o "deliziosamente" elastiche.
 - Niente badge che lampeggiano o pulsano per attirare attenzione.
 - Niente uppercase decorative.
+- Niente verde semantico per "selezionato" o "toggle on" (è riservato a `success`).
+- Niente outline-only su dark.
+- Niente label numeriche sovrapposte alla HiveSchematic.
 
 ---
 
-*Fine documento. Con questo si chiude la Fase 0. Prossima fase: scaffolding del repo e onboarding di Claude Code in VSCode.*
+*Versione 0.2 — revisione dark theme dopo riscontri da campo. Prossima fase: revisione schermate "Lista arnie" e "Ispezione" in Claude Design.*

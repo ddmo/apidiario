@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, List, Calendar } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { t } from '@/i18n/it'
@@ -81,6 +81,7 @@ function CalendarioPage() {
   const [year, setYear] = useState(today.getFullYear())
   const [month, setMonth] = useState(today.getMonth())
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   const { data: events = [], isLoading } = useInspectionEvents(year, month)
 
@@ -116,7 +117,7 @@ function CalendarioPage() {
       </header>
 
       <div className="flex-1 overflow-y-auto pb-24">
-        {/* Month nav */}
+        {/* Month nav + view toggle */}
         <div className="flex items-center justify-between px-4 py-3">
           <button
             type="button"
@@ -125,9 +126,27 @@ function CalendarioPage() {
           >
             <ChevronLeft size={20} />
           </button>
-          <span className="text-base font-semibold text-wood-800">
-            {MONTH_LABELS[month]} {year}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-base font-semibold text-wood-800">
+              {MONTH_LABELS[month]} {year}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setViewMode(viewMode === 'grid' ? 'list' : 'grid')
+                setSelectedDate(null)
+              }}
+              className={[
+                'size-8 flex items-center justify-center rounded-md transition-colors',
+                viewMode === 'list'
+                  ? 'bg-honey-500 text-white'
+                  : 'text-wood-400 hover:bg-cream-100',
+              ].join(' ')}
+              aria-label={viewMode === 'grid' ? 'Vista elenco' : 'Vista calendario'}
+            >
+              {viewMode === 'grid' ? <List size={18} /> : <Calendar size={18} />}
+            </button>
+          </div>
           <button
             type="button"
             onClick={nextMonth}
@@ -137,108 +156,170 @@ function CalendarioPage() {
           </button>
         </div>
 
-        {/* Day-of-week header */}
-        <div className="grid grid-cols-7 px-2 mb-1">
-          {DOW_LABELS.map((d) => (
-            <div key={d} className="text-center text-xs font-semibold text-wood-400 py-1">
-              {d}
+        {viewMode === 'grid' ? (
+          <>
+            {/* Day-of-week header */}
+            <div className="grid grid-cols-7 px-2 mb-1">
+              {DOW_LABELS.map((d) => (
+                <div key={d} className="text-center text-xs font-semibold text-wood-400 py-1">
+                  {d}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        {/* Calendar grid */}
-        <div className="px-2">
-          {isLoading ? (
-            <div className="py-12 text-center text-sm text-wood-400">{t.common.loading}</div>
-          ) : (
-            grid.map((row, ri) => (
-              <div key={ri} className="grid grid-cols-7">
-                {row.map((day, ci) => {
-                  if (day === 0) return <div key={ci} />
-                  const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-                  const dayEvents = eventsByDay[iso] ?? []
-                  const isToday = iso === todayIso
-                  const isSelected = iso === selectedDate
-                  const hasEvents = dayEvents.length > 0
+            {/* Calendar grid */}
+            <div className="px-2">
+              {isLoading ? (
+                <div className="py-12 text-center text-sm text-wood-400">{t.common.loading}</div>
+              ) : (
+                grid.map((row, ri) => (
+                  <div key={ri} className="grid grid-cols-7">
+                    {row.map((day, ci) => {
+                      if (day === 0) return <div key={ci} />
+                      const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+                      const dayEvents = eventsByDay[iso] ?? []
+                      const isToday = iso === todayIso
+                      const isSelected = iso === selectedDate
+                      const hasEvents = dayEvents.length > 0
 
-                  return (
-                    <button
-                      key={ci}
-                      type="button"
-                      onClick={() => setSelectedDate(isSelected ? null : iso)}
-                      className="flex flex-col items-center py-1.5 gap-0.5"
-                    >
-                      <span
-                        className={[
-                          'size-8 flex items-center justify-center rounded-full text-sm font-medium transition-colors',
-                          isSelected
-                            ? 'bg-honey-500 text-white'
-                            : isToday
-                            ? 'bg-cream-200 text-wood-800 font-semibold'
-                            : 'text-wood-700',
-                        ].join(' ')}
-                      >
-                        {day}
-                      </span>
-                      {hasEvents && (
-                        <span
-                          className={[
-                            'flex gap-0.5',
-                          ].join(' ')}
+                      return (
+                        <button
+                          key={ci}
+                          type="button"
+                          onClick={() => setSelectedDate(isSelected ? null : iso)}
+                          className="flex flex-col items-center py-1.5 gap-0.5"
                         >
-                          {dayEvents.slice(0, 3).map((_, i) => (
-                            <span
-                              key={i}
-                              className={`size-1 rounded-full ${isSelected ? 'bg-honey-200' : 'bg-honey-500'}`}
-                            />
-                          ))}
-                        </span>
-                      )}
-                    </button>
-                  )
-                })}
-              </div>
-            ))
-          )}
-        </div>
+                          <span
+                            className={[
+                              'size-8 flex items-center justify-center rounded-full text-sm font-medium transition-colors',
+                              isSelected
+                                ? 'bg-honey-500 text-white'
+                                : isToday
+                                ? 'bg-cream-200 text-wood-800 font-semibold'
+                                : 'text-wood-700',
+                            ].join(' ')}
+                          >
+                            {day}
+                          </span>
+                          {hasEvents && (
+                            <span className="flex gap-0.5">
+                              {dayEvents.slice(0, 3).map((_, i) => (
+                                <span
+                                  key={i}
+                                  className={`size-1 rounded-full ${isSelected ? 'bg-honey-200' : 'bg-honey-500'}`}
+                                />
+                              ))}
+                            </span>
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
+                ))
+              )}
+            </div>
 
-        {/* Selected day events */}
-        {selectedDate && (
-          <div className="px-4 mt-4">
-            <p className="text-xs font-semibold text-wood-400 uppercase tracking-wider mb-2">
-              {new Date(selectedDate + 'T12:00:00').toLocaleDateString('it-IT', {
-                weekday: 'long', day: 'numeric', month: 'long',
-              })}
-            </p>
-            {selectedEvents.length === 0 ? (
-              <p className="text-sm text-wood-400">Nessuna visita</p>
+            {/* Selected day events */}
+            {selectedDate && (
+              <div className="px-4 mt-4">
+                <p className="text-xs font-semibold text-wood-400 uppercase tracking-wider mb-2">
+                  {new Date(selectedDate + 'T12:00:00').toLocaleDateString('it-IT', {
+                    weekday: 'long', day: 'numeric', month: 'long',
+                  })}
+                </p>
+                {selectedEvents.length === 0 ? (
+                  <p className="text-sm text-wood-400">Nessuna visita</p>
+                ) : (
+                  <ul className="flex flex-col gap-2">
+                    {selectedEvents.map((ev) => (
+                      <li key={ev.id}>
+                        <Link
+                          to="/hives/$hiveId/inspections/$inspectionId"
+                          params={{ hiveId: ev.hive_id, inspectionId: ev.id }}
+                          className="flex items-center justify-between bg-cream-100 border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-200 transition-colors"
+                        >
+                          <div>
+                            <p className="text-sm font-semibold text-wood-800">{ev.hiveIdentifier}</p>
+                            <p className="text-xs text-honey-600">{ev.apiaryName}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-wood-400">
+                              {new Date(ev.performed_at).toLocaleTimeString('it-IT', {
+                                hour: '2-digit', minute: '2-digit',
+                              })}
+                            </span>
+                            <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="text-wood-300">
+                              <path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </div>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </>
+        ) : (
+          /* ── List view: all events this month, grouped by day ── */
+          <div className="px-4">
+            {isLoading ? (
+              <div className="py-12 text-center text-sm text-wood-400">{t.common.loading}</div>
+            ) : events.length === 0 ? (
+              <div className="py-12 text-center text-sm text-wood-400">Nessun evento questo mese</div>
             ) : (
-              <ul className="flex flex-col gap-2">
-                {selectedEvents.map((ev) => (
-                  <li key={ev.id}>
-                    <Link
-                      to="/hives/$hiveId/inspections/$inspectionId"
-                      params={{ hiveId: ev.hive_id, inspectionId: ev.id }}
-                      className="flex items-center justify-between bg-cream-100 border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-200 transition-colors"
-                    >
-                      <div>
-                        <p className="text-sm font-semibold text-wood-800">{ev.hiveIdentifier}</p>
-                        <p className="text-xs text-honey-600">{ev.apiaryName}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-wood-400">
-                          {new Date(ev.performed_at).toLocaleTimeString('it-IT', {
-                            hour: '2-digit', minute: '2-digit',
-                          })}
-                        </span>
-                        <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="text-wood-300">
-                          <path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </div>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              Object.entries(
+                events.reduce<Record<string, InspectionEvent[]>>((acc, ev) => {
+                  const key = isoDate(new Date(ev.performed_at))
+                  if (!acc[key]) acc[key] = []
+                  acc[key].push(ev)
+                  return acc
+                }, {})
+              )
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(([dayIso, dayEvents]) => {
+                  const d = new Date(dayIso + 'T12:00:00')
+                  const dayLabel = d.toLocaleDateString('it-IT', {
+                    weekday: 'short', day: 'numeric', month: 'long',
+                  })
+                  const isToday = dayIso === todayIso
+                  return (
+                    <div key={dayIso} className="mb-4">
+                      <p className={[
+                        'text-xs font-semibold uppercase tracking-wider mb-2',
+                        isToday ? 'text-honey-600' : 'text-wood-400',
+                      ].join(' ')}>
+                        {dayLabel}
+                      </p>
+                      <ul className="flex flex-col gap-2">
+                        {dayEvents.map((ev) => (
+                          <li key={ev.id}>
+                            <Link
+                              to="/hives/$hiveId/inspections/$inspectionId"
+                              params={{ hiveId: ev.hive_id, inspectionId: ev.id }}
+                              className="flex items-center justify-between bg-white border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-50 transition-colors shadow-sm"
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className="text-sm font-semibold text-honey-600 min-w-[3rem]">
+                                  {new Date(ev.performed_at).toLocaleTimeString('it-IT', {
+                                    hour: '2-digit', minute: '2-digit',
+                                  })}
+                                </span>
+                                <div>
+                                  <p className="text-sm font-semibold text-wood-800">{ev.hiveIdentifier}</p>
+                                  <p className="text-xs text-wood-400">{ev.apiaryName}</p>
+                                </div>
+                              </div>
+                              <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="text-wood-300 shrink-0">
+                                <path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )
+                })
             )}
           </div>
         )}
