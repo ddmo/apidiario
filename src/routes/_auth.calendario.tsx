@@ -45,6 +45,7 @@ function useInspectionEvents(year: number, month: number) {
           apiaryName: (apiary as { name: string } | null)?.name ?? '?',
           performerDisplayName: (profile as { display_name: string } | null)?.display_name ?? null,
         } satisfies InspectionEvent
+      })
     },
   })
 }
