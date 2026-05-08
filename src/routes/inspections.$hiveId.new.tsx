@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate, useRouter } from '@tanstack/react-router'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/query-client'
@@ -21,6 +21,7 @@ export const Route = createFileRoute('/inspections/$hiveId/new')({
 function NewInspectionPage() {
   const { hiveId } = Route.useParams()
   const navigate = useNavigate()
+  const router = useRouter()
   const { session } = useAuth()
   const { showToast } = useToast()
 
@@ -99,7 +100,7 @@ function NewInspectionPage() {
       showToast('Ispezione salvata', 'success')
       void queryClient.invalidateQueries({ queryKey: ['lastInspection', hiveId] })
       void queryClient.invalidateQueries({ queryKey: ['hives'] })
-      void navigate({ to: '/home' })
+      void navigate({ to: '/hives/$hiveId/inspections', params: { hiveId }, replace: true })
     },
     onError: () => {
       showToast('Salvataggio fallito. Riprova.', 'error')
@@ -144,7 +145,7 @@ function NewInspectionPage() {
       isLoadingHistory={isLoadingHistory}
       isSaving={isSaving}
       onSave={(formState, mode) => saveInspection({ formState, mode })}
-      onBack={() => void navigate({ to: '/home' })}
+      onBack={() => router.history.back()}
     />
   )
 }

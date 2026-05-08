@@ -4,10 +4,10 @@ import { RouterProvider } from '@tanstack/react-router'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { queryClient, persister } from '@/lib/query-client'
 import { router } from '@/router'
-import { applyThemeFromSystem } from '@/lib/theme'
+import { applyTheme } from '@/lib/theme'
 import '@/app.css'
 
-applyThemeFromSystem()
+applyTheme()
 
 // Prevent pinch-to-zoom on iOS Safari (ignores user-scalable=no since iOS 10)
 document.addEventListener('gesturestart', (e) => e.preventDefault(), { passive: false })

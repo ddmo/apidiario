@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate, useRouter } from '@tanstack/react-router'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
 import { ApiaryForm } from '@/features/apiaries/components/apiary-form'
@@ -15,6 +15,7 @@ export const Route = createFileRoute('/apiaries/new')({
 
 function NewApiaryPage() {
   const navigate = useNavigate()
+  const router = useRouter()
   const { session } = useAuth()
 
   if (!session?.user?.id) return null
@@ -24,7 +25,7 @@ function NewApiaryPage() {
       <ApiaryForm
         userId={session.user.id}
         onSuccess={() => void navigate({ to: '/' })}
-        onCancel={() => void navigate({ to: '/' })}
+        onCancel={() => router.history.back()}
       />
     </div>
   )

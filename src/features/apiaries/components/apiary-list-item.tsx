@@ -19,7 +19,7 @@ export function ApiaryListItem({ apiary, onClick }: ApiaryListItemProps) {
     <button
       type="button"
       onClick={onClick}
-      className="w-full bg-cream-100 border border-cream-200 rounded-lg p-3 flex items-center gap-3 text-left transition-colors duration-150 hover:bg-cream-50 active:bg-cream-200 shadow-xs"
+      className="w-full bg-cream-100 border border-cream-200 p-3 flex items-center gap-3 text-left transition-colors duration-150 hover:bg-cream-50 active:bg-cream-200 shadow-xs"
     >
       {/* Thumbnail */}
       <div className="size-16 shrink-0 rounded-md overflow-hidden bg-cream-200 flex items-center justify-center">

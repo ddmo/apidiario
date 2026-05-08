@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/query-client'
 import { useToast } from '@/hooks/use-toast'
 import { InspectionScreen } from '@/features/inspections/inspection-screen'
+import { useDeleteInspection } from '@/features/inspections/hooks/use-inspections'
 import type { InspectionFormState, InspectionMode } from '@/features/inspections/types'
 import type { TablesUpdate } from '@/types/database'
 
@@ -62,6 +63,8 @@ function EditInspectionPage() {
       return data
     },
   })
+
+  const { mutate: deleteInspection, isPending: isDeleting } = useDeleteInspection()
 
   const { mutate: updateInspection, isPending: isSaving } = useMutation({
     mutationFn: async ({ formState, mode }: { formState: InspectionFormState; mode: string }) => {
@@ -148,6 +151,22 @@ function EditInspectionPage() {
 
   if (isLoadingInspection) return null
 
+  function handleDelete() {
+    deleteInspection(
+      { inspectionId, hiveId },
+      {
+        onSuccess: () => {
+          showToast('Ispezione eliminata', 'success')
+          void navigate({ to: '/hives/$hiveId/inspections', params: { hiveId }, replace: true })
+        },
+        onError: (err) => {
+          console.error('[EditInspection] delete failed', err)
+          showToast('Eliminazione fallita. Riprova.', 'error')
+        },
+      },
+    )
+  }
+
   return (
     <InspectionScreen
       hiveId={hiveId}
@@ -158,8 +177,10 @@ function EditInspectionPage() {
       prefillDate={inspectionDate}
       isLoadingHistory={false}
       isSaving={isSaving}
+      isDeleting={isDeleting}
       onSave={(formState, mode) => updateInspection({ formState, mode })}
       onBack={() => router.history.back()}
+      onDelete={handleDelete}
     />
   )
 }

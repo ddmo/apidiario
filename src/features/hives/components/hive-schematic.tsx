@@ -27,7 +27,7 @@ export function HiveSchematic({
   hasPollenTrap,
   hasActiveQueen,
 }: HiveSchematicProps) {
-  const effectiveMelari = Math.min(melariCount, 4)
+  const effectiveMelari = Math.min(melariCount, 2)
 
   // Build layout bottom-up, then flip to top-down coordinates
   let curY = 0
@@ -49,11 +49,6 @@ export function HiveSchematic({
   const apisY = toY(APIS_OFF, APIS_H)
   const propY = toY(PROP_OFF, PROP_H)
   const melYs = melOffsets.map(o => toY(o, MEL_H))
-
-  const frameDividers: number[] = []
-  for (let i = 1; i < nidoFrameCount; i++) {
-    frameDividers.push(FRAME_X1 + ((FRAME_X2 - FRAME_X1) * i) / nidoFrameCount)
-  }
 
   return (
     <svg
@@ -94,20 +89,9 @@ export function HiveSchematic({
       {/* Nido */}
       <rect x={NIDO_X} y={nidoY} width={NIDO_W} height={NIDO_H} fill="#5A4830" rx={2} />
 
-      {/* Frame dividers */}
-      {frameDividers.map((x, i) => (
-        <line
-          key={i}
-          x1={x} y1={nidoY + 7}
-          x2={x} y2={nidoY + NIDO_H - 10}
-          stroke="#7A6444"
-          strokeWidth={0.8}
-        />
-      ))}
-
       {/* Queen */}
       {hasActiveQueen && (
-        <text x={SVG_W / 2} y={nidoY + 18} textAnchor="middle" fontSize={13} fill="#E5A938">♛</text>
+        <text x={SVG_W / 2} y={nidoY + 20} textAnchor="middle" fontSize={18} fill="#E5A938">♛</text>
       )}
 
       {/* Frame count */}
@@ -116,7 +100,7 @@ export function HiveSchematic({
         textAnchor="middle" fontSize={8.5}
         fill="#FAF6ED" fontFamily="Inter, system-ui, sans-serif"
       >
-        {nidoFrameCount} favi
+        {nidoFrameCount} telai
       </text>
 
       {/* Pollen trap */}

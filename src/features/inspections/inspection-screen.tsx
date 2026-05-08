@@ -1,5 +1,7 @@
-import { ArrowLeft, MoreVertical, Sun } from 'lucide-react'
+import { useState } from 'react'
+import { ArrowLeft, MoreVertical, Sun, Trash2 } from 'lucide-react'
 import { SegmentedControl } from '@/components/ui/segmented-control'
+import { Button } from '@/components/ui/button'
 import { ExpressBody } from './express-body'
 import { StandardBody } from './standard-body'
 import { PrefillBanner } from './components/prefill-banner'
@@ -27,8 +29,10 @@ interface InspectionScreenProps {
   prefillDate?: string
   isLoadingHistory?: boolean
   isSaving?: boolean
+  isDeleting?: boolean
   onSave: (state: InspectionFormState, mode: string) => void
   onBack: () => void
+  onDelete?: () => void
 }
 
 export function InspectionScreen({
@@ -39,11 +43,16 @@ export function InspectionScreen({
   prefillDate,
   isLoadingHistory = false,
   isSaving = false,
+  isDeleting = false,
   onSave,
   onBack,
+  onDelete,
 }: InspectionScreenProps) {
   const { state, dirtyFields, mode, setMode, update, reset, hasChanges, showSheet, setShowSheet } =
     useInspectionForm({ prefillState, initialMode })
+
+  const [showMenu, setShowMenu] = useState(false)
+  const [showDeleteSheet, setShowDeleteSheet] = useState(false)
 
   const now = new Date()
   const datetime = now.toLocaleString('it-IT', {
@@ -98,13 +107,37 @@ export function InspectionScreen({
               </span>
             </div>
           </div>
-          <button
-            type="button"
-            aria-label="Altre opzioni"
-            className="size-11 flex items-center justify-center text-wood-500 hover:bg-cream-100 rounded-md transition-colors"
-          >
-            <MoreVertical size={20} />
-          </button>
+          {onDelete && (
+            <div className="relative">
+              <button
+                type="button"
+                aria-label="Altre opzioni"
+                onClick={() => setShowMenu((v) => !v)}
+                className="size-11 flex items-center justify-center text-wood-500 hover:bg-cream-100 rounded-md transition-colors"
+              >
+                <MoreVertical size={20} />
+              </button>
+              {showMenu && (
+                <>
+                  <div
+                    className="fixed inset-0 z-20"
+                    onClick={() => setShowMenu(false)}
+                    aria-hidden="true"
+                  />
+                  <div className="absolute right-0 top-full mt-1 z-30 bg-cream-50 border border-cream-200 rounded-xl shadow-lg min-w-[160px] overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => { setShowMenu(false); setShowDeleteSheet(true) }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-danger-500 hover:bg-cream-100 transition-colors"
+                    >
+                      <Trash2 size={16} />
+                      Elimina ispezione
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </header>
 
@@ -147,6 +180,47 @@ export function InspectionScreen({
         onDiscard={onBack}
         onCancel={() => setShowSheet(false)}
       />
+
+      {/* Delete confirmation sheet */}
+      {showDeleteSheet && (
+        <>
+          <div
+            className="fixed inset-0 z-30 bg-wood-900/40"
+            onClick={() => setShowDeleteSheet(false)}
+            aria-hidden="true"
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Elimina ispezione"
+            className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg"
+          >
+            <div className="flex justify-center pt-2.5 pb-1">
+              <span className="block w-9 h-1 rounded-full bg-cream-200" aria-hidden="true" />
+            </div>
+            <div className="px-5 pt-3 pb-4">
+              <h2 className="text-lg font-semibold text-wood-800 mb-1">Elimina ispezione</h2>
+              <p className="text-sm text-wood-500 leading-relaxed">
+                Sei sicuro di voler eliminare questa ispezione? L&rsquo;operazione non pu&ograve; essere annullata.
+              </p>
+            </div>
+            <div className="px-4 flex flex-col gap-2 [padding-bottom:calc(1rem+env(safe-area-inset-bottom))]">
+              <Button
+                variant="destructive"
+                size="lg"
+                onClick={() => { setShowDeleteSheet(false); onDelete?.() }}
+                disabled={isDeleting}
+                className="w-full"
+              >
+                {isDeleting ? 'Eliminazione…' : 'Elimina'}
+              </Button>
+              <Button variant="ghost" size="md" onClick={() => setShowDeleteSheet(false)} className="w-full">
+                Annulla
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

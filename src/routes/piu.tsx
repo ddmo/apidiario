@@ -1,7 +1,8 @@
 import { createFileRoute, redirect, Link, useNavigate } from '@tanstack/react-router'
 import { supabase } from '@/lib/supabase'
-import { ArrowLeft, Shield, LogOut } from 'lucide-react'
+import { ArrowLeft, Shield, LogOut, Sun, Moon, Monitor } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { setThemeMode, getThemeMode, type ThemeMode } from '@/lib/theme'
 import { t } from '@/i18n/it'
 
 export const Route = createFileRoute('/piu')({
@@ -18,6 +19,12 @@ function PiuPage() {
   const navigate = useNavigate()
   const [isAdmin, setIsAdmin] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
+  const [themeMode, setThemeLocal] = useState<ThemeMode>(getThemeMode())
+
+  function handleThemeChange(mode: ThemeMode) {
+    setThemeLocal(mode)
+    setThemeMode(mode)
+  }
 
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -50,18 +57,47 @@ function PiuPage() {
           {isAdmin && (
             <Link
               to="/admin/users"
-              className="flex items-center gap-3 rounded-lg border border-wood-200 bg-white px-4 py-3 text-wood-800 hover:bg-wood-50 transition-colors"
+              className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3 text-wood-800 hover:bg-cream-200 transition-colors"
             >
               <Shield size={20} className="text-honey-600 shrink-0" />
               <span className="text-sm font-medium">{t.admin.users}</span>
             </Link>
           )}
 
+          {/* Theme selector */}
+          <div className="flex flex-col gap-2 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3">
+            <span className="text-sm font-medium text-wood-700">Tema</span>
+            <div className="flex gap-1.5">
+              {([
+                { mode: 'light' as const, icon: Sun, label: 'Chiaro' },
+                { mode: 'system' as const, icon: Monitor, label: 'Sistema' },
+                { mode: 'dark' as const, icon: Moon, label: 'Scuro' },
+              ]).map(({ mode, icon: Icon, label }) => {
+                const active = themeMode === mode
+                return (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => handleThemeChange(mode)}
+                    className={`flex-1 flex items-center justify-center gap-1.5 h-10 rounded-md text-sm font-medium transition-colors ${
+                      active
+                        ? 'bg-honey-500 text-cream-50'
+                        : 'text-wood-500 hover:bg-cream-200'
+                    }`}
+                  >
+                    <Icon size={16} strokeWidth={1.75} />
+                    <span>{label}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
           <button
             type="button"
             onClick={handleLogout}
             disabled={loggingOut}
-            className="flex items-center gap-3 rounded-lg border border-wood-200 bg-white px-4 py-3 text-wood-800 hover:bg-wood-50 transition-colors text-left"
+            className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3 text-wood-800 hover:bg-cream-200 transition-colors text-left"
           >
             <LogOut size={20} className="text-wood-500 shrink-0" />
             <span className="text-sm font-medium">Esci</span>

@@ -1,11 +1,13 @@
 import { createFileRoute, useRouter, Link } from '@tanstack/react-router'
-import { ArrowLeft, Plus } from 'lucide-react'
+import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import { useInspectionsByHive } from '@/features/inspections/hooks/use-inspections'
+import { useInspectionsByHive, useDeleteInspection } from '@/features/inspections/hooks/use-inspections'
 import { PATHOLOGY_LABELS } from '@/features/inspections/constants'
 import { EmptyState } from '@/components/ui/empty-state'
+import { SwipeableRow } from '@/components/ui/swipeable-row'
 import { ClipboardList } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
 import { t } from '@/i18n/it'
 
 export const Route = createFileRoute('/_auth/hives/$hiveId/inspections')({
@@ -15,6 +17,8 @@ export const Route = createFileRoute('/_auth/hives/$hiveId/inspections')({
 function InspectionListPage() {
   const { hiveId } = Route.useParams()
   const router = useRouter()
+  const { showToast } = useToast()
+  const { mutate: deleteInspection } = useDeleteInspection()
 
   const { data: hive } = useQuery({
     queryKey: ['hive', hiveId],
@@ -32,8 +36,8 @@ function InspectionListPage() {
   const { data: inspections = [], isLoading } = useInspectionsByHive(hiveId)
 
   return (
-    <div className="flex flex-col min-h-full bg-cream-50">
-      <header className="bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2 shrink-0">
+    <div className="flex flex-col h-full bg-cream-50">
+      <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2">
         <button
           type="button"
           aria-label="Indietro"
@@ -46,7 +50,7 @@ function InspectionListPage() {
           <p className="text-xs text-wood-400 leading-none mb-0.5">
             {t.inspection.list.title}
           </p>
-          <h1 className="text-base font-semibold text-wood-800 truncate leading-tight">
+          <h1 className="text-2xl font-bold text-wood-800 tracking-tight truncate leading-tight">
             {hive?.identifier ?? '…'}
           </h1>
         </div>
@@ -82,68 +86,95 @@ function InspectionListPage() {
               const year = date.getFullYear()
               const pathologies = insp.pathologies ?? []
 
+              function handleDelete(inspectionId: string) {
+                deleteInspection(
+                  { inspectionId, hiveId },
+                  {
+                    onSuccess: () => showToast('Ispezione eliminata', 'success'),
+                    onError: (err) => {
+                      console.error('[InspectionList] delete failed', err)
+                      showToast('Eliminazione fallita', 'error')
+                    },
+                  },
+                )
+              }
+
               return (
                 <li key={insp.id}>
-                  <Link
-                    to="/hives/$hiveId/inspections/$inspectionId"
-                    params={{ hiveId, inspectionId: insp.id }}
-                    className="block bg-cream-100 border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-200 transition-colors"
+                  <SwipeableRow
+                    revealWidth={84}
+                    revealContent={
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(insp.id)}
+                        className="flex-1 flex flex-col items-center justify-center gap-1 bg-danger-500 text-white"
+                      >
+                        <Trash2 size={18} strokeWidth={1.75} />
+                        <span className="text-[11px] font-semibold leading-none">Elimina</span>
+                      </button>
+                    }
                   >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-sm font-semibold text-wood-800">
-                            {day} {year}
-                          </span>
-                          {insp.performer_display_name && (
-                            <span className="text-xs text-wood-400">
-                              da {insp.performer_display_name}
+                    <Link
+                      to="/hives/$hiveId/inspections/$inspectionId"
+                      params={{ hiveId, inspectionId: insp.id }}
+                      className="block bg-cream-100 border border-cream-200 px-4 py-3 active:bg-cream-200 transition-colors"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-semibold text-wood-800">
+                              {day} {year}
                             </span>
-                          )}
-                          <span
-                            className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-sm ${
-                              isExpress
-                                ? 'bg-honey-100 text-honey-700'
-                                : 'bg-cream-200 text-wood-600'
-                            }`}
-                          >
-                            {isExpress
-                              ? t.inspection.mode.express
-                              : t.inspection.mode.standard}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-3 mt-1 flex-wrap">
-                          <QueenChip value={insp.queen_seen} />
-                          {insp.population && (
-                            <PopChip value={insp.population} />
-                          )}
-                          {insp.melari_count > 0 && (
-                            <span className="text-xs text-wood-500">
-                              {insp.melari_count} melar{insp.melari_count === 1 ? 'io' : 'i'}
-                            </span>
-                          )}
-                        </div>
-                        {pathologies.length > 0 && (
-                          <div className="flex gap-1 mt-1.5 flex-wrap">
-                            {pathologies.map((p) => (
-                              <span
-                                key={p}
-                                className="text-[10px] bg-danger-100 text-danger-500 px-1.5 py-0.5 rounded-sm font-medium"
-                              >
-                                {PATHOLOGY_LABELS[p] ?? p}
+                            {insp.performer_display_name && (
+                              <span className="text-xs text-wood-400">
+                                da {insp.performer_display_name}
                               </span>
-                            ))}
+                            )}
+                            <span
+                              className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-sm ${
+                                isExpress
+                                  ? 'bg-honey-100 text-honey-700'
+                                  : 'bg-cream-200 text-wood-600'
+                              }`}
+                            >
+                              {isExpress
+                                ? t.inspection.mode.express
+                                : t.inspection.mode.standard}
+                            </span>
                           </div>
-                        )}
-                        {insp.notes && (
-                          <p className="text-xs text-wood-400 mt-1.5 line-clamp-1">
-                            {insp.notes}
-                          </p>
-                        )}
+                          <div className="flex items-center gap-3 mt-1 flex-wrap">
+                            <QueenChip value={insp.queen_seen} />
+                            {insp.population && (
+                              <PopChip value={insp.population} />
+                            )}
+                            {insp.melari_count > 0 && (
+                              <span className="text-xs text-wood-500">
+                                {insp.melari_count} melar{insp.melari_count === 1 ? 'io' : 'i'}
+                              </span>
+                            )}
+                          </div>
+                          {pathologies.length > 0 && (
+                            <div className="flex gap-1 mt-1.5 flex-wrap">
+                              {pathologies.map((p) => (
+                                <span
+                                  key={p}
+                                  className="text-[10px] bg-danger-100 text-danger-500 px-1.5 py-0.5 rounded-sm font-medium"
+                                >
+                                  {PATHOLOGY_LABELS[p] ?? p}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          {insp.notes && (
+                            <p className="text-xs text-wood-400 mt-1.5 line-clamp-1">
+                              {insp.notes}
+                            </p>
+                          )}
+                        </div>
+                        <ArrowRight />
                       </div>
-                      <ArrowRight />
-                    </div>
-                  </Link>
+                    </Link>
+                  </SwipeableRow>
                 </li>
               )
             })}

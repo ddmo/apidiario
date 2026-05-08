@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from '@tanstack/react-router'
-import { ClipboardList, Minus, Plus } from 'lucide-react'
+import { ClipboardList } from 'lucide-react'
 import { HiveSchematic } from './hive-schematic'
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import {
   useToggleHiveAccessory,
   useUpdateMelariCount,
@@ -85,12 +86,17 @@ export function HiveCard({ hive }: HiveCardProps) {
     snapTo(0)
   }
 
-  function changeMelari(delta: number) {
-    const next = Math.max(0, Math.min(10, melariCount + delta))
-    if (next !== melariCount) {
-      setMelariCount(next)
-      setMelari({ hiveId: hive.id, count: next })
-    }
+  const MELARI_OPTIONS = [
+    { value: '0', label: '0' },
+    { value: '1', label: '1' },
+    { value: '2', label: '2' },
+    { value: '3', label: '3' },
+  ]
+
+  function handleMelariChange(value: string) {
+    const next = parseInt(value, 10)
+    setMelariCount(next)
+    setMelari({ hiveId: hive.id, count: next })
   }
 
   return (
@@ -123,7 +129,7 @@ export function HiveCard({ hive }: HiveCardProps) {
         onTouchEnd={handleTouchEnd}
         onTransitionEnd={() => setAnimate(false)}
       >
-        <div className="bg-cream-100 border border-cream-200 rounded-xl p-3 flex gap-3 shadow-xs">
+        <div className="bg-cream-100 border border-cream-200 p-3 flex gap-3 shadow-xs">
           {/* Schematic */}
           <div className="w-[96px] shrink-0 flex items-center self-stretch">
             <HiveSchematic
@@ -155,32 +161,15 @@ export function HiveCard({ hive }: HiveCardProps) {
               </div>
             </div>
 
-            {/* Melari counter */}
+            {/* Melari segmented control */}
             <div className="flex items-center gap-2">
               <span className="text-xs text-wood-500 w-16 shrink-0">{t.hive.card.melari}</span>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  aria-label="Rimuovi melario"
-                  disabled={melariCount === 0}
-                  onClick={() => changeMelari(-1)}
-                  className="size-7 flex items-center justify-center rounded-md border border-cream-200 bg-cream-50 text-wood-600 disabled:opacity-30 transition-colors active:bg-cream-200"
-                >
-                  <Minus size={13} strokeWidth={2.5} />
-                </button>
-                <span className="w-5 text-center text-sm font-semibold text-wood-800">
-                  {melariCount}
-                </span>
-                <button
-                  type="button"
-                  aria-label="Aggiungi melario"
-                  disabled={melariCount >= 10}
-                  onClick={() => changeMelari(1)}
-                  className="size-7 flex items-center justify-center rounded-md border border-cream-200 bg-cream-50 text-wood-600 disabled:opacity-30 transition-colors active:bg-cream-200"
-                >
-                  <Plus size={13} strokeWidth={2.5} />
-                </button>
-              </div>
+              <SegmentedControl
+                options={MELARI_OPTIONS}
+                value={String(melariCount)}
+                onChange={handleMelariChange}
+                ariaLabel="Melari"
+              />
             </div>
 
             {/* Accessory toggles */}
