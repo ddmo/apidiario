@@ -5,46 +5,19 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { t } from '@/i18n/it'
 
-type Mode = 'login' | 'register'
-type Status = 'idle' | 'loading' | 'error'
+type Status = 'idle' | 'loading' | 'error' | 'success'
 
 export function LoginForm() {
   const navigate = useNavigate()
-  const [mode, setMode] = useState<Mode>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [passwordConfirm, setPasswordConfirm] = useState('')
   const [status, setStatus] = useState<Status>('idle')
   const [errorMsg, setErrorMsg] = useState('')
 
-  function switchMode(next: Mode) {
-    setMode(next)
-    setPassword('')
-    setPasswordConfirm('')
-    setStatus('idle')
-    setErrorMsg('')
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setStatus('loading')
     setErrorMsg('')
-
-    if (mode === 'register') {
-      if (password !== passwordConfirm) {
-        setStatus('error')
-        setErrorMsg(t.auth.passwordMismatch)
-        return
-      }
-      const { error } = await supabase.auth.signUp({ email, password })
-      if (error) {
-        setStatus('error')
-        setErrorMsg(error.message)
-      } else {
-        await navigate({ to: '/' })
-      }
-      return
-    }
 
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
@@ -59,8 +32,37 @@ export function LoginForm() {
     }
   }
 
+  async function handleForgotPassword() {
+    if (!email) {
+      setStatus('error')
+      setErrorMsg(t.auth.emailRequired)
+      return
+    }
+    setStatus('loading')
+    setErrorMsg('')
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    })
+    if (error) {
+      setStatus('error')
+      setErrorMsg(error.message)
+    } else {
+      setStatus('success')
+    }
+  }
+
+  if (status === 'success') {
+    return (
+      <div className="flex flex-col gap-4 text-center">
+        <p className="text-sm text-wood-600">{t.auth.resetSent}</p>
+        <p className="text-xs text-wood-400">{t.auth.resetSentHint}</p>
+      </div>
+    )
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form onSubmit={handleLogin} className="flex flex-col gap-4">
       <Input
         id="email"
         type="email"
@@ -79,23 +81,16 @@ export function LoginForm() {
         placeholder="••••••••"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
+        autoComplete="current-password"
         required
-        minLength={6}
       />
-      {mode === 'register' && (
-        <Input
-          id="password-confirm"
-          type="password"
-          label={t.auth.passwordConfirmLabel}
-          placeholder="••••••••"
-          value={passwordConfirm}
-          onChange={(e) => setPasswordConfirm(e.target.value)}
-          autoComplete="new-password"
-          required
-          minLength={6}
-        />
-      )}
+      <button
+        type="button"
+        className="self-end -mt-2 text-xs text-wood-500 underline-offset-2 hover:underline"
+        onClick={handleForgotPassword}
+      >
+        {t.auth.forgotPassword}
+      </button>
 
       {status === 'error' && <p className="text-sm text-danger-500">{errorMsg}</p>}
 
@@ -106,16 +101,8 @@ export function LoginForm() {
         loading={status === 'loading'}
         className="w-full"
       >
-        {mode === 'login' ? t.auth.signIn : t.auth.signUp}
+        {t.auth.signIn}
       </Button>
-
-      <button
-        type="button"
-        className="text-sm text-wood-500 underline-offset-2 hover:underline self-center"
-        onClick={() => switchMode(mode === 'login' ? 'register' : 'login')}
-      >
-        {mode === 'login' ? t.auth.noAccount : t.auth.hasAccount}
-      </button>
     </form>
   )
 }
