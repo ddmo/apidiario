@@ -97,9 +97,14 @@ export function ShareSheet({ open, apiaryId, apiaryName, onClose, onShared }: Sh
           </div>
 
           {status === 'success' ? (
-            <Button variant="primary" size="lg" onClick={handleClose} className="w-full">
-              Fatto
-            </Button>
+            <div className="flex flex-col gap-3">
+              <div className="bg-success-100 border border-success-100 rounded-xl px-4 py-3 text-sm text-success-500 font-medium">
+                Accesso concesso! L'utente vedrà l'apiario nella sua home.
+              </div>
+              <Button variant="primary" size="lg" onClick={handleClose} className="w-full">
+                Fatto
+              </Button>
+            </div>
           ) : (
             <Button
               variant="primary"
