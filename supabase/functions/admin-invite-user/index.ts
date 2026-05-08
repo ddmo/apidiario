@@ -83,7 +83,7 @@ serve(async (req) => {
 
   // 5. Invito (con redirectTo per portare utente su /auth/callback)
   const { data, error: inviteErr } = await supabase.auth.admin.inviteUserByEmail(email, {
-    options: redirectTo ? { redirectTo } : undefined,
+    redirectTo,
   })
   if (inviteErr) {
     return new Response(
