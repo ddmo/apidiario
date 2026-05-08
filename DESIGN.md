@@ -1,6 +1,6 @@
 # DESIGN.md — Apidiario
 
-> **Versione**: 0.2 · **Stato**: bozza Fase 2 (revisione dark theme)
+> **Versione**: 0.3 · **Stato**: bozza Fase 2 (revisione dark theme + Direction A v2)
 > **Vibe**: caldo, sobrio, essenziale. Legno e miele.
 
 ---
@@ -36,7 +36,7 @@ Tutto ruota intorno a tre famiglie: **cream** (sfondi e superfici), **wood** (te
 | `wood-900`        | `#1A130C` | Riservato a contrasti massimi                      |
 | `honey-300`       | `#F0C77A` | Sfondo accent leggero, hover su CTA               |
 | `honey-400`       | `#E5A938` | Accent (badge, tab attivi su sfondo cream-100)    |
-| `honey-500`       | `#C7891A` | **Accent principale (CTA, link, focus ring)**     |
+| `honey-500`       | `#C7891A` | **Accent principale (CTA, link, focus ring, attivo dovunque)** |
 | `honey-600`       | `#A06D14` | Accent hover                                       |
 | `honey-700`       | `#76500F` | Accent pressed / testo accent su cream            |
 
@@ -50,14 +50,16 @@ Tutto ruota intorno a tre famiglie: **cream** (sfondi e superfici), **wood** (te
 
 I successi vanno verso un verde oliva spento, gli avvisi verso un'ambra più arancio (distinta da `honey-500`), i pericoli verso un terracotta. Nessun rosso semaforo, nessun verde elettrico.
 
-> **Importante — distinzione "toggle attivo" vs "stato semantico positivo".**
-> Il verde `success` significa "condizione semantica positiva" (regina vista, scorte alte, esito OK). NON è il colore di "selezionato" o "toggle on". Per toggle attivi (es. attrezzatura montata sull'arnia: apiscampo on/off) si usa il fill honey accent. Due segnali distinti, mai sovrapposti.
+> **Regola del colore "attivo".**
+> `honey-500` significa "elemento attivo/montato/selezionato" **ovunque appaia nell'app**: toggle attivo, segmento attivo di un segmented control, simbolo di attrezzatura montata sulla HiveSchematic, CTA primaria. Un apicoltore impara una volta che "il giallo c'è = quella cosa è attiva/montata".
+> `success-500` (verde oliva) significa "condizione semantica positiva rilevata" (regina vista nell'ultima ispezione, scorte alte, esito OK). NON è "selezionato".
+> Le due semantiche non si sovrappongono mai.
 
 ### Tema scuro
 
 Il tema scuro è una "stanza al buio illuminata da una lampada": lo sfondo dell'app è molto scuro e silenzioso, e le superfici di lavoro (card, sheet) sono sensibilmente più chiare, così "galleggiano" anche senza ombra. La separazione fra layer è chiara, ma l'atmosfera resta calda e raccolta.
 
-**Principio operativo.** Se in light theme la separazione fra app e card è di ~5% di luminosità, in dark deve essere di ~10–12%. Un dark theme con delta troppo piccoli sembra un PDF stampato male; ne serve di più, non di meno. Stessa logica per i bordi: in dark devono essere *visibili*, non timidi. Un bordo che si vede non rompe la sobrietà — il problema sarebbe solo se fosse freddo o saturo. Marrone caldo a media opacità resta perfettamente nel vibe.
+**Principio operativo.** Se in light theme la separazione fra app e card è di ~5% di luminosità, in dark deve essere di ~10–12%. Un dark theme con delta troppo piccoli sembra un PDF stampato male; ne serve di più, non di meno. Stessa logica per i bordi: in dark devono essere *visibili*, non timidi.
 
 | Token                   | Hex (light → dark)        | Note                                       |
 |-------------------------|---------------------------|--------------------------------------------|
@@ -130,10 +132,19 @@ Family monospace:   ui-monospace, "JetBrains Mono", monospace
 
 ### Regole d'uso
 
-- **Niente all-caps decorative.** Solo per micro-label di sistema (es. tag "OFFLINE") in `text-xs`, weight 600, letter-spacing `0.05em`.
+- **Niente all-caps decorative.** Le label informative usano case normale (es. "Ispezionata oggi", non "ISPEZIONATA · OGGI"). All-caps consentito solo per micro-tag di sistema (es. "OFFLINE") in `text-xs`, weight 600, letter-spacing `0.05em`, e mai per dati di routine.
 - **Tracking negativo solo sui titoli grandi**: `text-2xl` e oltre, `letter-spacing: -0.01em`.
 - **Numeri tabulari** (Inter feature `tnum`) per le colonne di numeri (kg miele, conteggi varroa) per allineamento verticale.
 - **Pesi disponibili**: 400, 500, 600, 700. Niente light (300), niente extrabold (800+).
+
+### Pattern: timestamp ultima ispezione
+
+Per indicare quando un'arnia è stata ispezionata l'ultima volta (compare in card lista, dettaglio arnia, e simili):
+
+- Una riga sola, `text-xs`, weight 500, color `wood-500` (light) / `wood-500` token in dark.
+- Formato: `"Ispezionata oggi"`, `"Ispezionata 3 g fa"`, `"Ispezionata il 12 mar"`, `"Mai ispezionata"`.
+- Soglie: "oggi" / "ieri" / "N g fa" fino a 7 giorni / data esplicita oltre / "Mai ispezionata" se nessuna ispezione registrata.
+- Mai in maiuscolo, mai su due righe separate (la label e la data stanno sulla stessa riga).
 
 ## 4. Token: spazi, raggi, bordi, ombre
 
@@ -208,12 +219,15 @@ Mai più ombre di `shadow-lg`. Mai shadow di colore neutro freddo (grigio puro):
 | Celle reali        | `AlertTriangle`   |
 | Patologia          | `ShieldAlert`     |
 | Comportamento ape  | `Activity`        |
+| Apiscampo          | `ArrowRight` o custom (cuneo) |
+| Rete propoli       | `Grid3x3` o custom (griglia)  |
+| Trappola polline   | custom (linee oblique)        |
 | Membri / condivisione | `UserPlus`     |
 | Foto               | `Camera`          |
 | Audio              | `Mic`             |
 | Posizione          | `MapPin`          |
 
-Per "miele" e "favo" probabilmente serve un'icona custom (esagono pieno con goccia). La dichiariamo come SVG inline nel componente `<HoneyIcon />`.
+Per "miele" e "favo" probabilmente serve un'icona custom (esagono pieno con goccia). La dichiariamo come SVG inline nel componente `<HoneyIcon />`. Stesso discorso per i simboli di attrezzatura usati nella HiveSchematic.
 
 ## 6. Componenti chiave
 
@@ -263,18 +277,25 @@ disabled:      bg cream-100, text wood-300
 
 Label sopra l'input, `text-sm`, weight 500, color `wood-700`. Placeholder `wood-400`.
 
-### Stepper numerico (per contatori da campo: melari, telaini)
+### SegmentedControl numerico (per contatori da campo: melari, telaini)
 
 Per scelte numeriche piccole (0–5) usare **segmented control** (pillole), non stepper +/−. Lo stepper è ammesso solo per range più ampi (es. conteggio varroa).
 
 ```
-container:    bg cream-200, rounded-md, p-1
-opzione:      h-11 (44px), px-4, text-base, weight 500
-attiva:       bg honey-500, text cream-50, in dark bg accent-fill-soft + text honey
+container:    bg cream-200 (light) / cream-100 token in dark, rounded-md, p-1
+opzione:      h-11 (44px), px-4, text-base, weight 500, rounded-sm
+attiva:       bg honey-500 (light) / accent-fill-soft + text honey (dark)
 inattiva:     text wood-500, hover bg cream-100
 ```
 
 Touch target garantito 44pt; nessun rischio di "premere il +/− sbagliato con il guanto".
+
+Props attese:
+- `value: number`
+- `onChange: (n: number) => void`
+- `min?: number` (default 0)
+- `max?: number` (default 3, hard cap 5)
+- `label?: string` (mostrata a sinistra del controllo)
 
 ### IconBadge (stato visivo arnia)
 
@@ -288,11 +309,27 @@ es. "covata OK":
   border-radius: rounded-full
 ```
 
+### StatusChip
+
+Variante più larga di IconBadge, con icona + label, usata per "Regina vista", "Patologia rilevata", "Scorte basse" e simili eventi semantici dell'ultima ispezione.
+
+```
+shape:       pill (rounded-full)
+height:      28-32px
+padding:     px-3 py-1
+icon:        16-18px a sinistra
+label:       text-sm, weight 500
+colori:      bg success-100 + text success-500 + icon success-500 (oliva)
+             oppure warning / danger secondo contesto
+```
+
+In dark: bg semantico ammorbidito (vedi token semantici dark in §11).
+
 ### StatusDot
 
 Cerchio 8×8 pieno, colore semantico. Sempre accompagnato da label testuale (per accessibilità).
 
-### Tab / Segmented control
+### Tab / Segmented control (testuale)
 
 Stile pillola con indicatore scorrevole. Usato per "Ispezione express / Standard" e simili.
 
@@ -304,7 +341,7 @@ tab inattivo:  color wood-500
 transition:    180ms ease-out
 ```
 
-### Toggle attrezzatura (chip stateful)
+### EquipmentToggle (chip stateful per attrezzatura montata)
 
 Per attrezzatura montata sull'arnia (apiscampo, rete propoli, trappola polline). Sono stati persistenti, non azioni; sono pochi e indipendenti.
 
@@ -313,7 +350,7 @@ inattivo:
   bg:           cream-100 (light) / cream-200 token in dark
   border:       1px cream-200
   text:         wood-500
-  icona:        opacity 60%
+  icona:        wood-500, opacity 60%
 attivo:
   bg:           honey-100 (light) / accent-fill-soft (dark, #3D2E15)
   border:       1px honey-500/40
@@ -321,7 +358,12 @@ attivo:
   icona:        honey-500, full opacity
 ```
 
-Touch target 40×40 minimo (chip a tutto larghezza riga, non quadrati piccoli). Sempre con icona + label, mai solo label.
+Touch target 44×44 minimo (chip a tutta larghezza disponibile in una row di 3 toggle, non quadrati piccoli). Sempre con icona + label, mai solo label.
+
+Props attese:
+- `equipment: 'apiscampo' | 'retePropoli' | 'trappolaPolline'`
+- `value: boolean`
+- `onChange: (v: boolean) => void`
 
 ### Bottom navigation (mobile)
 
@@ -336,35 +378,83 @@ attivo:      icon e label honey-500
 inattivo:    icon e label wood-500
 ```
 
-Voci proposte: **Apiari · Arnie · Visita · Calendario · Più**.
+Voci: **Apiari · Arnie · Visita · Calendario · Più**.
 
 ### HiveSchematic (componente custom — feature distintiva)
 
-Disegno schematico di un'arnia in SVG. È il **cuore visivo dell'app**, va trattato con cura.
+Disegno schematico di un'arnia in SVG. È il **cuore visivo dell'app**, va trattato con cura. Direction A v2 lo promuove a "hero" della card lista.
 
-**Composizione**:
-- Base: corpo dell'arnia (nido) come rettangolo con linee verticali a indicare i telaini *effettivi* (es. 10 favi = 10 linee verticali leggibili). La cifra "10" non si scrive, si vede.
-- Sopra: 0–3 melari, rettangoli più bassi e più stretti, impilati in modo crescente. Nessun melario = nessun rettangolo.
-- Tetto: trapezio o rettangolo sottile.
-- Tutto a tratto singolo, senza riempimento, colore `wood-600` in light e `cream-200` token in dark (`#4A3925`). Mai marroni saturi, mai texture legno.
-- Stato regina: piccolo simbolo `Crown` (12–14px) in alto al centro del nido, colore `honey-500` se vista, `wood-300` (assente/incerta), nascosto se non rilevata l'ultima ispezione.
-- Attrezzatura: piccoli simboli laterali (apiscampo, rete propoli, trappola polline) accanto al disegno, attivi solo se presenti.
+**Composizione (dal basso verso l'alto)**:
+- **Predellino e leggio**: linea orizzontale alla base, opzionale, tratto pieno `wood-600` (light) / `cream-200` token (dark).
+- **Nido (corpo principale)**: rettangolo a tratto singolo (no fill), con linee verticali interne a indicare i telaini *effettivi*. Es. 10 telai = 10 linee verticali. Tratto: `wood-600` (light) / `cream-200` token in dark.
+- **Melari**: 0–N rettangoli impilati sopra il nido, di altezza decrescente verso l'alto (il melario più alto è leggermente più stretto). Fill leggero `wood-500/15` (light) / `cream-200/15` (dark) per distinguerli dal nido senza rompere la palette tecnica. Tratto coerente con il nido. **Il numero di rettangoli melari deve sempre coincidere con il valore del SegmentedControl Melari della card**: zero rettangoli quando il conteggio è 0, due rettangoli quando è 2, ecc.
+- **Tetto**: trapezio o rettangolo sottile in cima. Stesso tratto.
 
-**Sovrimpressioni di stato**: 4–5 IconBadge piccole (24×24) ai lati o sopra il disegno, con tooltip sul tap. Usate solo nelle view di dettaglio (`md`, `lg`); nella card lista, gli stati sono visibili dal disegno stesso.
+**Sovrimpressioni di stato**:
+- **Corona regina** (icona piccola, 12–14px): in alto al centro del nido. Honey (`honey-500` / dark `honey-500` token = `#E0A744`) se la regina è confermata presente; attenuata a `wood-300` se assente o incerta; nascosta se mai rilevata. Rappresenta lo **stato persistente** della regina dell'arnia, non l'evento dell'ultima ispezione.
+- **Simboli di attrezzatura** (8–10px): piccoli simboli laterali che compaiono *solo quando l'attrezzatura è montata*, in `honey-500` (light/dark token). Posizione fissa: apiscampo a sinistra del nido, rete propoli sopra il tetto o lateralmente, trappola polline alla base. Quando un'attrezzatura non è montata, il simbolo non appare (assenza = stato inattivo, coerente con il toggle sotto). Coerente con la "Regola del colore attivo" §2: il giallo nella schematica = quella cosa è attivamente montata.
+
+**Label numeriche**:
+- Una label compatta "N telai" (es. "10 telai") può comparire **a margine del disegno**, non sovrapposta al corpo del nido. `text-xs`, weight 500, color `wood-500` token. Ammessa perché contare 10 linee verticali a colpo d'occhio è cognitivamente costoso e la cifra esplicita aiuta in apiario. Non si applica per altri elementi (no "2 melari" duplicato accanto al disegno: i 2 rettangoli si vedono).
 
 **Dimensioni**:
-- `sm`: 80×100, mostrata in card lista arnie compatta, niente badge sovrimpressi.
-- `md`: 140×180, schermata dettaglio arnia, 3 badge principali.
-- `lg`: 200×260, vista overview piena, tutti i badge.
+- `sm`: 80×100, mostrata in card lista arnie, **con corona, simboli attrezzatura, label "N telai"**.
+- `md`: 140×180, schermata dettaglio arnia, tutti gli elementi più 2-3 IconBadge sovrimpressi.
+- `lg`: 200×260, vista overview piena, tutti gli elementi e tutti i badge.
+
+**Props attese**:
+```ts
+{
+  size: 'sm' | 'md' | 'lg'
+  frames: number              // n telai (default 10)
+  supers: number              // n melari (0-3)
+  queenStatus: 'present' | 'absent' | 'unknown'
+  equipment: {
+    apiscampo: boolean
+    retePropoli: boolean
+    trappolaPolline: boolean
+  }
+  showFramesLabel?: boolean   // default true per size 'sm'
+}
+```
 
 **Niente**:
 - Niente fotografia o disegno realistico di un'arnia.
 - Niente texture legno.
-- Niente colore "natura" (verde foglia, marrone realistico).
+- Niente colore "natura" (verde foglia, marrone realistico, azzurro decorativo).
 - Niente animazioni di apine in volo.
-- Niente label numeriche sovrapposte al disegno (es. "10 favi" sopra il nido): se l'informazione è già nel disegno, scriverla è ridondanza visiva. La descrizione testuale dei dati sta accanto al disegno, non sopra.
+- Niente label numeriche **sovrapposte al corpo del nido** (la label "N telai" sta a margine, non dentro).
 
 L'estetica giusta è quella di un disegno tecnico a inchiostro, di una pagina di manuale di apicoltura del 1950 reinterpretata in chiave contemporanea.
+
+### HiveListCard (card della lista arnie — Direction A v2)
+
+Card singola che rappresenta un'arnia nella schermata `/arnie`. È il pattern definitivo deciso in Fase 2 dopo sessione Claude Design.
+
+**Struttura verticale (3 sezioni separate da divisori sottili `cream-200` / dark border token)**:
+
+1. **Header informativo (alto).** Layout orizzontale ~40/60.
+   - **Sinistra (~40%)**: HiveSchematic size `sm`, sotto la quale compare la riga "Ispezionata oggi" (vedi §3 pattern timestamp).
+   - **Destra (~60%)**: nome arnia (`text-xl`, weight 600), nome apiario (`text-base`, color `wood-500`), e un eventuale `StatusChip` semantico — tipicamente "Regina vista" (verde oliva, `success`) se nell'ultima ispezione la regina è stata avvistata. Il chip riflette **l'evento dell'ultima ispezione**, distinto dalla corona nella schematica che riflette **lo stato persistente**.
+
+2. **Sezione editor configurazione (centro).**
+   - Riga di 3 `EquipmentToggle` (Apiscampo, Rete propoli, Trappola polline) a tutta larghezza, equi-distribuiti.
+   - Riga sotto: label "Melari" + `SegmentedControl` 0/1/2/3.
+   - Modifiche persistono direttamente sull'arnia con optimistic update — non passano dal flow Ispezione.
+
+3. **CTA primaria (basso).**
+   - Bottone `primary` size `lg`, full-width, "Ispeziona" con icona `Play` o `ClipboardCheck`. Apre il flow ispezione (US-01).
+
+**Spaziatura interna**: `p-4` mobile. Gap fra le tre sezioni: `gap-4`. Divisori orizzontali fra sezioni: 1px `cream-200` token.
+
+**Touch target**: tutti i controlli (toggle, segmenti, CTA) ≥ 44pt.
+
+**Sincronia obbligatoria fra schematica e dati testuali**:
+- Numero di rettangoli melari nella schematica = valore del SegmentedControl
+- Simboli attrezzatura nella schematica accesi/spenti = stato dei toggle
+- Modifica di un toggle o del segmented control aggiorna immediatamente sia la cifra/stato editor sia il disegno schematico (stesso state source, optimistic update parent-side).
+
+**Compact mode (futuro, non v1)**: per utenti con molte arnie (>15-20 per apiario), prevedere un toggle "vista compatta" che riduce HiveListCard a una sola riga (mini-schematica 32×40, nome, apiario, IconBadge stato, timestamp; controlli editor e CTA accessibili tappando la card e aprendo il dettaglio). Non implementato in v1, ma il componente va scritto in modo che la futura aggiunta non richieda riscritture: separare la parte "header informativo" dalle altre sezioni, così il compact mode mostra solo l'header.
 
 ### Empty state
 
@@ -397,13 +487,14 @@ animazione:    slide up 200ms ease-out
 
 **Filosofia**: invisibile finché non serve. Mai animazioni decorative.
 
-| Caso                           | Durata | Easing       |
-|--------------------------------|--------|--------------|
-| Hover/press di un elemento     | 150ms  | `ease-out`   |
-| Cambio tab                     | 180ms  | `ease-out`   |
-| Apertura/chiusura sheet/modal  | 200ms  | `ease-out`   |
-| Skeleton pulse                 | 1500ms | `ease-in-out` looping |
-| Toast in/out                   | 200ms  | `ease-out`   |
+| Caso                              | Durata | Easing                |
+|-----------------------------------|--------|-----------------------|
+| Hover/press di un elemento        | 150ms  | `ease-out`            |
+| Cambio tab                        | 180ms  | `ease-out`            |
+| Apertura/chiusura sheet/modal     | 200ms  | `ease-out`            |
+| Skeleton pulse                    | 1500ms | `ease-in-out` looping |
+| Toast in/out                      | 200ms  | `ease-out`            |
+| Toggle equipment / segment change | 120ms  | `ease-out`            |
 
 Niente bounce/spring (Framer Motion va usato con `tween`, non `spring`).
 `prefers-reduced-motion`: tutte le animazioni si riducono a fade istantaneo (0ms).
@@ -430,7 +521,7 @@ Regole:
 - **Contrasto AA verificato** per ogni combinazione testo/sfondo (vedi §2).
 - **Touch target ≥ 44×44pt** per qualunque elemento interattivo. Bottoni `md` (44px) sono il default.
 - **Focus visibile**: outline 2px `honey-500`, offset 2px, su tutti gli elementi focusabili. Mai rimuovere il focus ring senza sostituirlo con un'alternativa visibile.
-- **Stati distinguibili senza colore**: status non solo cromatico ma con icona o label associata. Il daltonico non deve indovinare.
+- **Stati distinguibili senza colore**: status non solo cromatico ma con icona o label associata. Il daltonico non deve indovinare. Es. nella HiveSchematic, l'attrezzatura attiva non si distingue *solo* per il colore honey ma anche per la presenza/assenza del simbolo.
 - **Etichette form sempre presenti** (anche se nascoste visivamente con `sr-only` quando il design è minimal).
 - **Screen reader** sui flussi critici: ispezione, lista arnie, overview. Test con VoiceOver iOS prima del rilascio.
 - **Dimensioni testo**: rispetto delle preferenze utente sistema. Layout funziona fino a 200% di scala.
@@ -540,6 +631,7 @@ Da incollare nel file CSS principale (es. `src/app.css`):
 - Backgrounds cream, mai bianco puro.
 - Testo `wood-700`, mai nero puro.
 - Accent solo `honey-500` (eccezioni motivate solo per stati semantici).
+- **Honey accent significa "attivo/montato/selezionato" ovunque appaia**: toggle attivo, segment attivo, simbolo attrezzatura nella schematica. Una regola, una semantica.
 - Bordi sottili al posto delle ombre — *visibili in dark*, non timidi.
 - In dark, delta significativo (~10–12% luminosità) fra app e card.
 - In dark, pulsanti secondari sempre con fill, mai outline-only.
@@ -548,23 +640,25 @@ Da incollare nel file CSS principale (es. `src/app.css`):
 - Type scale coerente: solo i 7 livelli definiti.
 - Icone Lucide con stroke 1.75.
 - Touch target 44pt minimo (segmented control invece di stepper +/− per range piccoli).
-- Per HiveSchematic: l'informazione è nel disegno, non nelle label sovrapposte.
+- Per HiveSchematic: l'informazione è nel disegno, dove serve può essere affiancata (non sovrapposta) da label compatte.
+- HiveSchematic e dati testuali della stessa card devono **sempre essere sincronizzati** (n melari a sinistra = n melari nel segmented control a destra).
 
 **Non fare**
 
 - Niente gradienti.
 - Niente glassmorphism / blur di sfondo.
 - Niente illustrazioni di api, fiori, alveari realistici.
+- Niente colori fuori palette in HiveSchematic (no celeste, no verde naturale, no marroni saturi).
 - Niente font fantasiosi (no script, no slab, no display estremi).
 - Niente più di un colore accent attivo per schermata.
 - Niente shadow oltre `shadow-lg`.
 - Niente animazioni decorative o "deliziosamente" elastiche.
 - Niente badge che lampeggiano o pulsano per attirare attenzione.
-- Niente uppercase decorative.
+- Niente uppercase decorative (vale anche per label di sistema "ULTIMA ISPEZIONE": preferire "Ispezionata oggi" in case normale).
 - Niente verde semantico per "selezionato" o "toggle on" (è riservato a `success`).
 - Niente outline-only su dark.
-- Niente label numeriche sovrapposte alla HiveSchematic.
+- Niente label numeriche **sovrapposte al corpo della HiveSchematic** (a margine sì, dentro no).
 
 ---
 
-*Versione 0.2 — revisione dark theme dopo riscontri da campo. Prossima fase: revisione schermate "Lista arnie" e "Ispezione" in Claude Design.*
+*Versione 0.3 — Direction A v2 codificata dopo sessione Claude Design. Prossima fase: implementazione `HiveListCard` + sotto-componenti via Claude Code.*
