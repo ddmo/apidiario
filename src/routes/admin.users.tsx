@@ -41,6 +41,8 @@ function AdminUsersPage() {
 
   // Revoke state (user_id being revoked)
   const [revoking, setRevoking] = useState<string | null>(null)
+  // Delete state (user_id being deleted)
+  const [deleting, setDeleting] = useState<string | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -103,6 +105,22 @@ function AdminUsersPage() {
     setRevoking(null)
     if (error) {
       alert(error.message || 'Errore durante la revoca.')
+    } else {
+      fetchUsers()
+    }
+  }
+
+  async function handleDeleteUser(targetUserId: string) {
+    if (!window.confirm(`Eliminare definitivamente questo utente? Tutti i suoi dati andranno persi.`)) return
+    setDeleting(targetUserId)
+
+    const { error } = await supabase.functions.invoke('admin-delete-user', {
+      body: { user_id: targetUserId },
+    })
+
+    setDeleting(null)
+    if (error) {
+      alert(error.message || "Errore durante l'eliminazione.")
     } else {
       fetchUsers()
     }
@@ -241,6 +259,16 @@ function AdminUsersPage() {
                   <span>
                     {t.admin.lastLogin}: {new Date(user.lastSignInAt).toLocaleDateString('it-IT')}
                   </span>
+                )}
+                {user.id !== currentUserId && (
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteUser(user.id)}
+                    disabled={deleting === user.id}
+                    className="ml-auto text-danger-500 hover:text-danger-700 underline underline-offset-2"
+                  >
+                    {deleting === user.id ? '…' : 'Elimina'}
+                  </button>
                 )}
               </div>
             </div>

@@ -1,20 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
-import { Trees, Box, Plus, Calendar, MoreHorizontal, Shield } from 'lucide-react'
+import { Trees, Box, Plus, Calendar, MoreHorizontal } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { t } from '@/i18n/it'
-import { supabase } from '@/lib/supabase'
 import { HivePickerSheet } from '@/features/inspections/components/hive-picker-sheet'
 
 export function BottomNav() {
   const { location } = useRouterState()
   const [showPicker, setShowPicker] = useState(false)
-  const [isAdmin, setIsAdmin] = useState(false)
-
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(supabase.rpc as any)('is_app_admin').then(({ data }: { data: boolean | null }) => setIsAdmin(!!data))
-  }, [])
 
   return (
     <>
@@ -84,32 +77,19 @@ export function BottomNav() {
             </Link>
           </li>
 
-          {/* Più / Amministrazione */}
+          {/* Più */}
           <li className="flex-1">
-            {isAdmin ? (
-              <Link
-                to="/admin/users"
-                className={cn(
-                  'flex flex-col items-center gap-1 py-2 w-full min-h-[44px] justify-center transition-colors duration-150',
-                  location.pathname.startsWith('/admin') ? 'text-honey-500' : 'text-wood-500',
-                )}
-                aria-current={location.pathname.startsWith('/admin') ? 'page' : undefined}
-              >
-                <Shield size={24} strokeWidth={1.75} aria-hidden="true" />
-                <span className="text-xs font-medium">{t.admin.users}</span>
-              </Link>
-            ) : (
-              <a
-                href="/piu"
-                className={cn(
-                  'flex flex-col items-center gap-1 py-2 w-full min-h-[44px] justify-center transition-colors duration-150',
-                  'text-wood-500',
-                )}
-              >
-                <MoreHorizontal size={24} strokeWidth={1.75} aria-hidden="true" />
-                <span className="text-xs font-medium">{t.nav.altro}</span>
-              </a>
-            )}
+            <Link
+              to="/piu"
+              className={cn(
+                'flex flex-col items-center gap-1 py-2 w-full min-h-[44px] justify-center transition-colors duration-150',
+                location.pathname === '/piu' ? 'text-honey-500' : 'text-wood-500',
+              )}
+              aria-current={location.pathname === '/piu' ? 'page' : undefined}
+            >
+              <MoreHorizontal size={24} strokeWidth={1.75} aria-hidden="true" />
+              <span className="text-xs font-medium">{t.nav.altro}</span>
+            </Link>
           </li>
         </ul>
       </nav>

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SetPasswordRouteImport } from './routes/set-password'
+import { Route as PiuRouteImport } from './routes/piu'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthIndexRouteImport } from './routes/_auth.index'
@@ -28,6 +29,11 @@ import { Route as AuthHivesHiveIdInspectionsRouteImport } from './routes/_auth.h
 const SetPasswordRoute = SetPasswordRouteImport.update({
   id: '/set-password',
   path: '/set-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PiuRoute = PiuRouteImport.update({
+  id: '/piu',
+  path: '/piu',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -106,6 +112,7 @@ const AuthHivesHiveIdInspectionsRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AuthIndexRoute
   '/login': typeof LoginRoute
+  '/piu': typeof PiuRoute
   '/set-password': typeof SetPasswordRoute
   '/arnie': typeof AuthArnieRoute
   '/calendario': typeof AuthCalendarioRoute
@@ -121,6 +128,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/piu': typeof PiuRoute
   '/set-password': typeof SetPasswordRoute
   '/arnie': typeof AuthArnieRoute
   '/calendario': typeof AuthCalendarioRoute
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteWithChildren
   '/login': typeof LoginRoute
+  '/piu': typeof PiuRoute
   '/set-password': typeof SetPasswordRoute
   '/_auth/arnie': typeof AuthArnieRoute
   '/_auth/calendario': typeof AuthCalendarioRoute
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/piu'
     | '/set-password'
     | '/arnie'
     | '/calendario'
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
+    | '/piu'
     | '/set-password'
     | '/arnie'
     | '/calendario'
@@ -190,6 +201,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_auth'
     | '/login'
+    | '/piu'
     | '/set-password'
     | '/_auth/arnie'
     | '/_auth/calendario'
@@ -208,6 +220,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   LoginRoute: typeof LoginRoute
+  PiuRoute: typeof PiuRoute
   SetPasswordRoute: typeof SetPasswordRoute
   AdminUsersRoute: typeof AdminUsersRoute
   ApiariesNewRoute: typeof ApiariesNewRoute
@@ -224,6 +237,13 @@ declare module '@tanstack/react-router' {
       path: '/set-password'
       fullPath: '/set-password'
       preLoaderRoute: typeof SetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/piu': {
+      id: '/piu'
+      path: '/piu'
+      fullPath: '/piu'
+      preLoaderRoute: typeof PiuRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -350,6 +370,7 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   LoginRoute: LoginRoute,
+  PiuRoute: PiuRoute,
   SetPasswordRoute: SetPasswordRoute,
   AdminUsersRoute: AdminUsersRoute,
   ApiariesNewRoute: ApiariesNewRoute,
