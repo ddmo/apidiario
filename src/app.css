@@ -51,19 +51,39 @@
   --shadow-fab: 0 4px 12px rgba(60, 40, 20, 0.15);
 }
 
-/* Tema scuro: stessi token, valori invertiti */
+/* Tema scuro: stessi token, valori invertiti.
+   Contrasti verificati WCAG AA (≥4.5:1 testo normale, ≥3:1 large).
+   Scala invertita: numeri bassi = scuri, numeri alti = chiari. */
 @layer base {
   :root[data-theme="dark"] {
-    --color-cream-50:  #1A130C;
-    --color-cream-100: #241B11;
-    --color-cream-200: #3A2D1D;
-    --color-wood-300:  #5A4830;
-    --color-wood-400:  #7A6444;
-    --color-wood-500:  #B5A282;
-    --color-wood-700:  #EBE0CB;
-    --color-wood-800:  #F5EEDE;
+    /* Cream — sfondi (scala invertita: 50=page, 100=card, 200=border) */
+    --color-cream-50:  #0F0B07;
+    --color-cream-100: #1E1812;
+    --color-cream-200: #2D261D;
+
+    /* Wood — testo e neutri */
+    --color-wood-300:  #4A4035;
+    --color-wood-400:  #968470;
+    --color-wood-500:  #B8A894;
+    --color-wood-600:  #D4C8B4;
+    --color-wood-700:  #EBE0D0;
+    --color-wood-800:  #F5EFE4;
+    --color-wood-900:  #050302;
+
+    /* Honey — accento */
+    --color-honey-300: #7A520C;
+    --color-honey-400: #9B6310;
     --color-honey-500: #E5A938;
     --color-honey-600: #F0C77A;
+    --color-honey-700: #F8E4B8;
+
+    /* Semantiche */
+    --color-success-100: #233018;
+    --color-success-500: #9BBF7E;
+    --color-warning-100: #322618;
+    --color-warning-500: #E5A050;
+    --color-danger-100:  #2D1818;
+    --color-danger-500:  #E07060;
   }
 }
 

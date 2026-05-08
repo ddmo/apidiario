@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from '@tanstack/react-router'
-import { ClipboardList } from 'lucide-react'
+import { ClipboardList, Trash2 } from 'lucide-react'
 import { HiveSchematic } from './hive-schematic'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import {
@@ -10,7 +10,7 @@ import {
 } from '../hooks/use-hives'
 import { t } from '@/i18n/it'
 
-const REVEAL_W = 84
+const REVEAL_W = 160
 
 function relativeDate(iso: string): string {
   const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000)
@@ -24,9 +24,10 @@ function relativeDate(iso: string): string {
 
 interface HiveCardProps {
   hive: HiveListItem
+  onDelete?: (hiveId: string) => void
 }
 
-export function HiveCard({ hive }: HiveCardProps) {
+export function HiveCard({ hive, onDelete }: HiveCardProps) {
   const { mutate: toggle } = useToggleHiveAccessory()
   const { mutate: setMelari } = useUpdateMelariCount()
 
@@ -116,6 +117,16 @@ export function HiveCard({ hive }: HiveCardProps) {
             {t.inspection.list.title}
           </span>
         </Link>
+        {onDelete && (
+          <button
+            type="button"
+            onClick={() => onDelete(hive.id)}
+            className="flex-1 flex flex-col items-center justify-center gap-1 bg-danger-500 text-white"
+          >
+            <Trash2 size={18} strokeWidth={1.75} />
+            <span className="text-[11px] font-semibold leading-none">Elimina</span>
+          </button>
+        )}
       </div>
 
       {/* Swipeable card */}

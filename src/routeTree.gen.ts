@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SetPasswordRouteImport } from './routes/set-password'
+import { Route as PrevisioniRouteImport } from './routes/previsioni'
 import { Route as PiuRouteImport } from './routes/piu'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthRouteImport } from './routes/_auth'
@@ -21,6 +22,7 @@ import { Route as AuthHomeRouteImport } from './routes/_auth.home'
 import { Route as AuthCalendarioRouteImport } from './routes/_auth.calendario'
 import { Route as AuthArnieRouteImport } from './routes/_auth.arnie'
 import { Route as InspectionsHiveIdNewRouteImport } from './routes/inspections.$hiveId.new'
+import { Route as ApiariesApiaryIdEditRouteImport } from './routes/apiaries.$apiaryId.edit'
 import { Route as AuthApiariesApiaryIdRouteImport } from './routes/_auth.apiaries.$apiaryId'
 import { Route as HivesHiveIdInspectionsInspectionIdRouteImport } from './routes/hives.$hiveId.inspections.$inspectionId'
 import { Route as ApiariesApiaryIdHivesNewRouteImport } from './routes/apiaries.$apiaryId.hives.new'
@@ -29,6 +31,11 @@ import { Route as AuthHivesHiveIdInspectionsRouteImport } from './routes/_auth.h
 const SetPasswordRoute = SetPasswordRouteImport.update({
   id: '/set-password',
   path: '/set-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrevisioniRoute = PrevisioniRouteImport.update({
+  id: '/previsioni',
+  path: '/previsioni',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PiuRoute = PiuRouteImport.update({
@@ -85,6 +92,11 @@ const InspectionsHiveIdNewRoute = InspectionsHiveIdNewRouteImport.update({
   path: '/inspections/$hiveId/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiariesApiaryIdEditRoute = ApiariesApiaryIdEditRouteImport.update({
+  id: '/apiaries/$apiaryId/edit',
+  path: '/apiaries/$apiaryId/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthApiariesApiaryIdRoute = AuthApiariesApiaryIdRouteImport.update({
   id: '/apiaries/$apiaryId',
   path: '/apiaries/$apiaryId',
@@ -113,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthIndexRoute
   '/login': typeof LoginRoute
   '/piu': typeof PiuRoute
+  '/previsioni': typeof PrevisioniRoute
   '/set-password': typeof SetPasswordRoute
   '/arnie': typeof AuthArnieRoute
   '/calendario': typeof AuthCalendarioRoute
@@ -121,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/apiaries/new': typeof ApiariesNewRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
+  '/apiaries/$apiaryId/edit': typeof ApiariesApiaryIdEditRoute
   '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
   '/hives/$hiveId/inspections': typeof AuthHivesHiveIdInspectionsRoute
   '/apiaries/$apiaryId/hives/new': typeof ApiariesApiaryIdHivesNewRoute
@@ -129,6 +143,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/piu': typeof PiuRoute
+  '/previsioni': typeof PrevisioniRoute
   '/set-password': typeof SetPasswordRoute
   '/arnie': typeof AuthArnieRoute
   '/calendario': typeof AuthCalendarioRoute
@@ -138,6 +153,7 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/': typeof AuthIndexRoute
   '/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
+  '/apiaries/$apiaryId/edit': typeof ApiariesApiaryIdEditRoute
   '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
   '/hives/$hiveId/inspections': typeof AuthHivesHiveIdInspectionsRoute
   '/apiaries/$apiaryId/hives/new': typeof ApiariesApiaryIdHivesNewRoute
@@ -148,6 +164,7 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteWithChildren
   '/login': typeof LoginRoute
   '/piu': typeof PiuRoute
+  '/previsioni': typeof PrevisioniRoute
   '/set-password': typeof SetPasswordRoute
   '/_auth/arnie': typeof AuthArnieRoute
   '/_auth/calendario': typeof AuthCalendarioRoute
@@ -157,6 +174,7 @@ export interface FileRoutesById {
   '/auth/callback': typeof AuthCallbackRoute
   '/_auth/': typeof AuthIndexRoute
   '/_auth/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
+  '/apiaries/$apiaryId/edit': typeof ApiariesApiaryIdEditRoute
   '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
   '/_auth/hives/$hiveId/inspections': typeof AuthHivesHiveIdInspectionsRoute
   '/apiaries/$apiaryId/hives/new': typeof ApiariesApiaryIdHivesNewRoute
@@ -168,6 +186,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/piu'
+    | '/previsioni'
     | '/set-password'
     | '/arnie'
     | '/calendario'
@@ -176,6 +195,7 @@ export interface FileRouteTypes {
     | '/apiaries/new'
     | '/auth/callback'
     | '/apiaries/$apiaryId'
+    | '/apiaries/$apiaryId/edit'
     | '/inspections/$hiveId/new'
     | '/hives/$hiveId/inspections'
     | '/apiaries/$apiaryId/hives/new'
@@ -184,6 +204,7 @@ export interface FileRouteTypes {
   to:
     | '/login'
     | '/piu'
+    | '/previsioni'
     | '/set-password'
     | '/arnie'
     | '/calendario'
@@ -193,6 +214,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/'
     | '/apiaries/$apiaryId'
+    | '/apiaries/$apiaryId/edit'
     | '/inspections/$hiveId/new'
     | '/hives/$hiveId/inspections'
     | '/apiaries/$apiaryId/hives/new'
@@ -202,6 +224,7 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/login'
     | '/piu'
+    | '/previsioni'
     | '/set-password'
     | '/_auth/arnie'
     | '/_auth/calendario'
@@ -211,6 +234,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/_auth/'
     | '/_auth/apiaries/$apiaryId'
+    | '/apiaries/$apiaryId/edit'
     | '/inspections/$hiveId/new'
     | '/_auth/hives/$hiveId/inspections'
     | '/apiaries/$apiaryId/hives/new'
@@ -221,10 +245,12 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   LoginRoute: typeof LoginRoute
   PiuRoute: typeof PiuRoute
+  PrevisioniRoute: typeof PrevisioniRoute
   SetPasswordRoute: typeof SetPasswordRoute
   AdminUsersRoute: typeof AdminUsersRoute
   ApiariesNewRoute: typeof ApiariesNewRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  ApiariesApiaryIdEditRoute: typeof ApiariesApiaryIdEditRoute
   InspectionsHiveIdNewRoute: typeof InspectionsHiveIdNewRoute
   ApiariesApiaryIdHivesNewRoute: typeof ApiariesApiaryIdHivesNewRoute
   HivesHiveIdInspectionsInspectionIdRoute: typeof HivesHiveIdInspectionsInspectionIdRoute
@@ -237,6 +263,13 @@ declare module '@tanstack/react-router' {
       path: '/set-password'
       fullPath: '/set-password'
       preLoaderRoute: typeof SetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/previsioni': {
+      id: '/previsioni'
+      path: '/previsioni'
+      fullPath: '/previsioni'
+      preLoaderRoute: typeof PrevisioniRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/piu': {
@@ -316,6 +349,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InspectionsHiveIdNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/apiaries/$apiaryId/edit': {
+      id: '/apiaries/$apiaryId/edit'
+      path: '/apiaries/$apiaryId/edit'
+      fullPath: '/apiaries/$apiaryId/edit'
+      preLoaderRoute: typeof ApiariesApiaryIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_auth/apiaries/$apiaryId': {
       id: '/_auth/apiaries/$apiaryId'
       path: '/apiaries/$apiaryId'
@@ -371,10 +411,12 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   LoginRoute: LoginRoute,
   PiuRoute: PiuRoute,
+  PrevisioniRoute: PrevisioniRoute,
   SetPasswordRoute: SetPasswordRoute,
   AdminUsersRoute: AdminUsersRoute,
   ApiariesNewRoute: ApiariesNewRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  ApiariesApiaryIdEditRoute: ApiariesApiaryIdEditRoute,
   InspectionsHiveIdNewRoute: InspectionsHiveIdNewRoute,
   ApiariesApiaryIdHivesNewRoute: ApiariesApiaryIdHivesNewRoute,
   HivesHiveIdInspectionsInspectionIdRoute:

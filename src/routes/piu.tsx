@@ -1,6 +1,8 @@
 import { createFileRoute, redirect, Link, useNavigate } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import { ArrowLeft, Shield, LogOut, Sun, Moon, Monitor } from 'lucide-react'
+import { useAuth } from '@/hooks/use-auth'
+import { ArrowLeft, Shield, LogOut, Sun, Moon, Monitor, User, Database, Flower2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { setThemeMode, getThemeMode, type ThemeMode } from '@/lib/theme'
 import { t } from '@/i18n/it'
@@ -17,9 +19,25 @@ export const Route = createFileRoute('/piu')({
 
 function PiuPage() {
   const navigate = useNavigate()
+  const { session, profile } = useAuth()
   const [isAdmin, setIsAdmin] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
   const [themeMode, setThemeLocal] = useState<ThemeMode>(getThemeMode())
+
+  const { data: lastUpdate } = useQuery({
+    queryKey: ['lastDataUpdate'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('inspections')
+        .select('performed_at')
+        .order('performed_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      if (error) return null
+      return data?.performed_at ?? null
+    },
+    staleTime: 1000 * 60,
+  })
 
   function handleThemeChange(mode: ThemeMode) {
     setThemeLocal(mode)
@@ -36,6 +54,14 @@ function PiuPage() {
     await supabase.auth.signOut()
     navigate({ to: '/login' })
   }
+
+  const userEmail = session?.user?.email ?? profile?.display_name ?? '—'
+  const lastUpdateLabel = lastUpdate
+    ? new Date(lastUpdate).toLocaleString('it-IT', {
+        day: 'numeric', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit',
+      })
+    : 'Nessun dato'
 
   return (
     <main className="min-h-dvh px-4 py-6">
@@ -54,6 +80,34 @@ function PiuPage() {
         </h1>
 
         <div className="flex flex-col gap-2">
+          {/* User info */}
+          <div className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3">
+            <User size={20} className="text-wood-500 shrink-0" />
+            <div>
+              <p className="text-sm font-medium text-wood-800">{userEmail}</p>
+              {profile?.display_name && session?.user?.email && (
+                <p className="text-xs text-wood-400">{session.user.email}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Last data update */}
+          <div className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3">
+            <Database size={20} className="text-wood-500 shrink-0" />
+            <div>
+              <p className="text-xs text-wood-400">Ultimo aggiornamento dati</p>
+              <p className="text-sm font-medium text-wood-800">{lastUpdateLabel}</p>
+            </div>
+          </div>
+
+          <Link
+            to="/previsioni"
+            className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3 text-wood-800 hover:bg-cream-200 transition-colors"
+          >
+            <Flower2 size={20} className="text-honey-600 shrink-0" />
+            <span className="text-sm font-medium">Previsioni fioriture</span>
+          </Link>
+
           {isAdmin && (
             <Link
               to="/admin/users"

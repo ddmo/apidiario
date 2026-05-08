@@ -17,17 +17,38 @@ export type ApiaryListItem = {
   photoUrl: string | null
 }
 
+export type ApiaryDetail = {
+  id: string
+  name: string
+  bda_codice_aziendale: string | null
+  latitude: number | null
+  longitude: number | null
+  address: string | null
+  notes: string | null
+  main_photo_path: string | null
+  photoUrl: string | null
+}
+
 export function useApiary(apiaryId: string) {
   return useQuery({
     queryKey: ['apiary', apiaryId],
-    queryFn: async () => {
+    queryFn: async (): Promise<ApiaryDetail> => {
       const { data, error } = await supabase
         .from('apiaries')
-        .select('id, name')
+        .select('id, name, bda_codice_aziendale, latitude, longitude, address, notes, main_photo_path')
         .eq('id', apiaryId)
         .single()
       if (error) throw error
-      return data
+
+      let photoUrl: string | null = null
+      if (data.main_photo_path) {
+        const { data: signed } = await supabase.storage
+          .from('apidiario-media')
+          .createSignedUrl(data.main_photo_path, 3600)
+        photoUrl = signed?.signedUrl ?? null
+      }
+
+      return { ...data, photoUrl } as ApiaryDetail
     },
     enabled: !!apiaryId,
   })
@@ -159,6 +180,85 @@ export function useCreateApiary() {
         .eq('id', id)
 
       return { id }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['apiaries'] })
+    },
+  })
+}
+
+type UpdateApiaryInput = {
+  apiaryId: string
+  name: string
+  bda_codice_aziendale?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  address?: string | null
+  notes?: string | null
+  photoFile?: File | null
+  removePhoto?: boolean
+}
+
+export function useUpdateApiary() {
+  return useMutation<void, Error, UpdateApiaryInput>({
+    mutationFn: async ({
+      apiaryId,
+      name,
+      bda_codice_aziendale,
+      latitude,
+      longitude,
+      address,
+      notes,
+      photoFile,
+      removePhoto,
+    }) => {
+      const update: Record<string, unknown> = {
+        name,
+        bda_codice_aziendale: bda_codice_aziendale ?? null,
+        latitude: latitude ?? null,
+        longitude: longitude ?? null,
+        address: address ?? null,
+        notes: notes ?? null,
+      }
+
+      if (removePhoto) {
+        update.main_photo_path = null
+      }
+
+      if (photoFile) {
+        const ext = photoFile.name.split('.').pop()?.toLowerCase() ?? 'jpg'
+        const path = `apiaries/${apiaryId}/main.${ext}`
+        const { error: uploadError } = await supabase.storage
+          .from('apidiario-media')
+          .upload(path, photoFile, { upsert: true })
+        if (uploadError) {
+          console.error('[uploadPhoto]', uploadError)
+        } else {
+          update.main_photo_path = path
+        }
+      }
+
+      const { error } = await supabase
+        .from('apiaries')
+        .update(update)
+        .eq('id', apiaryId)
+
+      if (error) throw error
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['apiaries'] })
+    },
+  })
+}
+
+export function useDeleteApiary() {
+  return useMutation({
+    mutationFn: async (apiaryId: string) => {
+      const { error } = await supabase
+        .from('apiaries')
+        .update({ archived_at: new Date().toISOString() })
+        .eq('id', apiaryId)
+      if (error) throw error
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['apiaries'] })

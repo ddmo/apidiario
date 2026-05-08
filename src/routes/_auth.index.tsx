@@ -1,12 +1,13 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Plus, Trees, Share2 } from 'lucide-react'
+import { Plus, Trees, Share2, Trash2, Pencil } from 'lucide-react'
 import { useState } from 'react'
-import { useApiaries } from '@/features/apiaries/hooks/use-apiaries'
+import { useApiaries, useDeleteApiary } from '@/features/apiaries/hooks/use-apiaries'
 import { ApiaryListItem } from '@/features/apiaries/components/apiary-list-item'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Fab } from '@/components/ui/fab'
 import { SwipeableRow } from '@/components/ui/swipeable-row'
 import { ShareSheet } from '@/features/apiaries/components/share-sheet'
+import { useToast } from '@/hooks/use-toast'
 import { t } from '@/i18n/it'
 
 export const Route = createFileRoute('/_auth/')({
@@ -27,11 +28,14 @@ function SkeletonCard() {
 
 function HomePage() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const { data: apiaries, isLoading, isError } = useApiaries()
+  const { mutate: deleteApiary } = useDeleteApiary()
 
   const totalHives = apiaries?.reduce((sum, a) => sum + a.hiveCount, 0) ?? 0
 
   const [shareTarget, setShareTarget] = useState<{ id: string; name: string } | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
 
   return (
     <div className="flex flex-col h-full bg-cream-50">
@@ -97,16 +101,34 @@ function HomePage() {
                 {apiaries.map((apiary) => (
                   <SwipeableRow
                     key={apiary.id}
-                    revealWidth={84}
+                    revealWidth={240}
                     revealContent={
-                      <button
-                        type="button"
-                        onClick={() => setShareTarget({ id: apiary.id, name: apiary.name })}
-                        className="flex-1 flex flex-col items-center justify-center gap-1 bg-honey-500 text-white"
-                      >
-                        <Share2 size={18} strokeWidth={1.75} />
-                        <span className="text-[11px] font-semibold leading-none">Condividi</span>
-                      </button>
+                      <div className="flex-1 flex items-stretch">
+                        <button
+                          type="button"
+                          onClick={() => setShareTarget({ id: apiary.id, name: apiary.name })}
+                          className="flex-1 flex flex-col items-center justify-center gap-1 bg-honey-500 text-white"
+                        >
+                          <Share2 size={18} strokeWidth={1.75} />
+                          <span className="text-[11px] font-semibold leading-none">Condividi</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void navigate({ to: '/apiaries/$apiaryId/edit', params: { apiaryId: apiary.id } })}
+                          className="flex-1 flex flex-col items-center justify-center gap-1 bg-[#5B8FA0] text-white"
+                        >
+                          <Pencil size={18} strokeWidth={1.75} />
+                          <span className="text-[11px] font-semibold leading-none">Modifica</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDeleteTarget({ id: apiary.id, name: apiary.name })}
+                          className="flex-1 flex flex-col items-center justify-center gap-1 bg-danger-500 text-white"
+                        >
+                          <Trash2 size={18} strokeWidth={1.75} />
+                          <span className="text-[11px] font-semibold leading-none">Elimina</span>
+                        </button>
+                      </div>
                     }
                   >
                     <ApiaryListItem
@@ -140,6 +162,55 @@ function HomePage() {
         onClose={() => setShareTarget(null)}
         onShared={() => setShareTarget(null)}
       />
+
+      {/* Delete apiary confirmation */}
+      {deleteTarget && (
+        <>
+          <div
+            className="fixed inset-0 z-30 bg-wood-900/40"
+            onClick={() => setDeleteTarget(null)}
+            aria-hidden="true"
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Elimina apiario"
+            className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg"
+          >
+            <div className="flex justify-center pt-2.5 pb-1">
+              <span className="block w-9 h-1 rounded-full bg-cream-200" aria-hidden="true" />
+            </div>
+            <div className="px-5 pt-3 pb-4">
+              <h2 className="text-lg font-semibold text-wood-800 mb-1">Elimina apiario</h2>
+              <p className="text-sm text-wood-500 leading-relaxed">
+                Eliminare <strong>{deleteTarget.name}</strong>? Tutte le arnie e ispezioni associate verranno rimosse. L&rsquo;operazione non pu&ograve; essere annullata.
+              </p>
+            </div>
+            <div className="px-4 flex flex-col gap-2 [padding-bottom:calc(1rem+env(safe-area-inset-bottom))]">
+              <button
+                type="button"
+                onClick={() => {
+                  deleteApiary(deleteTarget.id, {
+                    onSuccess: () => showToast('Apiario eliminato', 'success'),
+                    onError: () => showToast('Eliminazione fallita', 'error'),
+                  })
+                  setDeleteTarget(null)
+                }}
+                className="w-full h-13 flex items-center justify-center gap-2 rounded-md font-medium bg-danger-500 text-cream-50 hover:bg-danger-500/90 transition-colors"
+              >
+                Elimina
+              </button>
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                className="w-full h-11 flex items-center justify-center rounded-md font-medium bg-transparent text-wood-700 hover:bg-cream-100 transition-colors"
+              >
+                Annulla
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

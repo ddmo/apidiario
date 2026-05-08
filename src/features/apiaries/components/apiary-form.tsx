@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { MainPhotoSlot } from '@/components/ui/main-photo-slot'
 import { LocationPreview } from '@/components/ui/location-preview'
-import { useCreateApiary } from '../hooks/use-apiaries'
+import { useCreateApiary, useUpdateApiary, type ApiaryDetail } from '../hooks/use-apiaries'
 import { useGeolocation } from '../hooks/use-geolocation'
 import { useToast } from '@/hooks/use-toast'
 import { t } from '@/i18n/it'
@@ -16,30 +16,46 @@ interface ApiaryFormProps {
   userId: string
   onSuccess: () => void
   onCancel: () => void
+  initialData?: ApiaryDetail | null
 }
 
-export function ApiaryForm({ userId, onSuccess, onCancel }: ApiaryFormProps) {
+export function ApiaryForm({ userId, onSuccess, onCancel, initialData }: ApiaryFormProps) {
+  const isEdit = !!initialData
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { showToast } = useToast()
-  const { mutate: createApiary, isPending } = useCreateApiary()
+  const { mutate: createApiary, isPending: isCreating } = useCreateApiary()
+  const { mutate: updateApiary, isPending: isUpdating } = useUpdateApiary()
+  const isPending = isCreating || isUpdating
   const { state: geoState, request: requestLocation } = useGeolocation()
 
-  // Form fields
+  // Form fields — prefilled when editing
   const [photoFile, setPhotoFile] = useState<File | null>(null)
-  const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(null)
-  const [name, setName] = useState('')
-  const [bdaCode, setBdaCode] = useState('')
-  const [location, setLocation] = useState<Location | null>(null)
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(initialData?.photoUrl ?? null)
+  const [photoRemoved, setPhotoRemoved] = useState(false)
+  const [name, setName] = useState(initialData?.name ?? '')
+  const [bdaCode, setBdaCode] = useState(initialData?.bda_codice_aziendale ?? '')
+  const [location, setLocation] = useState<Location | null>(
+    initialData?.latitude != null && initialData?.longitude != null
+      ? { lat: initialData.latitude, lng: initialData.longitude }
+      : null,
+  )
   const [showCoordEditor, setShowCoordEditor] = useState(false)
-  const [latInput, setLatInput] = useState('')
-  const [lngInput, setLngInput] = useState('')
-  const [address, setAddress] = useState('')
-  const [notes, setNotes] = useState('')
+  const [latInput, setLatInput] = useState(initialData?.latitude != null ? String(initialData.latitude) : '')
+  const [lngInput, setLngInput] = useState(initialData?.longitude != null ? String(initialData.longitude) : '')
+  const [address, setAddress] = useState(initialData?.address ?? '')
+  const [notes, setNotes] = useState(initialData?.notes ?? '')
   const [nameError, setNameError] = useState('')
   const [isDirty, setIsDirty] = useState(false)
   const [showUnsaved, setShowUnsaved] = useState(false)
 
   const markDirty = () => setIsDirty(true)
+
+  // Sync photo preview when initialData loads (handles async query resolution)
+  useEffect(() => {
+    if (initialData?.photoUrl && !photoFile && !photoRemoved) {
+      setPhotoPreviewUrl(initialData.photoUrl)
+    }
+  }, [initialData?.photoUrl, photoFile, photoRemoved])
 
   // Sync location from geolocation hook when it succeeds
   useEffect(() => {
@@ -56,6 +72,7 @@ export function ApiaryForm({ userId, onSuccess, onCancel }: ApiaryFormProps) {
 
   const handleFileSelected = async (file: File) => {
     markDirty()
+    setPhotoRemoved(false)
     setPhotoPreviewUrl(URL.createObjectURL(file))
     try {
       const compressed = await imageCompression(file, {
@@ -75,6 +92,7 @@ export function ApiaryForm({ userId, onSuccess, onCancel }: ApiaryFormProps) {
     if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl)
     setPhotoFile(null)
     setPhotoPreviewUrl(null)
+    setPhotoRemoved(true)
     if (fileInputRef.current) fileInputRef.current.value = ''
     markDirty()
   }
@@ -109,29 +127,54 @@ export function ApiaryForm({ userId, onSuccess, onCancel }: ApiaryFormProps) {
     }
     setNameError('')
 
-    createApiary(
-      {
-        name: name.trim(),
-        bda_codice_aziendale: bdaCode.trim() || null,
-        latitude: location?.lat ?? null,
-        longitude: location?.lng ?? null,
-        address: address.trim() || null,
-        notes: notes.trim() || null,
-        photoFile,
-        userId,
-      },
-      {
-        onSuccess: (result) => {
-          if (result.photoFailed) {
-            showToast(t.apiary.new.errorPhoto, 'error')
-          } else {
-            showToast(t.apiary.new.saved, 'success')
-          }
-          onSuccess()
+    if (isEdit && initialData) {
+      updateApiary(
+        {
+          apiaryId: initialData.id,
+          name: name.trim(),
+          bda_codice_aziendale: bdaCode.trim() || null,
+          latitude: location?.lat ?? null,
+          longitude: location?.lng ?? null,
+          address: address.trim() || null,
+          notes: notes.trim() || null,
+          photoFile: photoFile ?? undefined,
+          removePhoto: photoRemoved,
         },
-        onError: () => showToast(t.apiary.new.errorSave, 'error'),
-      },
-    )
+        {
+          onSuccess: () => {
+            setIsDirty(false)
+            showToast('Apiario aggiornato', 'success')
+            onSuccess()
+          },
+          onError: () => showToast(t.apiary.new.errorSave, 'error'),
+        },
+      )
+    } else {
+      createApiary(
+        {
+          name: name.trim(),
+          bda_codice_aziendale: bdaCode.trim() || null,
+          latitude: location?.lat ?? null,
+          longitude: location?.lng ?? null,
+          address: address.trim() || null,
+          notes: notes.trim() || null,
+          photoFile,
+          userId,
+        },
+        {
+          onSuccess: (result) => {
+            setIsDirty(false)
+            if (result.photoFailed) {
+              showToast(t.apiary.new.errorPhoto, 'error')
+            } else {
+              showToast(t.apiary.new.saved, 'success')
+            }
+            onSuccess()
+          },
+          onError: () => showToast(t.apiary.new.errorSave, 'error'),
+        },
+      )
+    }
   }
 
   // ── Render ───────────────────────────────────────────────────
@@ -164,7 +207,7 @@ export function ApiaryForm({ userId, onSuccess, onCancel }: ApiaryFormProps) {
         </button>
         <div className="flex-1 min-w-0 px-1">
           <h1 className="text-base font-semibold text-wood-800 truncate tracking-tight">
-            {t.apiary.new.title}
+            {isEdit ? 'Modifica apiario' : t.apiary.new.title}
           </h1>
         </div>
       </header>
@@ -359,7 +402,7 @@ export function ApiaryForm({ userId, onSuccess, onCancel }: ApiaryFormProps) {
           onClick={doSubmit}
           loading={isPending}
         >
-          {t.apiary.new.save}
+          {isEdit ? 'Aggiorna apiario' : t.apiary.new.save}
         </Button>
       </div>
 

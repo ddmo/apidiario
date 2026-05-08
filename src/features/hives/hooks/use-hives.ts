@@ -224,3 +224,19 @@ export function useUpdateMelariCount() {
     },
   })
 }
+
+export function useDeleteHive() {
+  return useMutation({
+    mutationFn: async (hiveId: string) => {
+      const { error } = await supabase
+        .from('hives')
+        .update({ archived_at: new Date().toISOString() })
+        .eq('id', hiveId)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['hives'] })
+      void queryClient.invalidateQueries({ queryKey: ['apiaries'] })
+    },
+  })
+}
