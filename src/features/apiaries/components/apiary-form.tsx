@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
-import { ArrowLeft, MapPin } from 'lucide-react'
+import { ArrowLeft, MapPin, Map } from 'lucide-react'
 import imageCompression from 'browser-image-compression'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { MainPhotoSlot } from '@/components/ui/main-photo-slot'
 import { LocationPreview } from '@/components/ui/location-preview'
+import { MapPickerSheet } from '@/components/ui/map-picker-sheet'
 import { useCreateApiary, useUpdateApiary, type ApiaryDetail } from '../hooks/use-apiaries'
 import { useGeolocation } from '../hooks/use-geolocation'
 import { useToast } from '@/hooks/use-toast'
@@ -47,6 +48,7 @@ export function ApiaryForm({ userId, onSuccess, onCancel, initialData }: ApiaryF
   const [nameError, setNameError] = useState('')
   const [isDirty, setIsDirty] = useState(false)
   const [showUnsaved, setShowUnsaved] = useState(false)
+  const [showMapPicker, setShowMapPicker] = useState(false)
 
   const markDirty = () => setIsDirty(true)
 
@@ -276,9 +278,18 @@ export function ApiaryForm({ userId, onSuccess, onCancel, initialData }: ApiaryF
                   <MapPin size={18} strokeWidth={1.75} aria-hidden="true" />
                   {t.apiary.new.useLocationBtn}
                 </Button>
+                <Button
+                  variant="secondary"
+                  size="md"
+                  className="w-full"
+                  onClick={() => setShowMapPicker(true)}
+                >
+                  <Map size={18} strokeWidth={1.75} aria-hidden="true" />
+                  Seleziona da mappa
+                </Button>
                 {geoState.status === 'denied' && (
                   <p className="text-xs text-danger-500 leading-relaxed">
-                    Permesso negato. Vai in Impostazioni → Safari → Posizione e consenti l'accesso, poi riprova.
+                    {t.apiary.new.locationDenied}
                   </p>
                 )}
                 {geoState.status === 'error' && (
@@ -405,6 +416,22 @@ export function ApiaryForm({ userId, onSuccess, onCancel, initialData }: ApiaryF
           {isEdit ? 'Aggiorna apiario' : t.apiary.new.save}
         </Button>
       </div>
+
+      {/* Map picker sheet */}
+      <MapPickerSheet
+        open={showMapPicker}
+        onClose={() => setShowMapPicker(false)}
+        onConfirm={(lat, lng) => {
+          setLocation({ lat, lng })
+          setLatInput(lat.toFixed(6))
+          setLngInput(lng.toFixed(6))
+          setShowCoordEditor(false)
+          setShowMapPicker(false)
+          markDirty()
+        }}
+        initialLat={location?.lat ?? initialData?.latitude ?? null}
+        initialLng={location?.lng ?? initialData?.longitude ?? null}
+      />
 
       {/* Unsaved changes sheet */}
       {showUnsaved && (

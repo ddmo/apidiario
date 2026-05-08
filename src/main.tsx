@@ -13,7 +13,11 @@ applyTheme()
 document.addEventListener('gesturestart', (e) => e.preventDefault(), { passive: false })
 document.addEventListener('gesturechange', (e) => e.preventDefault(), { passive: false })
 document.addEventListener('touchmove', (e) => {
-  if (e.touches.length > 1) e.preventDefault()
+  if (e.touches.length > 1) {
+    const target = e.target as HTMLElement | null
+    if (target?.closest('[data-allow-pinch]')) return
+    e.preventDefault()
+  }
 }, { passive: false })
 
 const rootEl = document.getElementById('root')

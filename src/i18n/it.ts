@@ -99,7 +99,7 @@ export const t = {
       notesPlaceholder: 'Esposizione, fioriture, fonte d\'acqua…',
       useLocationBtn: 'Usa la mia posizione attuale',
       locationRationale: 'Per registrare dove si trova l\'apiario.',
-      locationDenied: 'Permesso negato. Inserisci la posizione manualmente.',
+      locationDenied: 'Permesso di posizione negato. Consenti l\'accesso nelle impostazioni del dispositivo e riprova, oppure inserisci la posizione manualmente.',
       locationUnavailable: 'Impossibile ottenere la posizione. Riprova o inserisci manualmente.',
       latLabel: 'Latitudine',
       lngLabel: 'Longitudine',
