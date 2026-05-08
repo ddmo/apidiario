@@ -34,7 +34,7 @@ function HomePage() {
   const [shareTarget, setShareTarget] = useState<{ id: string; name: string } | null>(null)
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col h-full">
       {/* Header */}
       <header className="bg-cream-50 border-b border-cream-200 px-4 h-14 flex items-center shrink-0">
         <h1 className="text-2xl font-bold text-wood-800 tracking-tight flex-1">

@@ -1,4 +1,4 @@
-import { useState, useRef, type ReactNode } from 'react'
+import { useState, useRef, type ReactNode, type MouseEvent } from 'react'
 
 interface SwipeableRowProps {
   children: ReactNode
@@ -9,6 +9,7 @@ interface SwipeableRowProps {
 export function SwipeableRow({ children, revealContent, revealWidth = 84 }: SwipeableRowProps) {
   const startRef = useRef<{ x: number; y: number } | null>(null)
   const trackingRef = useRef(false)
+  const swipedRef = useRef(false)
   const [offsetX, setOffsetX] = useState(0)
   const [revealed, setRevealed] = useState(false)
   const [animate, setAnimate] = useState(false)
@@ -24,6 +25,7 @@ export function SwipeableRow({ children, revealContent, revealWidth = 84 }: Swip
     if (!t0) return
     startRef.current = { x: t0.clientX, y: t0.clientY }
     trackingRef.current = false
+    swipedRef.current = false
   }
 
   function handleTouchMove(e: React.TouchEvent) {
@@ -38,6 +40,7 @@ export function SwipeableRow({ children, revealContent, revealWidth = 84 }: Swip
       trackingRef.current = adx > ady
     }
     if (!trackingRef.current) return
+    swipedRef.current = true
     setAnimate(false)
     const base = revealed ? -revealWidth : 0
     setOffsetX(Math.max(-revealWidth, Math.min(0, base + dx)))
@@ -50,6 +53,13 @@ export function SwipeableRow({ children, revealContent, revealWidth = 84 }: Swip
       snapTo(offsetX > -(revealWidth * 2 / 3) ? 0 : -revealWidth)
     } else {
       snapTo(offsetX < -(revealWidth / 3) ? -revealWidth : 0)
+    }
+  }
+
+  function handleClick(e: MouseEvent) {
+    if (swipedRef.current) {
+      e.preventDefault()
+      e.stopPropagation()
     }
   }
 
@@ -76,6 +86,7 @@ export function SwipeableRow({ children, revealContent, revealWidth = 84 }: Swip
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onClick={handleClick}
         onTransitionEnd={() => setAnimate(false)}
       >
         {children}
