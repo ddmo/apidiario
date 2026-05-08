@@ -15,9 +15,8 @@ Cose deliberatamente rinviate, da affrontare nelle fasi successive.
       `src/lib/theme.ts` esiste come utility. Manca il toggle in una pagina impostazioni.
 - [ ] **SyncIndicator funzionale**: implementare coda di scrittura offline 
       (Fase 4 hardening, dopo che le schermate principali sono in piedi).
-- [ ] **Auth callback per magic link** (opzionale): valutare se aggiungere 
-      `supabase.auth.exchangeCodeForSession` su `/auth/callback` per supportare 
-      anche il flow link-email, oltre all'OTP attuale. Per la v1 OTP è sufficiente.
+- [x] **Auth callback per magic link**: implementato via `/auth/callback`, gestisce
+      anche invite (`type=invite`) e recovery password (`type=recovery`).
 - [ ] **Overview arnia (HiveSchematic)**: gestire stato "non rilevato" (NULL) per
       `queen_cells` e `pathologies` oltre ai campi numerici. L'icona di stato deve
       mostrare un quarto stato neutro (grigio o tratteggio) quando il valore è NULL
