@@ -32,7 +32,7 @@ function scoreLabel(score: number): string {
   }
 }
 
-function DayRow({ day, isToday, allTmin, allTmax, range }: { day: ForecastDay; isToday: boolean; allTmin: number; allTmax: number; range: number }) {
+function DayRow({ day, isToday, allTmin, range }: { day: ForecastDay; isToday: boolean; allTmin: number; range: number }) {
   const leftPct = ((day.tmin - allTmin) / range) * 100
   const widthPct = ((day.tmax - day.tmin) / range) * 100
   const precipColor = day.precip_prob >= 50 ? 'text-honey-600' : day.precip_prob > 0 ? 'text-wood-500' : 'text-wood-400'
@@ -240,7 +240,6 @@ function MeteoPage() {
                     day={day}
                     isToday={i === 0}
                     allTmin={allTmin}
-                    allTmax={allTmax}
                     range={range}
                   />
                 ))}

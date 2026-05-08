@@ -53,7 +53,7 @@ export function useWeatherForecast(lat: number | null, lng: number | null) {
         if (elRes.ok) {
           const elJson = (await elRes.json()) as { elevation?: number[] }
           const el = elJson.elevation
-          if (el && el.length > 0) elevation = Math.round(el[0])
+          if (el && el.length > 0) elevation = Math.round(el[0]!)
         }
       } catch { /* prosegui senza */ }
 
