@@ -27,7 +27,7 @@ export function usePhenologySpecies() {
         .select('*')
         .order('common_name_it')
       if (error) throw error
-      return data as PhenologySpecies[]
+      return data as unknown as PhenologySpecies[]
     },
     staleTime: 1000 * 60 * 60 * 24,
   })
@@ -58,7 +58,6 @@ function buildWeatherUrl(lat: number, lng: number, startDate: string, endDate: s
 
 export function useWeatherData(lat: number | null, lng: number | null, year: number) {
   const currentYear = new Date().getFullYear()
-  const isCurrentYear = year === currentYear
 
   // For current year: extend end_date by FORECAST_DAYS to get predictions
   const endDate =
@@ -81,8 +80,9 @@ export function useWeatherData(lat: number | null, lng: number | null, year: num
           `https://api.open-meteo.com/v1/elevation?latitude=${lat}&longitude=${lng}`,
         )
         if (elRes.ok) {
-          const elJson = await elRes.json()
-          if (elJson.elevation?.length) elevation = elJson.elevation[0]
+          const elJson = (await elRes.json()) as { elevation?: number[] }
+          const el = elJson.elevation
+          if (el && el.length > 0) elevation = el[0]
         }
       } catch { /* elevation fetch fallito — si prosegue senza */ }
 
