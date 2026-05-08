@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthIndexRouteImport } from './routes/_auth.index'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ApiariesNewRouteImport } from './routes/apiaries.new'
 import { Route as AuthHomeRouteImport } from './routes/_auth.home'
 import { Route as AuthCalendarioRouteImport } from './routes/_auth.calendario'
@@ -35,6 +36,11 @@ const AuthIndexRoute = AuthIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthRoute,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiariesNewRoute = ApiariesNewRouteImport.update({
   id: '/apiaries/new',
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/calendario': typeof AuthCalendarioRoute
   '/home': typeof AuthHomeRoute
   '/apiaries/new': typeof ApiariesNewRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
   '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
   '/hives/$hiveId/inspections': typeof AuthHivesHiveIdInspectionsRoute
@@ -104,6 +111,7 @@ export interface FileRoutesByTo {
   '/calendario': typeof AuthCalendarioRoute
   '/home': typeof AuthHomeRoute
   '/apiaries/new': typeof ApiariesNewRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/': typeof AuthIndexRoute
   '/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
   '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
@@ -119,6 +127,7 @@ export interface FileRoutesById {
   '/_auth/calendario': typeof AuthCalendarioRoute
   '/_auth/home': typeof AuthHomeRoute
   '/apiaries/new': typeof ApiariesNewRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/_auth/': typeof AuthIndexRoute
   '/_auth/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
   '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
@@ -135,6 +144,7 @@ export interface FileRouteTypes {
     | '/calendario'
     | '/home'
     | '/apiaries/new'
+    | '/auth/callback'
     | '/apiaries/$apiaryId'
     | '/inspections/$hiveId/new'
     | '/hives/$hiveId/inspections'
@@ -147,6 +157,7 @@ export interface FileRouteTypes {
     | '/calendario'
     | '/home'
     | '/apiaries/new'
+    | '/auth/callback'
     | '/'
     | '/apiaries/$apiaryId'
     | '/inspections/$hiveId/new'
@@ -161,6 +172,7 @@ export interface FileRouteTypes {
     | '/_auth/calendario'
     | '/_auth/home'
     | '/apiaries/new'
+    | '/auth/callback'
     | '/_auth/'
     | '/_auth/apiaries/$apiaryId'
     | '/inspections/$hiveId/new'
@@ -173,6 +185,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   LoginRoute: typeof LoginRoute
   ApiariesNewRoute: typeof ApiariesNewRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   InspectionsHiveIdNewRoute: typeof InspectionsHiveIdNewRoute
   ApiariesApiaryIdHivesNewRoute: typeof ApiariesApiaryIdHivesNewRoute
   HivesHiveIdInspectionsInspectionIdRoute: typeof HivesHiveIdInspectionsInspectionIdRoute
@@ -200,6 +213,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthIndexRouteImport
       parentRoute: typeof AuthRoute
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/apiaries/new': {
       id: '/apiaries/new'
@@ -291,6 +311,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   LoginRoute: LoginRoute,
   ApiariesNewRoute: ApiariesNewRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   InspectionsHiveIdNewRoute: InspectionsHiveIdNewRoute,
   ApiariesApiaryIdHivesNewRoute: ApiariesApiaryIdHivesNewRoute,
   HivesHiveIdInspectionsInspectionIdRoute:
