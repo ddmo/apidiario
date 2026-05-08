@@ -87,7 +87,6 @@ export function useWeatherData(lat: number | null, lng: number | null, year: num
       } catch { /* elevation fetch fallito — si prosegue senza */ }
 
       const url = buildWeatherUrl(lat, lng, `${year}-01-01`, endDate, elevation)
-      console.log('[weather] elevation:', elevation, 'url:', url)
 
       const res = await fetch(url)
       if (!res.ok) throw new Error(`Open-Meteo: ${res.status}`)
