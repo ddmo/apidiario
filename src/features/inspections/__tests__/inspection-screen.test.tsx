@@ -114,4 +114,20 @@ describe('InspectionScreen', () => {
     renderScreen({ onDelete: vi.fn() })
     expect(screen.getByLabelText('Altre opzioni')).toBeInTheDocument()
   })
+
+  it('shows weather fields in standard mode when weather provided', async () => {
+    const { user } = renderScreen({ weather: { temperature: 22, summary: 'sereno, umidità 51%, vento 15 km/h' } })
+
+    // Switch to standard mode
+    await user.click(screen.getByRole('radio', { name: /standard/i }))
+
+    expect(screen.getByText('Meteo')).toBeInTheDocument()
+    expect(screen.getByText('22°C')).toBeInTheDocument()
+    expect(screen.getByText('sereno, umidità 51%, vento 15 km/h')).toBeInTheDocument()
+  })
+
+  it('hides weather fields in express mode', () => {
+    renderScreen({ weather: { temperature: 22, summary: 'sereno' } })
+    expect(screen.queryByText('Meteo')).not.toBeInTheDocument()
+  })
 })

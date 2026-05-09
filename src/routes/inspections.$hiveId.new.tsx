@@ -5,6 +5,7 @@ import { queryClient } from '@/lib/query-client'
 import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-toast'
 import { InspectionScreen } from '@/features/inspections/inspection-screen'
+import { useWeatherSnapshot } from '@/lib/weather/snapshot'
 import type { InspectionFormState } from '@/features/inspections/types'
 import type { TablesInsert } from '@/types/database'
 
@@ -43,7 +44,7 @@ function NewInspectionPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('apiaries')
-        .select('id, name')
+        .select('id, name, latitude, longitude')
         .eq('id', hive!.apiary_id)
         .single()
       if (error) throw error
@@ -51,6 +52,8 @@ function NewInspectionPage() {
     },
     enabled: !!hive?.apiary_id,
   })
+
+  const { data: weather } = useWeatherSnapshot(apiary?.latitude, apiary?.longitude)
 
   // isPending = true while loading, false once settled (null or object)
   const { data: lastInspection, isPending: isLoadingHistory } = useQuery({
@@ -91,6 +94,8 @@ function NewInspectionPage() {
         varroa_count: isExpress || !formState.varroaCount ? null : Number(formState.varroaCount),
         varroa_count_method: isExpress || !formState.varroaCount ? null : formState.varroaMethod,
         interventions: isExpress ? [] : Array.from(formState.interventions),
+        temperature_c: weather?.temperature ?? null,
+        weather_summary: weather?.summary ?? null,
       }
       const { error } = await supabase.from('inspections').insert(payload)
       if (error) throw error
@@ -142,6 +147,7 @@ function NewInspectionPage() {
       prefillDate={prefillDate}
       isLoadingHistory={isLoadingHistory}
       isSaving={isSaving}
+      weather={weather}
       onSave={(formState, mode) => saveInspection({ formState, mode })}
       onBack={() => router.history.back()}
     />

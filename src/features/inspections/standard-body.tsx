@@ -28,9 +28,10 @@ interface StandardBodyProps {
   state: InspectionFormState
   dirtyFields: Set<string>
   onUpdate: <K extends keyof InspectionFormState>(key: K, value: InspectionFormState[K]) => void
+  weather?: { temperature: number; summary: string } | null
 }
 
-export function StandardBody({ state, dirtyFields, onUpdate }: StandardBodyProps) {
+export function StandardBody({ state, dirtyFields, onUpdate, weather }: StandardBodyProps) {
   const [noteOpen, setNoteOpen] = useState(false)
   const d = (key: string) => dirtyFields.has(key)
 
@@ -196,6 +197,22 @@ export function StandardBody({ state, dirtyFields, onUpdate }: StandardBodyProps
           dirty={d('notes')}
         />
       </section>
+
+      {weather && (
+        <section>
+          <SectionLabel>Meteo</SectionLabel>
+          <div className="flex flex-col gap-2">
+            <div className="h-12 flex items-center px-4 rounded-md border border-cream-200 bg-cream-100/60 text-sm text-wood-600">
+              <span className="text-wood-400 text-xs w-20">Temperatura</span>
+              <span className="font-medium">{weather.temperature}°C</span>
+            </div>
+            <div className="min-h-[44px] flex items-center px-4 rounded-md border border-cream-200 bg-cream-100/60 text-sm text-wood-600">
+              <span className="text-wood-400 text-xs w-20 shrink-0">Condizioni</span>
+              <span className="text-xs leading-relaxed">{weather.summary}</span>
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   )
 }

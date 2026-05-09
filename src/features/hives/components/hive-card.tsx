@@ -1,9 +1,11 @@
 import { useState, useRef } from 'react'
 import { Link } from '@tanstack/react-router'
-import { ClipboardList, Trash2 } from 'lucide-react'
+import { ClipboardList, Trash2, DoorOpen, Grid3x3, Flower } from 'lucide-react'
 import { HiveSchematic } from './hive-schematic'
+import { SegmentedControl } from '@/components/ui/segmented-control'
 import {
   useToggleHiveAccessory,
+  useUpdateMelariCount,
   type HiveListItem,
 } from '../hooks/use-hives'
 import { t } from '@/i18n/it'
@@ -11,7 +13,11 @@ import { t } from '@/i18n/it'
 const REVEAL_W = 160
 
 function relativeDate(iso: string): string {
-  const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000)
+  const now = new Date()
+  const then = new Date(iso)
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const thatDay = new Date(then.getFullYear(), then.getMonth(), then.getDate())
+  const d = Math.round((today.getTime() - thatDay.getTime()) / 86_400_000)
   if (d === 0) return 'oggi'
   if (d === 1) return 'ieri'
   if (d < 7) return `${d} giorni fa`
@@ -27,6 +33,14 @@ interface HiveCardProps {
 
 export function HiveCard({ hive, onDelete }: HiveCardProps) {
   const { mutate: toggle } = useToggleHiveAccessory()
+  const { mutate: updateMelari } = useUpdateMelariCount()
+
+  const MELARI_OPTIONS = [
+    { value: '0', label: '0' },
+    { value: '1', label: '1' },
+    { value: '2', label: '2' },
+    { value: '3', label: '3' },
+  ]
 
   // Swipe state
   const startRef = useRef<{ x: number; y: number } | null>(null)
@@ -121,7 +135,7 @@ export function HiveCard({ hive, onDelete }: HiveCardProps) {
         onTouchEnd={handleTouchEnd}
         onTransitionEnd={() => setAnimate(false)}
       >
-        <div className="bg-cream-100 border border-cream-200 p-3 flex gap-3 shadow-xs">
+        <div className="bg-cream-100 border border-cream-200 px-3 py-2.5 flex gap-3 shadow-xs">
           {/* Schematic */}
           <div className="w-[96px] shrink-0 flex items-center self-stretch bg-cream-200/50 rounded-lg">
             <HiveSchematic
@@ -135,64 +149,71 @@ export function HiveCard({ hive, onDelete }: HiveCardProps) {
           </div>
 
           {/* Info + actions */}
-          <div className="flex-1 min-w-0 flex flex-col gap-2">
-            {/* Name + last visit */}
+          <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+            {/* Name */}
             <div>
               <p className="font-semibold text-wood-800 text-base leading-tight truncate">
                 {hive.identifier}
               </p>
-              <div className="flex items-center justify-between gap-1 mt-0.5">
-                {hive.apiaryName && (
-                  <p className="text-xs text-honey-600 font-medium truncate">{hive.apiaryName}</p>
-                )}
-                <p className={`text-xs text-wood-400 shrink-0 ${!hive.apiaryName ? 'ml-auto' : ''}`}>
-                  {hive.lastInspection
-                    ? relativeDate(hive.lastInspection.performedAt)
-                    : t.hive.card.noVisit}
-                </p>
-              </div>
+              {hive.apiaryName && (
+                <p className="text-xs text-honey-600 font-medium truncate">{hive.apiaryName}</p>
+              )}
+            </div>
+
+            {/* Melari count */}
+            <div>
+              <p className="text-xs text-wood-400 mb-0.5">{t.hive.card.melari}</p>
+              <SegmentedControl
+                options={MELARI_OPTIONS}
+                value={String(hive.melariCount)}
+                onChange={(v) => updateMelari({ hiveId: hive.id, count: Number(v) })}
+                ariaLabel="Numero melari"
+              />
             </div>
 
             {/* Accessory toggles */}
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex items-center justify-center gap-3">
               <button
                 type="button"
+                aria-label={t.hive.card.apiscampo}
                 onClick={() =>
                   toggle({ hiveId: hive.id, field: 'has_apiscampo', value: !hive.hasApiscampo })
                 }
-                className={`text-xs px-2 py-1 rounded-md border transition-colors ${
+                className={`size-9 flex items-center justify-center rounded-md border transition-colors ${
                   hive.hasApiscampo
                     ? 'bg-[#5B8FA0] border-[#4A7A8E] text-white'
                     : 'bg-cream-50 border-cream-200 text-wood-400'
                 }`}
               >
-                {t.hive.card.apiscampo}
+                <DoorOpen size={18} strokeWidth={1.75} />
               </button>
               <button
                 type="button"
+                aria-label={t.hive.card.propoilsNet}
                 onClick={() =>
                   toggle({ hiveId: hive.id, field: 'has_propolis_net', value: !hive.hasPropolisNet })
                 }
-                className={`text-xs px-2 py-1 rounded-md border transition-colors ${
+                className={`size-9 flex items-center justify-center rounded-md border transition-colors ${
                   hive.hasPropolisNet
                     ? 'bg-[#4A6E3C] border-[#3A5A2E] text-white'
                     : 'bg-cream-50 border-cream-200 text-wood-400'
                 }`}
               >
-                {t.hive.card.propoilsNet}
+                <Grid3x3 size={18} strokeWidth={1.75} />
               </button>
               <button
                 type="button"
+                aria-label={t.hive.card.pollenTrap}
                 onClick={() =>
                   toggle({ hiveId: hive.id, field: 'has_pollen_trap', value: !hive.hasPollenTrap })
                 }
-                className={`text-xs px-2 py-1 rounded-md border transition-colors ${
+                className={`size-9 flex items-center justify-center rounded-md border transition-colors ${
                   hive.hasPollenTrap
                     ? 'bg-honey-500 border-honey-600 text-wood-900'
                     : 'bg-cream-50 border-cream-200 text-wood-400'
                 }`}
               >
-                {t.hive.card.pollenTrap}
+                <Flower size={18} strokeWidth={1.75} />
               </button>
             </div>
 
@@ -200,10 +221,17 @@ export function HiveCard({ hive, onDelete }: HiveCardProps) {
             <Link
               to="/inspections/$hiveId/new"
               params={{ hiveId: hive.id }}
-              className="inline-flex items-center justify-center h-9 px-4 bg-honey-400 text-wood-900 rounded-lg text-sm font-semibold w-full mt-1"
+              className="inline-flex items-center justify-center h-8 px-4 bg-honey-400 text-wood-900 rounded-lg text-sm font-semibold w-full"
             >
               {t.hive.card.inspect}
             </Link>
+
+            {/* Last inspection date */}
+            <p className="text-[11px] text-wood-400 text-center mt-0.5">
+              {hive.lastInspection
+                ? relativeDate(hive.lastInspection.performedAt)
+                : t.hive.card.noVisit}
+            </p>
           </div>
         </div>
       </div>

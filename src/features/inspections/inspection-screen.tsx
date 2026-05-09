@@ -30,6 +30,7 @@ interface InspectionScreenProps {
   isLoadingHistory?: boolean
   isSaving?: boolean
   isDeleting?: boolean
+  weather?: { temperature: number; summary: string } | null
   onSave: (state: InspectionFormState, mode: string) => void | Promise<void>
   onBack: () => void
   onDelete?: () => void
@@ -44,6 +45,7 @@ export function InspectionScreen({
   isLoadingHistory = false,
   isSaving = false,
   isDeleting = false,
+  weather,
   onSave,
   onBack,
   onDelete,
@@ -167,7 +169,7 @@ export function InspectionScreen({
         {mode === 'express' ? (
           <ExpressBody state={state} dirtyFields={dirtyFields} onUpdate={update} />
         ) : (
-          <StandardBody state={state} dirtyFields={dirtyFields} onUpdate={update} />
+          <StandardBody state={state} dirtyFields={dirtyFields} onUpdate={update} weather={weather} />
         )}
       </div>
 

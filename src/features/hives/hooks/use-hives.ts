@@ -246,6 +246,18 @@ export function useToggleHiveAccessory() {
   })
 }
 
+export function useUpdateMelariCount() {
+  return useMutation({
+    mutationFn: async ({ hiveId, count }: { hiveId: string; count: number }) => {
+      const { error } = await supabase.from('hives').update({ melari_count: count }).eq('id', hiveId)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['hives'] })
+    },
+  })
+}
+
 export function useDeleteHive() {
   return useMutation({
     mutationFn: async (hiveId: string) => {
