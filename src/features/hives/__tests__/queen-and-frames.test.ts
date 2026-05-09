@@ -1,7 +1,5 @@
 import { describe, it, expect } from 'vitest'
 
-type QueenSeen = 'vista' | 'non_vista' | 'non_cercata'
-
 function resolveQueen(queenSeen: string | null, hasActiveQueenInTable: boolean): boolean | 'non_cercata' {
   if (queenSeen === 'vista') return true
   if (queenSeen === 'non_cercata') return 'non_cercata'
