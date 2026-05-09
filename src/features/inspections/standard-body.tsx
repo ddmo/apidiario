@@ -31,7 +31,7 @@ interface StandardBodyProps {
 }
 
 export function StandardBody({ state, dirtyFields, onUpdate }: StandardBodyProps) {
-  const [noteOpen, setNoteOpen] = useState(true)
+  const [noteOpen, setNoteOpen] = useState(false)
   const d = (key: string) => dirtyFields.has(key)
 
   const togglePathology = (p: PathologyType) => {

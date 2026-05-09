@@ -122,7 +122,6 @@ export const t = {
       lastVisit: (label: string) => `Ultima visita: ${label}`,
       noVisit: 'Nessuna visita',
       inspect: 'Ispeziona',
-      melari: 'Melari',
       apiscampo: 'Apiscampo',
       propoilsNet: 'Rete propoli',
       pollenTrap: 'Trappola polline',

@@ -1,11 +1,9 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { Link } from '@tanstack/react-router'
 import { ClipboardList, Trash2 } from 'lucide-react'
 import { HiveSchematic } from './hive-schematic'
-import { SegmentedControl } from '@/components/ui/segmented-control'
 import {
   useToggleHiveAccessory,
-  useUpdateMelariCount,
   type HiveListItem,
 } from '../hooks/use-hives'
 import { t } from '@/i18n/it'
@@ -29,10 +27,6 @@ interface HiveCardProps {
 
 export function HiveCard({ hive, onDelete }: HiveCardProps) {
   const { mutate: toggle } = useToggleHiveAccessory()
-  const { mutate: setMelari } = useUpdateMelariCount()
-
-  const [melariCount, setMelariCount] = useState(hive.melariCount)
-  useEffect(() => { setMelariCount(hive.melariCount) }, [hive.melariCount])
 
   // Swipe state
   const startRef = useRef<{ x: number; y: number } | null>(null)
@@ -87,19 +81,6 @@ export function HiveCard({ hive, onDelete }: HiveCardProps) {
     snapTo(0)
   }
 
-  const MELARI_OPTIONS = [
-    { value: '0', label: '0' },
-    { value: '1', label: '1' },
-    { value: '2', label: '2' },
-    { value: '3', label: '3' },
-  ]
-
-  function handleMelariChange(value: string) {
-    const next = parseInt(value, 10)
-    setMelariCount(next)
-    setMelari({ hiveId: hive.id, count: next })
-  }
-
   return (
     <div className="relative overflow-hidden rounded-xl">
       {/* Reveal panel */}
@@ -145,7 +126,7 @@ export function HiveCard({ hive, onDelete }: HiveCardProps) {
           <div className="w-[96px] shrink-0 flex items-center self-stretch bg-cream-200/50 rounded-lg">
             <HiveSchematic
               nidoFrameCount={hive.nidoFrameCount}
-              melariCount={melariCount}
+              melariCount={hive.melariCount}
               hasApiscampo={hive.hasApiscampo}
               hasPropolisNet={hive.hasPropolisNet}
               hasPollenTrap={hive.hasPollenTrap}
@@ -170,17 +151,6 @@ export function HiveCard({ hive, onDelete }: HiveCardProps) {
                     : t.hive.card.noVisit}
                 </p>
               </div>
-            </div>
-
-            {/* Melari segmented control */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-wood-500 w-16 shrink-0">{t.hive.card.melari}</span>
-              <SegmentedControl
-                options={MELARI_OPTIONS}
-                value={String(melariCount)}
-                onChange={handleMelariChange}
-                ariaLabel="Melari"
-              />
             </div>
 
             {/* Accessory toggles */}

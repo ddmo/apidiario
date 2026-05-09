@@ -16,7 +16,7 @@ export type HiveListItem = {
   hasPropolisNet: boolean
   hasPollenTrap: boolean
   hasActiveQueen: boolean
-  lastInspection: { performedAt: string } | null
+  lastInspection: { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number } | null
 }
 
 export function useHivesByApiary(apiaryId: string) {
@@ -40,7 +40,7 @@ export function useHivesByApiary(apiaryId: string) {
       const [{ data: inspData }, { data: queensData }] = await Promise.all([
         supabase
           .from('inspections')
-          .select('hive_id, performed_at')
+          .select('hive_id, performed_at, brood_frame_count, honey_frame_count, pollen_frame_count')
           .in('hive_id', hiveIds)
           .order('hive_id')
           .order('performed_at', { ascending: false }),
@@ -51,10 +51,15 @@ export function useHivesByApiary(apiaryId: string) {
           .is('end_date', null),
       ])
 
-      const lastInspMap = new Map<string, { performedAt: string }>()
+      const lastInspMap = new Map<string, { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number }>()
       for (const insp of inspData ?? []) {
         if (!lastInspMap.has(insp.hive_id)) {
-          lastInspMap.set(insp.hive_id, { performedAt: insp.performed_at })
+          lastInspMap.set(insp.hive_id, {
+            performedAt: insp.performed_at,
+            broodFrameCount: insp.brood_frame_count ?? 0,
+            honeyFrameCount: insp.honey_frame_count ?? 0,
+            pollenFrameCount: insp.pollen_frame_count ?? 0,
+          })
         }
       }
 
@@ -65,7 +70,13 @@ export function useHivesByApiary(apiaryId: string) {
         identifier: h.identifier,
         hiveType: h.hive_type,
         beeRace: h.bee_race,
-        nidoFrameCount: h.nido_frame_count,
+        nidoFrameCount: (() => {
+          const insp = lastInspMap.get(h.id)
+          if (insp && (insp.broodFrameCount > 0 || insp.honeyFrameCount > 0 || insp.pollenFrameCount > 0)) {
+            return insp.broodFrameCount + insp.honeyFrameCount + insp.pollenFrameCount
+          }
+          return h.nido_frame_count
+        })(),
         melariCount: h.melari_count,
         status: h.status,
         hasApiscampo: h.has_apiscampo,
@@ -147,7 +158,7 @@ export function useAllHives() {
       const [{ data: inspData }, { data: queensData }] = await Promise.all([
         supabase
           .from('inspections')
-          .select('hive_id, performed_at')
+          .select('hive_id, performed_at, brood_frame_count, honey_frame_count, pollen_frame_count')
           .in('hive_id', hiveIds)
           .order('hive_id')
           .order('performed_at', { ascending: false }),
@@ -158,10 +169,15 @@ export function useAllHives() {
           .is('end_date', null),
       ])
 
-      const lastInspMap = new Map<string, { performedAt: string }>()
+      const lastInspMap = new Map<string, { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number }>()
       for (const insp of inspData ?? []) {
         if (!lastInspMap.has(insp.hive_id)) {
-          lastInspMap.set(insp.hive_id, { performedAt: insp.performed_at })
+          lastInspMap.set(insp.hive_id, {
+            performedAt: insp.performed_at,
+            broodFrameCount: insp.brood_frame_count ?? 0,
+            honeyFrameCount: insp.honey_frame_count ?? 0,
+            pollenFrameCount: insp.pollen_frame_count ?? 0,
+          })
         }
       }
 
@@ -173,7 +189,13 @@ export function useAllHives() {
         apiaryName: Array.isArray(h.apiaries) ? h.apiaries[0]?.name : (h.apiaries as { name: string } | null)?.name,
         hiveType: h.hive_type,
         beeRace: h.bee_race,
-        nidoFrameCount: h.nido_frame_count,
+        nidoFrameCount: (() => {
+          const insp = lastInspMap.get(h.id)
+          if (insp && (insp.broodFrameCount > 0 || insp.honeyFrameCount > 0 || insp.pollenFrameCount > 0)) {
+            return insp.broodFrameCount + insp.honeyFrameCount + insp.pollenFrameCount
+          }
+          return h.nido_frame_count
+        })(),
         melariCount: h.melari_count,
         status: h.status,
         hasApiscampo: h.has_apiscampo,
@@ -202,21 +224,6 @@ export function useToggleHiveAccessory() {
         field === 'has_propolis_net' ? { has_propolis_net: value } :
                                        { has_pollen_trap: value }
       const { error } = await supabase.from('hives').update(update).eq('id', hiveId)
-      if (error) throw error
-    },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['hives'] })
-    },
-  })
-}
-
-export function useUpdateMelariCount() {
-  return useMutation({
-    mutationFn: async ({ hiveId, count }: { hiveId: string; count: number }) => {
-      const { error } = await supabase
-        .from('hives')
-        .update({ melari_count: count })
-        .eq('id', hiveId)
       if (error) throw error
     },
     onSuccess: () => {
