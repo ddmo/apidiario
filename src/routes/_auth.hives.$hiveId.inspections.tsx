@@ -80,11 +80,12 @@ function InspectionListPage() {
         ) : (
           <ul className="px-4 pt-4 flex flex-col gap-2">
             {inspections.map((insp) => {
-              const isExpress = insp.brood_frame_count === null
               const date = new Date(insp.performed_at)
-              const day = date.toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })
-              const year = date.getFullYear()
+              const calendarDay = date.getDate()
+              const calendarMonth = date.toLocaleDateString('it-IT', { month: 'short' })
               const pathologies = insp.pathologies ?? []
+              const queenLabel = `Regina ${(t.inspection.queenSeen as Record<string, string>)[insp.queen_seen] ?? insp.queen_seen}`.toLowerCase()
+              const popLabel = (t.inspection.population as Record<string, string>)[insp.population] ?? insp.population
 
               function handleDelete(inspectionId: string) {
                 deleteInspection(
@@ -119,42 +120,38 @@ function InspectionListPage() {
                       params={{ hiveId, inspectionId: insp.id }}
                       className="block bg-cream-100 border border-cream-200 px-4 py-3 active:bg-cream-200 transition-colors"
                     >
-                      <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-3">
+                        {/* Calendar badge */}
+                        <div className="flex flex-col items-center w-11 shrink-0 rounded-lg overflow-hidden border border-cream-300 bg-cream-50">
+                          <span className="text-[10px] font-semibold uppercase text-wood-400 bg-cream-200 w-full text-center py-0.5 leading-tight">
+                            {calendarMonth}
+                          </span>
+                          <span className="text-lg font-bold text-wood-800 leading-tight py-0.5">
+                            {calendarDay}
+                          </span>
+                        </div>
+
+                        {/* Content */}
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm font-semibold text-wood-800">
-                              {day} {year}
+                          {insp.performer_display_name && (
+                            <p className="text-xs text-wood-400 leading-tight">
+                              da {insp.performer_display_name}
+                            </p>
+                          )}
+                          <p className="text-sm text-wood-800 leading-snug">
+                            <span className={insp.queen_seen === 'vista' ? 'text-success-600 font-medium' : insp.queen_seen === 'non_vista' ? 'text-danger-500 font-medium' : 'text-wood-500'}>
+                              {queenLabel}
                             </span>
-                            {insp.performer_display_name && (
-                              <span className="text-xs text-wood-400">
-                                da {insp.performer_display_name}
-                              </span>
-                            )}
-                            <span
-                              className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-sm ${
-                                isExpress
-                                  ? 'bg-honey-100 text-honey-700'
-                                  : 'bg-cream-200 text-wood-600'
-                              }`}
-                            >
-                              {isExpress
-                                ? t.inspection.mode.express
-                                : t.inspection.mode.standard}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3 mt-1 flex-wrap">
-                            <QueenChip value={insp.queen_seen} />
-                            {insp.population && (
-                              <PopChip value={insp.population} />
-                            )}
-                            {insp.melari_count > 0 && (
-                              <span className="text-xs text-wood-500">
-                                {insp.melari_count} melar{insp.melari_count === 1 ? 'io' : 'i'}
-                              </span>
-                            )}
-                          </div>
+                            {' - '}
+                            <span className="text-wood-700">Famiglia {popLabel.toLowerCase()}</span>
+                          </p>
+                          {insp.notes && (
+                            <p className="text-xs text-wood-400 mt-0.5 line-clamp-1">
+                              {insp.notes}
+                            </p>
+                          )}
                           {pathologies.length > 0 && (
-                            <div className="flex gap-1 mt-1.5 flex-wrap">
+                            <div className="flex gap-1 mt-1 flex-wrap">
                               {pathologies.map((p) => (
                                 <span
                                   key={p}
@@ -165,12 +162,8 @@ function InspectionListPage() {
                               ))}
                             </div>
                           )}
-                          {insp.notes && (
-                            <p className="text-xs text-wood-400 mt-1.5 line-clamp-1">
-                              {insp.notes}
-                            </p>
-                          )}
                         </div>
+
                         <ArrowRight />
                       </div>
                     </Link>
@@ -185,30 +178,6 @@ function InspectionListPage() {
   )
 }
 
-function QueenChip({ value }: { value: string }) {
-  const map: Record<string, { label: string; color: string }> = {
-    vista: { label: 'Regina vista', color: 'text-success-500' },
-    non_vista: { label: 'Non vista', color: 'text-danger-500' },
-    non_cercata: { label: 'Non cercata', color: 'text-wood-400' },
-  }
-  const item = map[value] ?? { label: value, color: 'text-wood-400' }
-  return <span className={`text-xs font-medium ${item.color}`}>{item.label}</span>
-}
-
-function PopChip({ value }: { value: string }) {
-  const map: Record<string, string> = {
-    debole: 'bg-danger-100 text-danger-500',
-    media: 'bg-cream-200 text-wood-600',
-    forte: 'bg-[#e8f5e8] text-[#4A6E3C]',
-  }
-  const label = (t.inspection.population as Record<string, string>)[value] ?? value
-  return (
-    <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-sm ${map[value] ?? 'bg-cream-200 text-wood-600'}`}>
-      {label}
-    </span>
-  )
-}
-
 function ArrowRight() {
   return (
     <svg
@@ -216,7 +185,7 @@ function ArrowRight() {
       height="12"
       viewBox="0 0 7 12"
       fill="none"
-      className="text-wood-300 mt-0.5 shrink-0"
+      className="text-wood-300 shrink-0"
     >
       <path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>

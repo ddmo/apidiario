@@ -22,8 +22,6 @@ export const VARROA_METHOD_LABELS: Record<VarroaMethod, string> = {
 export const VARROA_METHOD_OPTIONS = Object.entries(VARROA_METHOD_LABELS) as [VarroaMethod, string][]
 
 export const INTERVENTION_OPTIONS = [
-  'Aggiunto melario',
-  'Tolto melario',
   'Tolto telaino',
   'Aggiunto telaino',
   'Cambio regina',

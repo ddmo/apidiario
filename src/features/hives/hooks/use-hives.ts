@@ -15,8 +15,8 @@ export type HiveListItem = {
   hasApiscampo: boolean
   hasPropolisNet: boolean
   hasPollenTrap: boolean
-  hasActiveQueen: boolean
-  lastInspection: { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number } | null
+  hasActiveQueen: boolean | 'non_cercata'
+  lastInspection: { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number; queenSeen: string | null } | null
 }
 
 export function useHivesByApiary(apiaryId: string) {
@@ -40,7 +40,7 @@ export function useHivesByApiary(apiaryId: string) {
       const [{ data: inspData }, { data: queensData }] = await Promise.all([
         supabase
           .from('inspections')
-          .select('hive_id, performed_at, brood_frame_count, honey_frame_count, pollen_frame_count')
+          .select('hive_id, performed_at, brood_frame_count, honey_frame_count, pollen_frame_count, queen_seen')
           .in('hive_id', hiveIds)
           .order('hive_id')
           .order('performed_at', { ascending: false }),
@@ -51,7 +51,7 @@ export function useHivesByApiary(apiaryId: string) {
           .is('end_date', null),
       ])
 
-      const lastInspMap = new Map<string, { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number }>()
+      const lastInspMap = new Map<string, { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number; queenSeen: string | null }>()
       for (const insp of inspData ?? []) {
         if (!lastInspMap.has(insp.hive_id)) {
           lastInspMap.set(insp.hive_id, {
@@ -59,6 +59,7 @@ export function useHivesByApiary(apiaryId: string) {
             broodFrameCount: insp.brood_frame_count ?? 0,
             honeyFrameCount: insp.honey_frame_count ?? 0,
             pollenFrameCount: insp.pollen_frame_count ?? 0,
+            queenSeen: insp.queen_seen ?? null,
           })
         }
       }
@@ -82,7 +83,13 @@ export function useHivesByApiary(apiaryId: string) {
         hasApiscampo: h.has_apiscampo,
         hasPropolisNet: h.has_propolis_net,
         hasPollenTrap: h.has_pollen_trap,
-        hasActiveQueen: activeQueenSet.has(h.id),
+        hasActiveQueen: (() => {
+          const insp = lastInspMap.get(h.id)
+          if (insp?.queenSeen === 'vista') return true
+          if (insp?.queenSeen === 'non_cercata') return 'non_cercata'
+          if (insp?.queenSeen === 'non_vista') return false
+          return activeQueenSet.has(h.id)
+        })(),
         lastInspection: lastInspMap.get(h.id) ?? null,
       }))
     },
@@ -158,7 +165,7 @@ export function useAllHives() {
       const [{ data: inspData }, { data: queensData }] = await Promise.all([
         supabase
           .from('inspections')
-          .select('hive_id, performed_at, brood_frame_count, honey_frame_count, pollen_frame_count')
+          .select('hive_id, performed_at, brood_frame_count, honey_frame_count, pollen_frame_count, queen_seen')
           .in('hive_id', hiveIds)
           .order('hive_id')
           .order('performed_at', { ascending: false }),
@@ -169,7 +176,7 @@ export function useAllHives() {
           .is('end_date', null),
       ])
 
-      const lastInspMap = new Map<string, { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number }>()
+      const lastInspMap = new Map<string, { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number; queenSeen: string | null }>()
       for (const insp of inspData ?? []) {
         if (!lastInspMap.has(insp.hive_id)) {
           lastInspMap.set(insp.hive_id, {
@@ -177,6 +184,7 @@ export function useAllHives() {
             broodFrameCount: insp.brood_frame_count ?? 0,
             honeyFrameCount: insp.honey_frame_count ?? 0,
             pollenFrameCount: insp.pollen_frame_count ?? 0,
+            queenSeen: insp.queen_seen ?? null,
           })
         }
       }
@@ -201,7 +209,13 @@ export function useAllHives() {
         hasApiscampo: h.has_apiscampo,
         hasPropolisNet: h.has_propolis_net,
         hasPollenTrap: h.has_pollen_trap,
-        hasActiveQueen: activeQueenSet.has(h.id),
+        hasActiveQueen: (() => {
+          const insp = lastInspMap.get(h.id)
+          if (insp?.queenSeen === 'vista') return true
+          if (insp?.queenSeen === 'non_cercata') return 'non_cercata'
+          if (insp?.queenSeen === 'non_vista') return false
+          return activeQueenSet.has(h.id)
+        })(),
         lastInspection: lastInspMap.get(h.id) ?? null,
       }))
     },

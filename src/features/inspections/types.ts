@@ -28,7 +28,6 @@ export type InspectionFormState = {
   notes: string
   // standard-only
   frames: FrameState
-  supers: number
   queenCells: QueenCells
   pathologies: Set<PathologyType>
   pollenIncoming: boolean
@@ -44,7 +43,6 @@ export const DEFAULT_STATE: InspectionFormState = {
   population: 'media',
   notes: '',
   frames: { covata: 0, miele: 0, polline: 0 },
-  supers: 0,
   queenCells: 'nessuna',
   pathologies: new Set(),
   pollenIncoming: false,

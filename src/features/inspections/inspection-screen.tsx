@@ -30,7 +30,7 @@ interface InspectionScreenProps {
   isLoadingHistory?: boolean
   isSaving?: boolean
   isDeleting?: boolean
-  onSave: (state: InspectionFormState, mode: string) => void
+  onSave: (state: InspectionFormState, mode: string) => void | Promise<void>
   onBack: () => void
   onDelete?: () => void
 }
@@ -48,7 +48,7 @@ export function InspectionScreen({
   onBack,
   onDelete,
 }: InspectionScreenProps) {
-  const { state, dirtyFields, mode, setMode, update, reset, hasChanges, showSheet, setShowSheet } =
+  const { state, dirtyFields, mode, setMode, update, reset, markClean, hasChanges, showSheet, setShowSheet } =
     useInspectionForm({ prefillState, initialMode })
 
   const [showMenu, setShowMenu] = useState(false)
@@ -71,8 +71,9 @@ export function InspectionScreen({
     }
   }
 
-  function handleSave() {
-    onSave(state, mode)
+  async function handleSave() {
+    await onSave(state, mode)
+    markClean()
   }
 
   return (
@@ -156,7 +157,7 @@ export function InspectionScreen({
         {!isLoadingHistory && hasPrefill && (
           <PrefillBanner kind="prefilled" lastDate={prefillDate} onReset={reset} />
         )}
-        {!isLoadingHistory && !hasPrefill && (
+        {!isLoadingHistory && !hasPrefill && !prefillState && (
           <PrefillBanner kind="first" />
         )}
       </div>
@@ -171,7 +172,7 @@ export function InspectionScreen({
       </div>
 
       {/* Submit bar */}
-      <FormSubmitBar onCancel={handleBack} onSave={handleSave} isSaving={isSaving} />
+      <FormSubmitBar onCancel={handleBack} onSave={handleSave} isSaving={isSaving} saveDisabled={!hasChanges} />
 
       {/* Unsaved changes sheet */}
       <UnsavedChangesSheet

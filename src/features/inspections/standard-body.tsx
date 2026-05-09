@@ -78,8 +78,6 @@ export function StandardBody({ state, dirtyFields, onUpdate }: StandardBodyProps
             onChange={(v) => onUpdate('frames', { ...state.frames, miele: v })} />
           <FrameCounter label="Telaini polline" value={state.frames.polline} dirty={d('frames')}
             onChange={(v) => onUpdate('frames', { ...state.frames, polline: v })} />
-          <FrameCounter label="Melari presenti" value={state.supers} dirty={d('supers')}
-            onChange={(v) => onUpdate('supers', v)} min={0} max={5} />
         </div>
       </section>
 

@@ -4,7 +4,7 @@ interface HiveSchematicProps {
   hasApiscampo: boolean
   hasPropolisNet: boolean
   hasPollenTrap: boolean
-  hasActiveQueen: boolean
+  hasActiveQueen: boolean | 'non_cercata'
 }
 
 const SVG_W  = 72
@@ -89,8 +89,11 @@ export function HiveSchematic({
       <rect x={NIDO_X} y={nidoY} width={NIDO_W} height={NIDO_H} fill="#5A4830" rx={2} />
 
       {/* Queen */}
-      {hasActiveQueen && (
+      {hasActiveQueen === true && (
         <text x={SVG_W / 2} y={nidoY + 20} textAnchor="middle" fontSize={18} fill="#E5A938">♛</text>
+      )}
+      {hasActiveQueen === 'non_cercata' && (
+        <text x={SVG_W / 2} y={nidoY + 20} textAnchor="middle" fontSize={14} fill="#888780" fontFamily="Inter, system-ui, sans-serif">?</text>
       )}
 
       {/* Frame count */}

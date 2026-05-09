@@ -13,7 +13,6 @@ export type InspectionListItem = Pick<
   | 'notes'
   | 'brood_frame_count'
   | 'pathologies'
-  | 'melari_count'
   | 'behavior'
 > & {
   performed_by?: string | null
@@ -27,7 +26,7 @@ export function useInspectionsByHive(hiveId: string) {
       const { data, error } = await supabase
         .from('inspections')
         .select(
-          'id, performed_at, queen_seen, population, notes, brood_frame_count, pathologies, melari_count, behavior, performed_by, profiles!inner(display_name)',
+          'id, performed_at, queen_seen, population, notes, brood_frame_count, pathologies, behavior, performed_by, profiles!inner(display_name)',
         )
         .eq('hive_id', hiveId)
         .order('performed_at', { ascending: false })
@@ -42,7 +41,6 @@ export function useInspectionsByHive(hiveId: string) {
           notes: row.notes,
           brood_frame_count: row.brood_frame_count,
           pathologies: row.pathologies,
-          melari_count: row.melari_count,
           behavior: row.behavior,
           performed_by: row.performed_by,
           performer_display_name: (profile as { display_name: string } | null)?.display_name ?? null,

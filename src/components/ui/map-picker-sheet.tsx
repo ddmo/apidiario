@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { MapContainer, TileLayer, Circle, useMap } from 'react-leaflet'
-import { X, LocateFixed } from 'lucide-react'
+import { X, LocateFixed, Maximize2 } from 'lucide-react'
 import L from 'leaflet'
 import { Button } from '@/components/ui/button'
 import 'leaflet/dist/leaflet.css'
@@ -72,8 +72,26 @@ function FlyController({ target }: { target: { lat: number; lng: number } | null
     const key = `${target.lat},${target.lng}`
     if (key === prevRef.current) return
     prevRef.current = key
-    map.flyTo([target.lat, target.lng], 15, { duration: 0.8 })
+    map.flyTo([target.lat, target.lng], 16, { duration: 0.8 })
   }, [map, target])
+
+  return null
+}
+
+function ZoomToFit({ trigger }: { trigger: number }) {
+  const map = useMap()
+
+  useEffect(() => {
+    if (trigger === 0) return
+    const center = map.getCenter()
+    const size = map.getSize()
+    const smallerDim = Math.min(size.x, size.y)
+    const diameterMeters = FORAGING_RADIUS * 2
+    const targetMpp = diameterMeters / (smallerDim * 0.75)
+    const latRad = center.lat * Math.PI / 180
+    const zoom = Math.log2((156543.03392 * Math.cos(latRad)) / targetMpp)
+    map.setZoom(Math.round(zoom))
+  }, [trigger, map])
 
   return null
 }
@@ -83,11 +101,12 @@ export function MapPickerSheet({ open, onClose, onConfirm, initialLat, initialLn
   const [ready, setReady] = useState(false)
   const [geolocating, setGeolocating] = useState(false)
   const [flyTarget, setFlyTarget] = useState<{ lat: number; lng: number } | null>(null)
+  const [zoomFitTrigger, setZoomFitTrigger] = useState(0)
 
   const mapCenter = initialLat != null && initialLng != null
     ? { lat: initialLat, lng: initialLng }
     : ITALY_CENTER
-  const initialZoom = initialLat != null && initialLng != null ? 15 : 6
+  const initialZoom = initialLat != null && initialLng != null ? 16 : 6
 
   useEffect(() => {
     if (!open) {
@@ -143,6 +162,14 @@ export function MapPickerSheet({ open, onClose, onConfirm, initialLat, initialLn
         )}
         <button
           type="button"
+          onClick={() => setZoomFitTrigger((n) => n + 1)}
+          className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
+          aria-label="Zoom per raggio 3km"
+        >
+          <Maximize2 size={20} strokeWidth={1.75} />
+        </button>
+        <button
+          type="button"
           onClick={handleLocate}
           disabled={geolocating}
           className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors disabled:opacity-50"
@@ -181,6 +208,7 @@ export function MapPickerSheet({ open, onClose, onConfirm, initialLat, initialLn
             )}
             <CenterTracker onChange={handleCenterChange} />
             <FlyController target={flyTarget} />
+            <ZoomToFit trigger={zoomFitTrigger} />
           </MapContainer>
         )}
       </div>

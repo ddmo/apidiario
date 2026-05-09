@@ -1,6 +1,6 @@
 # SPEC.md — App di Gestione Apiari
 
-> **Stato**: in sviluppo · **Versione**: 0.4 · **Nome app**: Apidiario
+> **Stato**: in sviluppo · **Versione**: 0.5 · **Nome app**: Apidiario
 
 ---
 
@@ -15,19 +15,24 @@ L'app deve servire bene un apicoltore con 10 arnie e scalare senza ridisegno fin
 | User story | Titolo | Stato |
 |---|---|---|
 | US-01 | Ispezione rapida sul campo | ✅ chiusa (mag 2026) |
-| US-02 | Overview visiva dell'arnia | 🟡 schematico SVG implementato, icone stato avanzate mancanti |
-| US-03 | Lista arnie di un apiario | 🟡 lista per apiario e lista globale implementate; filtering/ordering non ancora |
+| US-02 | Overview visiva dell'arnia | ✅ schematico SVG con regina e telaini da ultima ispezione, icone stato e attrezzatura |
+| US-03 | Lista arnie di un apiario | ✅ lista per apiario e lista globale; swipe-to-delete; filtering/ordering futuri |
 | US-04 | Anagrafica arnia | ✅ chiusa (mag 2026) |
-| US-05 | Anagrafica apiario | ✅ chiusa (mag 2026) |
+| US-05 | Anagrafica apiario | ✅ chiusa (mag 2026); edit + map picker |
 | US-06 | Registrazione trattamento | ⬜ |
 | US-07 | Registrazione raccolto | ⬜ |
-| US-08 | Storia regina | 🟡 base implementata (regina di default creata con ogni arnia) |
+| US-08 | Storia regina | 🟡 base implementata (regina di default creata con ogni arnia); rilevazione regina da ispezione prioritaria |
 | US-09 | Promemoria custom | ⬜ |
 | US-10 | Condivisione apiario | ⬜ |
 | US-11 | Foto e video | 🟡 foto principale apiario implementata |
 | US-12 | Note vocali | ⬜ |
 | US-13 | Anagrafe BDA | 🟡 campo presente, reminder rimandato |
-| US-14 | Storico e report | 🟡 storico ispezioni per arnia ✅; calendario mensile ispezioni ✅; report aggregati ⬜ |
+| US-14 | Storico e report | 🟡 storico ispezioni per arnia ✅; calendario mensile ✅; report aggregati ⬜ |
+| — | Meteo apiario | ✅ previsioni 16 giorni con valutazione apistica (mag 2026) |
+| — | Previsione fioritura | ✅ fenologia per specie botaniche con elevazione (mag 2026) |
+| — | Mappa posizione apiario | ✅ MapPickerSheet interattivo con Leaflet (mag 2026) |
+| — | Admin utenti | ✅ gestione utenti, inviti, ruoli (mag 2026) |
+| — | Pagina "Più" | ✅ menu info, logout, admin (mag 2026) |
 
 **Home dell'app (post-login)**: lista apiari (US-05 dettaglio "Lista" sotto). In una fase successiva (post US-09 e US-14) sarà arricchita con una "strip insights" sopra la lista, che mostrerà promemoria di oggi, arnie con allarmi, ispezioni in coda di sincronizzazione. Per la v1 la home è solo lista apiari.
 
@@ -91,14 +96,12 @@ Criteri:
 **US-02 — Overview visiva dell'arnia**
 > Come apicoltore, voglio vedere a colpo d'occhio lo stato di un'arnia tramite un disegno schematico con icone di stato sovrapposte.
 
-Elementi visivi richiesti:
-- Disegno schematico dell'arnia (nido + eventuali melari).
-- Numero di telaini nel nido.
-- Presenza/numero di melari.
-- Icone di stato: livello scorte, presenza covata, regina vista/non vista, importazione polline, presenza celle reali.
-- Colori semaforici (verde/giallo/rosso) per leggibilità immediata.
-- Stato visivo aggiuntivo "non rilevato" (grigio o tratteggio) per i campi che vengono salvati come NULL nelle ispezioni Express.
-- Data ultima ispezione + chi l'ha fatta.
+Elementi visivi implementati:
+- Disegno schematico SVG dell'arnia (nido con telaini, melari, apiscampo, rete propoli, trappola polline).
+- Numero di telaini nel nido ricavato dalla somma dei telaini covata + miele + polline dell'ultima ispezione (fallback: `nido_frame_count` statico dell'arnia).
+- Presenza/assenza regina: ♛ se "Vista" nell'ultima ispezione, "?" se "Non cercata", nessuna icona se "Non vista". Se nessuna ispezione, fallback sulla tabella `queens` (regina attiva).
+- Numero melari dal dato statico dell'arnia (non più dall'ispezione).
+- Toggle attrezzatura: apiscampo, rete propoli, trappola polline con mutazione ottimistica.
 
 **US-03 — Lista arnie di un apiario**
 > Come apicoltore, voglio vedere tutte le arnie di un apiario in una lista scorrevole con stato sintetico per ognuna, e poter ordinare/filtrare.
@@ -152,7 +155,6 @@ Note implementative:
 ### P3 — Nice to have (post-MVP)
 
 - Esportazione dati (CSV/JSON) per backup personale.
-- Meteo automatico al momento dell'ispezione (geolocalizzato).
 - Confronto multi-stagione (es. produzione 2024 vs 2025 per arnia).
 - Promemoria stagionali predefiniti opzionali (varroa estiva, ossalico invernale).
 
@@ -198,7 +200,7 @@ L'ispezione ha due modalità di input nello stesso form:
 - **Express**: solo i campi essenziali per un controllo veloce (regina, covata, popolazione, note). Pensata per ispezioni di routine in 20-30 secondi.
 - **Standard**: tutti i campi visibili in scroll verticale, per ispezioni approfondite (telaini, celle reali, patologie, comportamento, varroa, interventi, foto).
 
-**Semantica del salvataggio in modalità Express**: i campi non visibili in modalità Express (telaini, celle reali, patologie, comportamento, importazione polline, conteggio varroa, interventi, foto, melari count) vengono salvati come **NULL** nel database. La semantica è "non rilevato durante l'ispezione veloce", esplicitamente distinta dai loro valori "vuoti ma osservati" (es. `queen_cells = 'nessuna'` significa "guardato e non c'erano celle reali"; `queen_cells = NULL` significa "non ho controllato"). Questa distinzione è importante per la successiva US-02 (Overview arnia) che mostrerà uno stato visivo "non rilevato" oltre a verde/giallo/rosso.
+**Semantica del salvataggio in modalità Express**: i campi non visibili in modalità Express (telaini, celle reali, patologie, comportamento, importazione polline, conteggio varroa, interventi, foto) vengono salvati come **NULL** nel database. La semantica è "non rilevato durante l'ispezione veloce", esplicitamente distinta dai loro valori "vuoti ma osservati" (es. `queen_cells = 'nessuna'` significa "guardato e non c'erano celle reali"; `queen_cells = NULL` significa "non ho controllato"). Il numero melari NON è più un attributo dell'ispezione: è un dato statico dell'arnia (`hives.melari_count`), modificabile nella scheda arnia.
 
 
 Campi:
@@ -283,6 +285,90 @@ Promemoria di sistema (non cancellabili):
 - Reminder automatico a novembre come da §6.6.
 - L'app **non** comunica con la BDA; tutto è solo locale.
 
+### 6.9 Meteo apiario
+
+Accessibile dal dettaglio apiario (icona nuvola/sole) solo se l'apiario ha coordinate GPS.
+
+Dati mostrati:
+- Previsioni a 16 giorni da Open-Meteo API (gratuita, nessuna chiave).
+- Elevazione del punto GPS (endpoint Open-Meteo elevation separato).
+- Ogni giorno in griglia: etichetta (giorno+mese), icona meteo WMO, precipitazioni (mm), barra temperatura relativa (min/max con estremi assoluti nella settimana), vento (direzione+max km/h), valutazione apistica.
+- **Valutazione apistica** in fondo pagina: per ogni giorno, un indice (1–5) e motivi testuali (pioggia, vento forte, temperature estreme) calcolati lato client in base a soglie configurabili.
+- Header con nome apiario, data/ora sincronizzazione effettiva (da `fetchedAt` nel payload query).
+- Back button usa `history.back()`.
+
+Regole valutazione (in `features/weather/`):
+- 5 stelle: T 15–30°C, vento <15 km/h, nessuna pioggia.
+- Perdita stelle per pioggia (>0.5mm: -1, >5mm: -2), vento (>20 km/h: -1, >35 km/h: -2), temperature (<10°C o >35°C: -2, <5°C o >38°C: -3).
+- Minimo 1 stella.
+
+### 6.10 Previsione fioritura (fenologia)
+
+Accessibile dal tab "Previsioni" nella bottom nav o dal menu.
+
+Basata su modelli Growing Degree Days (GDD) pubblici:
+- Dati climatici storici + forecast Open-Meteo.
+- Specie botaniche configurate con `base_temp` e `gdd_threshold` (in tabella `phenology_species`).
+- Calcolo GDD cumulativo da inizio anno per ogni coordinata apiario.
+- Stima data di inizio fioritura quando GDD cumulativo supera soglia specie.
+- Visualizzazione per specie: nome, data stimata, GDD attuale vs soglia, barra progresso.
+- Mappa regionale qualitativa basata su media stazioni meteo.
+
+### 6.11 Mappa posizione apiario (MapPickerSheet)
+
+Componente riutilizzabile (`src/components/ui/map-picker-sheet.tsx`):
+- Fullscreen sheet con mappa Leaflet (tile OpenStreetMap gratuiti).
+- Mirino CSS fisso al centro (non marker Leaflet).
+- Cerchio raggio 3 km intorno al centro (bottinatura).
+- Bottone "Conferma posizione" sticky in basso.
+- Inizializzazione: coordinate fornite (se editing), o geolocalizzazione browser, fallback centro Italia (42.5, 12.5).
+- Gesture pinch-to-zoom abilitato via `data-allow-pinch` (bypassa il preventDefault globale in `main.tsx`).
+- Integrato nell'ApiaryForm come alternativa al pulsante GPS e all'inserimento manuale.
+
+### 6.12 Admin utenti
+
+Rotta `/admin/users` accessibile solo da utenti con ruolo `admin` nell'app_metadata.
+
+Funzionalità:
+- Lista utenti registrati (da `auth.users` + `public.profiles`).
+- Invito nuovo utente via email (Supabase `inviteUserByEmail` con redirect a `/auth/callback`).
+- Eliminazione utente (solo admin, con conferma).
+
+### 6.13 Pagina "Più" e navigazione secondaria
+
+Rotta `/piu` accessibile da bottom nav:
+- Info utente (nome, email, data registrazione).
+- "Ultimo aggiornamento dati" con timestamp effettivo (da `dataUpdatedAt` React Query).
+- Menu voci: Calendario ispezioni, Previsioni fioritura, Admin utenti (solo se admin).
+- Logout.
+
+### 6.14 Calendario ispezioni
+
+Rotta `/_auth/calendario`:
+- Vista mensile con giorni colorati in base alla presenza di ispezioni.
+- Click su giorno → lista ispezioni di quel giorno.
+- Navigazione tra mesi.
+
+### 6.15 Comportamento edit ispezione
+
+Quando si apre un'ispezione esistente in modifica:
+- Il form è precompilato con i dati dell'ispezione (non dall'ultima ispezione precedente).
+- Il pulsante "Salva ispezione" è **disabilitato** finché nessun campo viene modificato (`dirtyFields` vuoto).
+- Alla modifica di un campo, il pulsante si abilita.
+- Al salvataggio completato con successo, il pulsante si disabilita di nuovo e l'app torna automaticamente alla pagina precedente (`router.history.back()`).
+- Il tasto indietro NON chiede conferma "vuoi salvare?" se non ci sono modifiche o se il salvataggio è stato appena completato.
+- Nessun banner "Prima ispezione" o "prefill da ultima ispezione" in modalità edit.
+
+### 6.16 Lista ispezioni ridisegnata
+
+Layout di ogni riga:
+- **Sinistra**: badge calendario (giorno in grande, mese abbreviato sopra in caps su sfondo color crema).
+- **Centro**: prima riga con "da Nome" (solo se presente), seconda riga con "Regina vista - Famiglia forte" (formato: stato regina + popolazione, separati da " - ").
+- **Destra**: freccia (chevron right) centrata verticalmente.
+- Swipe a sinistra per eliminare.
+- Patologie mostrate come chip sotto la riga info.
+- Note in coda sulla stessa riga del performer.
+
 ## 7. Modello permessi (dettaglio)
 
 ### Logica
@@ -349,6 +435,8 @@ La revoca è immediata: alla cancellazione del record `apiary_access`, l'utente 
 - **Routing**: TanStack Router file-based (convenzione flat con underscore).
 - **Stato server**: TanStack Query.
 - **Backend**: Supabase (Postgres + Auth + Storage). Niente backend custom.
+- **Mappe**: Leaflet + react-leaflet (tile OSM, nessuna API key).
+- **Meteo**: Open-Meteo API (gratuita, nessuna chiave).
 - **Compressione immagini lato client**: `browser-image-compression`.
 - **Hosting frontend**: Cloudflare Pages (target).
 - **CI/CD**: GitHub Actions (rimandata a fase di hardening).

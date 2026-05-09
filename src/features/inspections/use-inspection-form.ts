@@ -29,5 +29,9 @@ export function useInspectionForm({ prefillState, initialMode }: UseInspectionFo
     setDirtyFields(new Set())
   }
 
-  return { state, dirtyFields, mode, setMode, update, reset, hasChanges, showSheet, setShowSheet }
+  function markClean() {
+    setDirtyFields(new Set())
+  }
+
+  return { state, dirtyFields, mode, setMode, update, reset, markClean, hasChanges, showSheet, setShowSheet }
 }

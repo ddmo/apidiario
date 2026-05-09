@@ -66,7 +66,7 @@ function EditInspectionPage() {
 
   const { mutate: deleteInspection, isPending: isDeleting } = useDeleteInspection()
 
-  const { mutate: updateInspection, isPending: isSaving } = useMutation({
+  const { mutateAsync: updateInspection, isPending: isSaving } = useMutation({
     mutationFn: async ({ formState, mode }: { formState: InspectionFormState; mode: string }) => {
       const { data: { session: s } } = await supabase.auth.getSession()
       if (!s?.user?.id) throw new Error('Not authenticated')
@@ -82,7 +82,6 @@ function EditInspectionPage() {
         brood_frame_count: isExpress ? null : formState.frames.covata,
         honey_frame_count: isExpress ? null : formState.frames.miele,
         pollen_frame_count: isExpress ? null : formState.frames.polline,
-        melari_count: isExpress ? 0 : formState.supers,
         queen_cells: isExpress ? null : formState.queenCells,
         pollen_importation: isExpress ? null : formState.pollenIncoming,
         behavior: isExpress ? null : formState.behavior,
@@ -102,8 +101,7 @@ function EditInspectionPage() {
       void queryClient.invalidateQueries({ queryKey: ['inspections', hiveId] })
       void queryClient.invalidateQueries({ queryKey: ['lastInspection', hiveId] })
       void queryClient.invalidateQueries({ queryKey: ['hives'] })
-      showToast('Visita aggiornata', 'success')
-      void navigate({ to: '/hives/$hiveId/inspections', params: { hiveId }, replace: true })
+      router.history.back()
     },
     onError: (err) => {
       console.error('[EditInspection] save failed', err)
@@ -126,7 +124,6 @@ function EditInspectionPage() {
           miele: inspection.honey_frame_count ?? 0,
           polline: inspection.pollen_frame_count ?? 0,
         },
-        supers: inspection.melari_count ?? 0,
         queenCells: inspection.queen_cells ?? 'nessuna',
         pollenIncoming: inspection.pollen_importation ?? false,
         behavior: inspection.behavior ?? 'calmo',
