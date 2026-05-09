@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { getSeason } from '../seasons'
-import type { Season } from '../seasons'
 
 describe('getSeason', () => {
   describe('northern hemisphere (default)', () => {

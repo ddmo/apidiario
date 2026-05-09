@@ -50,7 +50,7 @@ export function BroodStageToggles({ value, onChange, dirty = true }: BroodStageT
           <button
             key={s.key}
             type="button"
-            aria-pressed={on}
+            aria-pressed={on ?? false}
             onClick={() => toggle(s.key)}
             className={cn(
               'h-[76px] rounded-lg border flex flex-col items-center justify-center gap-1 transition-all duration-150',
