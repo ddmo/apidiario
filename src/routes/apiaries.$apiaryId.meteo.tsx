@@ -126,7 +126,7 @@ function MeteoPage() {
   const { apiaryId } = Route.useParams()
   const router = useRouter()
   const { data: apiary } = useApiary(apiaryId)
-  const { data: forecast, isLoading } = useWeatherForecast(
+  const { data: forecast, dataUpdatedAt, isLoading } = useWeatherForecast(
     apiary?.latitude ?? null,
     apiary?.longitude ?? null,
   )
@@ -274,7 +274,7 @@ function MeteoPage() {
                 <span>Open-Meteo · ECMWF</span>
                 <span>
                   {(() => {
-                    const mins = Math.round((Date.now() - forecast.fetchedAt) / 60000)
+                    const mins = Math.round((Date.now() - dataUpdatedAt) / 60000)
                     return mins < 1 ? 'aggiornato ora' : `aggiornato ${mins} min fa`
                   })()}
                 </span>
