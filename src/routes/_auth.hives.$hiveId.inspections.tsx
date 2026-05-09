@@ -84,8 +84,8 @@ function InspectionListPage() {
               const calendarDay = date.getDate()
               const calendarMonth = date.toLocaleDateString('it-IT', { month: 'short' })
               const pathologies = insp.pathologies ?? []
-              const queenLabel = `Regina ${(t.inspection.queenSeen as Record<string, string>)[insp.queen_seen] ?? insp.queen_seen}`.toLowerCase()
-              const popLabel = (t.inspection.population as Record<string, string>)[insp.population] ?? insp.population
+              const queenLabel = `Regina ${(t.inspection.queenSeen as Record<string, string>)[insp.queen_seen ?? ''] ?? insp.queen_seen ?? 'non cercata'}`.toLowerCase()
+              const popLabel = (t.inspection.population as Record<string, string>)[insp.population ?? ''] ?? insp.population ?? 'Media'
 
               function handleDelete(inspectionId: string) {
                 deleteInspection(
