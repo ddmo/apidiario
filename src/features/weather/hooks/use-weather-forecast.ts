@@ -22,6 +22,7 @@ export interface WeatherForecast {
   current: CurrentWeather
   days: ForecastDay[]
   elevation: number | null
+  fetchedAt: number
 }
 
 function buildForecastUrl(lat: number, lng: number, elevation?: number) {
@@ -106,9 +107,10 @@ export function useWeatherForecast(lat: number | null, lng: number | null) {
         },
         days,
         elevation: elevation ?? null,
+        fetchedAt: Date.now(),
       }
     },
     enabled: lat != null && lng != null,
-    staleTime: 1000 * 60 * 2,
+    staleTime: 0,
   })
 }
