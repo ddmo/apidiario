@@ -24,19 +24,10 @@ function PiuPage() {
   const [loggingOut, setLoggingOut] = useState(false)
   const [themeMode, setThemeLocal] = useState<ThemeMode>(getThemeMode())
 
-  const { data: lastUpdate } = useQuery({
+  const { dataUpdatedAt } = useQuery({
     queryKey: ['lastDataUpdate'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('inspections')
-        .select('performed_at')
-        .order('performed_at', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-      if (error) return null
-      return data?.performed_at ?? null
-    },
-    staleTime: 1000 * 60,
+    queryFn: async () => Date.now(),
+    staleTime: 0,
   })
 
   function handleThemeChange(mode: ThemeMode) {
@@ -56,8 +47,8 @@ function PiuPage() {
   }
 
   const userEmail = session?.user?.email ?? profile?.display_name ?? '—'
-  const lastUpdateLabel = lastUpdate
-    ? new Date(lastUpdate).toLocaleString('it-IT', {
+  const lastUpdateLabel = dataUpdatedAt
+    ? new Date(dataUpdatedAt).toLocaleString('it-IT', {
         day: 'numeric', month: 'short', year: 'numeric',
         hour: '2-digit', minute: '2-digit',
       })
