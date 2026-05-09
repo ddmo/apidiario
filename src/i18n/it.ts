@@ -125,6 +125,7 @@ export const t = {
       apiscampo: 'Apiscampo',
       propoilsNet: 'Rete propoli',
       pollenTrap: 'Trappola polline',
+      melari: 'Melari',
     },
     new: {
       title: 'Nuova arnia',
