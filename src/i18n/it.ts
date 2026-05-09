@@ -64,7 +64,6 @@ export const t = {
       `${apiaries} apia${apiaries === 1 ? 'rio' : 'ri'} · ${hives} arni${hives === 1 ? 'a' : 'e'}`,
     synced: 'Sincronizzato',
     syncedAgo: (label: string) => `Sincronizzato · ultima ${label}`,
-    filter: 'Filtra',
     empty: {
       title: 'Nessun apiario',
       description:

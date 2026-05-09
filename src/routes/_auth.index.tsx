@@ -90,10 +90,6 @@ function HomePage() {
                   {t.apiaries.summary(apiaries.length, totalHives)}
                 </span>
               </p>
-              {/* Filter placeholder — not functional yet */}
-              <span className="text-xs font-medium text-wood-300 cursor-not-allowed select-none">
-                {t.apiaries.filter}
-              </span>
             </div>
 
             <div className="px-4 pb-24">
