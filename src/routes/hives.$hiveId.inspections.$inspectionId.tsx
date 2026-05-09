@@ -74,9 +74,9 @@ function EditInspectionPage() {
 
       const payload: TablesUpdate<'inspections'> = {
         queen_seen: formState.queen,
-        brood_eggs: formState.brood.uova,
-        brood_larvae: formState.brood.larve,
-        brood_capped: formState.brood.opercolata,
+        brood_eggs: formState.hasBrood ? formState.brood.uova : false,
+        brood_larvae: formState.hasBrood ? formState.brood.larve : false,
+        brood_capped: formState.hasBrood ? formState.brood.opercolata : false,
         population: formState.population,
         notes: formState.notes || null,
         brood_frame_count: isExpress ? null : formState.frames.covata,
@@ -113,10 +113,11 @@ function EditInspectionPage() {
   const prefillState: Partial<InspectionFormState> | undefined = inspection
     ? {
         queen: inspection.queen_seen,
+        hasBrood: inspection.brood_eggs != null || inspection.brood_larvae != null || inspection.brood_capped != null,
         brood: {
-          uova: inspection.brood_eggs ?? false,
-          larve: inspection.brood_larvae ?? false,
-          opercolata: inspection.brood_capped ?? false,
+          uova: (inspection.brood_eggs ?? null) as boolean | null,
+          larve: (inspection.brood_larvae ?? null) as boolean | null,
+          opercolata: (inspection.brood_capped ?? null) as boolean | null,
         },
         population: inspection.population ?? 'media',
         frames: {

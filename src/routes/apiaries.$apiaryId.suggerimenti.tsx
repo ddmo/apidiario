@@ -1,0 +1,69 @@
+import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
+import { ArrowLeft } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
+import { useApiary } from '@/features/apiaries/hooks/use-apiaries'
+import { useApiarySuggestions } from '@/features/suggestions/hooks/use-apiary-suggestions'
+import { HiveSuggestionCard } from '@/features/suggestions/components/hive-suggestion-card'
+
+export const Route = createFileRoute('/apiaries/$apiaryId/suggerimenti')({
+  beforeLoad: async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+    if (!session) throw redirect({ to: '/login' })
+  },
+  component: SuggerimentiPage,
+})
+
+function SuggerimentiPage() {
+  const { apiaryId } = Route.useParams()
+  const router = useRouter()
+  const { data: apiary } = useApiary(apiaryId)
+  const { data: result, isLoading } = useApiarySuggestions(apiaryId)
+
+  return (
+    <main className="h-dvh flex flex-col bg-cream-50">
+      {/* Header */}
+      <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2">
+        <button
+          type="button"
+          aria-label="Indietro"
+          onClick={() => router.history.back()}
+          className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
+        >
+          <ArrowLeft size={22} strokeWidth={1.75} />
+        </button>
+        <h1 className="text-base font-semibold text-wood-800 tracking-tight flex-1 px-1">
+          Suggerimenti {apiary?.name ?? '…'}
+        </h1>
+      </header>
+
+      {/* Body */}
+      <div className="flex-1 overflow-y-auto px-4 py-4">
+        <div className="max-w-lg mx-auto flex flex-col gap-3">
+          {isLoading && (
+            <div className="flex items-center justify-center py-12 text-sm text-wood-400">
+              Caricamento suggerimenti…
+            </div>
+          )}
+
+          {!isLoading && result?.length === 0 && (
+            <div className="flex items-center justify-center py-12 text-sm text-wood-400">
+              Nessuna arnia in questo apiario
+            </div>
+          )}
+
+          {result?.map((hs) => (
+            <HiveSuggestionCard key={hs.hive.id} data={hs} />
+          ))}
+
+          {!isLoading && result && result.length > 0 && result.every((hs) => hs.suggestions.length === 0) && (
+            <p className="text-center text-[13px] text-wood-400 py-4">
+              Non ci sono suggerimenti attivi per le arnie di questo apiario.
+            </p>
+          )}
+        </div>
+      </div>
+    </main>
+  )
+}

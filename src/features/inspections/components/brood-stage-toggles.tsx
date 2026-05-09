@@ -1,7 +1,6 @@
 import { cn } from '@/lib/utils'
 import type { BroodState } from '../types'
 
-// Brood stage icons — no lucide equivalents at 0.469
 function EggIcon({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -41,7 +40,7 @@ interface BroodStageTogglesProps {
 }
 
 export function BroodStageToggles({ value, onChange, dirty = true }: BroodStageTogglesProps) {
-  const toggle = (key: keyof BroodState) => onChange({ ...value, [key]: !value[key] })
+  const toggle = (key: keyof BroodState) => onChange({ ...value, [key]: value[key] ? null : true })
 
   return (
     <div className="grid grid-cols-3 gap-2">

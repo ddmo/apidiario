@@ -35,11 +35,24 @@ export function ExpressBody({ state, dirtyFields, onUpdate }: ExpressBodyProps) 
 
       <section>
         <SectionLabel>Covata</SectionLabel>
-        <BroodStageToggles
-          value={state.brood}
-          onChange={(v) => onUpdate('brood', v)}
-          dirty={d('brood')}
-        />
+        <button
+          type="button"
+          aria-pressed={state.hasBrood}
+          onClick={() => onUpdate('hasBrood', !state.hasBrood)}
+          className={`w-full h-12 rounded-md border px-4 flex items-center justify-between transition-colors ${state.hasBrood ? 'bg-honey-300/60 border-honey-500 text-wood-800' : 'bg-cream-50 border-cream-200 text-wood-500'}`}
+        >
+          <span className="text-sm font-medium">
+            {state.hasBrood ? 'Covata presente' : 'Covata assente'}
+          </span>
+          <span className={`h-6 w-10 rounded-full p-0.5 transition-colors ${state.hasBrood ? 'bg-honey-500' : 'bg-cream-200'}`}>
+            <span className={`block size-5 rounded-full bg-cream-50 transition-transform ${state.hasBrood ? 'translate-x-4' : 'translate-x-0'}`} />
+          </span>
+        </button>
+        {state.hasBrood && (
+          <div className="mt-3">
+            <BroodStageToggles value={state.brood} onChange={(v) => onUpdate('brood', v)} dirty={d('brood')} />
+          </div>
+        )}
       </section>
 
       <section>

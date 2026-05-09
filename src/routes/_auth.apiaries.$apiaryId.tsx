@@ -1,6 +1,8 @@
 import { createFileRoute, Link, useNavigate, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { ArrowLeft, Box, CloudSun, Plus } from 'lucide-react'
+import { SuggestionsButton } from '@/features/suggestions/components/suggestions-button'
+import { useApiarySuggestions } from '@/features/suggestions/hooks/use-apiary-suggestions'
 import { useApiary } from '@/features/apiaries/hooks/use-apiaries'
 import { useHivesByApiary, useDeleteHive } from '@/features/hives/hooks/use-hives'
 import { HiveCard } from '@/features/hives/components/hive-card'
@@ -21,6 +23,7 @@ function ApiaryDetailPage() {
   const { data: apiary } = useApiary(apiaryId)
   const { data: hives = [], isLoading } = useHivesByApiary(apiaryId)
   const { mutate: deleteHive } = useDeleteHive()
+  const { data: suggestions } = useApiarySuggestions(apiaryId)
 
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
@@ -46,15 +49,21 @@ function ApiaryDetailPage() {
         <h1 className="text-2xl font-bold text-wood-800 tracking-tight truncate flex-1 px-1">
           {apiary?.name ?? '…'}
         </h1>
-        {apiary?.latitude != null && apiary?.longitude != null && (
-          <Link
-            to="/apiaries/$apiaryId/meteo"
-            params={{ apiaryId }}
-            className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
-          >
-            <CloudSun size={22} strokeWidth={1.75} />
-          </Link>
-        )}
+        <span className="flex items-center gap-0.5">
+          {apiary?.latitude != null && apiary?.longitude != null && (
+            <Link
+              to="/apiaries/$apiaryId/meteo"
+              params={{ apiaryId }}
+              className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
+            >
+              <CloudSun size={22} strokeWidth={1.75} />
+            </Link>
+          )}
+          <SuggestionsButton
+            apiaryId={apiaryId}
+            criticalCount={suggestions?.reduce((acc, hs) => acc + hs.suggestions.filter((s) => s.severity === 'critical').length, 0)}
+          />
+        </span>
       </header>
 
       <div className="flex-1 overflow-y-auto pb-24">

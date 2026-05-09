@@ -79,9 +79,9 @@ function NewInspectionPage() {
         hive_id: hiveId,
         performed_by: session.user.id,
         queen_seen: formState.queen,
-        brood_eggs: formState.brood.uova,
-        brood_larvae: formState.brood.larve,
-        brood_capped: formState.brood.opercolata,
+        brood_eggs: formState.hasBrood ? formState.brood.uova : false,
+        brood_larvae: formState.hasBrood ? formState.brood.larve : false,
+        brood_capped: formState.hasBrood ? formState.brood.opercolata : false,
         population: formState.population,
         notes: formState.notes || null,
         brood_frame_count: isExpress ? null : formState.frames.covata,
@@ -114,10 +114,11 @@ function NewInspectionPage() {
   const prefillState: Partial<InspectionFormState> | undefined = lastInspection
     ? {
         queen: lastInspection.queen_seen,
+        hasBrood: lastInspection.brood_eggs != null || lastInspection.brood_larvae != null || lastInspection.brood_capped != null,
         brood: {
-          uova: lastInspection.brood_eggs ?? false,
-          larve: lastInspection.brood_larvae ?? false,
-          opercolata: lastInspection.brood_capped ?? false,
+          uova: (lastInspection.brood_eggs ?? null) as boolean | null,
+          larve: (lastInspection.brood_larvae ?? null) as boolean | null,
+          opercolata: (lastInspection.brood_capped ?? null) as boolean | null,
         },
         population: lastInspection.population ?? 'media',
         frames: {

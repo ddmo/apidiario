@@ -9,10 +9,12 @@ export type BehaviorType = Enums<'behavior_type'>
 export type VarroaMethod = Enums<'varroa_count_method'>
 export type PathologyType = Enums<'pathology'>
 
+export type BroodStage = boolean | null
+
 export type BroodState = {
-  uova: boolean
-  larve: boolean
-  opercolata: boolean
+  uova: BroodStage
+  larve: BroodStage
+  opercolata: BroodStage
 }
 
 export type FrameState = {
@@ -23,6 +25,7 @@ export type FrameState = {
 
 export type InspectionFormState = {
   queen: QueenSeen
+  hasBrood: boolean
   brood: BroodState
   population: PopulationStrength
   notes: string
@@ -39,7 +42,8 @@ export type InspectionFormState = {
 
 export const DEFAULT_STATE: InspectionFormState = {
   queen: 'non_cercata',
-  brood: { uova: false, larve: false, opercolata: false },
+  hasBrood: true,
+  brood: { uova: null, larve: null, opercolata: null },
   population: 'media',
   notes: '',
   frames: { covata: 0, miele: 0, polline: 0 },
