@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { ArrowLeft, Wind } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useApiary } from '@/features/apiaries/hooks/use-apiaries'
@@ -124,6 +124,7 @@ function DayRow({ day, isToday, allTmin, range }: { day: ForecastDay; isToday: b
 
 function MeteoPage() {
   const { apiaryId } = Route.useParams()
+  const router = useRouter()
   const { data: apiary } = useApiary(apiaryId)
   const { data: forecast, isLoading } = useWeatherForecast(
     apiary?.latitude ?? null,
@@ -134,13 +135,14 @@ function MeteoPage() {
     return (
       <main className="h-dvh flex flex-col bg-cream-50">
         <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2">
-          <Link
-            to="/apiaries/$apiaryId"
-            params={{ apiaryId }}
+          <button
+            type="button"
+            aria-label="Indietro"
+            onClick={() => router.history.back()}
             className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
           >
             <ArrowLeft size={22} strokeWidth={1.75} />
-          </Link>
+          </button>
           <h1 className="text-base font-semibold text-wood-800 flex-1 px-1">Meteo</h1>
         </header>
         <div className="flex-1 flex items-center justify-center text-sm text-wood-400">Caricamento…</div>
@@ -156,13 +158,14 @@ function MeteoPage() {
     <main className="h-dvh flex flex-col bg-cream-50">
       {/* Header */}
       <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2">
-        <Link
-          to="/apiaries/$apiaryId"
-          params={{ apiaryId }}
+        <button
+          type="button"
+          aria-label="Indietro"
+          onClick={() => router.history.back()}
           className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
         >
           <ArrowLeft size={22} strokeWidth={1.75} />
-        </Link>
+        </button>
         <h1 className="text-base font-semibold text-wood-800 tracking-tight flex-1 px-1">
           Meteo {apiary.name}
         </h1>
