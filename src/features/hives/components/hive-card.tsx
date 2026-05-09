@@ -142,7 +142,7 @@ export function HiveCard({ hive, onDelete }: HiveCardProps) {
       >
         <div className="bg-cream-100 border border-cream-200 p-3 flex gap-3 shadow-xs">
           {/* Schematic */}
-          <div className="w-[96px] shrink-0 flex items-center self-stretch">
+          <div className="w-[96px] shrink-0 flex items-center self-stretch bg-cream-200/50 rounded-lg">
             <HiveSchematic
               nidoFrameCount={hive.nidoFrameCount}
               melariCount={melariCount}
@@ -218,7 +218,7 @@ export function HiveCard({ hive, onDelete }: HiveCardProps) {
                 }
                 className={`text-xs px-2 py-1 rounded-md border transition-colors ${
                   hive.hasPollenTrap
-                    ? 'bg-honey-400 border-honey-500 text-white'
+                    ? 'bg-honey-500 border-honey-600 text-wood-900'
                     : 'bg-cream-50 border-cream-200 text-wood-400'
                 }`}
               >
