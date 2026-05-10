@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
-import { Trees, Box, Plus, Calendar, MoreHorizontal } from 'lucide-react'
+import { Trees, Syringe, Plus, Calendar, MoreHorizontal } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { t } from '@/i18n/it'
 import { HivePickerSheet } from '@/features/inspections/components/hive-picker-sheet'
@@ -32,18 +32,18 @@ export function BottomNav() {
             </Link>
           </li>
 
-          {/* Arnie */}
+          {/* Trattamenti */}
           <li className="flex-1">
             <Link
-              to="/arnie"
+              to="/trattamenti"
               className={cn(
                 'flex flex-col items-center gap-1 py-2 w-full min-h-[44px] justify-center transition-colors duration-150',
-                location.pathname === '/arnie' ? 'text-honey-500' : 'text-wood-500',
+                location.pathname.startsWith('/trattamenti') ? 'text-honey-500' : 'text-wood-500',
               )}
-              aria-current={location.pathname === '/arnie' ? 'page' : undefined}
+              aria-current={location.pathname.startsWith('/trattamenti') ? 'page' : undefined}
             >
-              <Box size={24} strokeWidth={1.75} aria-hidden="true" />
-              <span className="text-xs font-medium">{t.nav.arnie}</span>
+              <Syringe size={24} strokeWidth={1.75} aria-hidden="true" />
+              <span className="text-xs font-medium">Trattamenti</span>
             </Link>
           </li>
 

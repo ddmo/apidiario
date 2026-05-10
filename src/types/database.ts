@@ -1,4 +1,3 @@
-Initialising login role...
 export type Json =
   | string
   | number
@@ -715,6 +714,7 @@ export type Database = {
       treatments: {
         Row: {
           apiary_id: string
+          applies_to_all_hives: boolean
           blocks_melari: boolean
           cost_eur: number | null
           created_at: string
@@ -729,6 +729,7 @@ export type Database = {
         }
         Insert: {
           apiary_id: string
+          applies_to_all_hives?: boolean
           blocks_melari?: boolean
           cost_eur?: number | null
           created_at?: string
@@ -743,6 +744,7 @@ export type Database = {
         }
         Update: {
           apiary_id?: string
+          applies_to_all_hives?: boolean
           blocks_melari?: boolean
           cost_eur?: number | null
           created_at?: string
@@ -1049,4 +1051,3 @@ export const Constants = {
     },
   },
 } as const
-<claude-code-hint v="1" type="plugin" value="supabase@claude-plugins-official" />

@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight, List, Calendar } from 'lucide-react'
+import { ChevronLeft, ChevronRight, List, Calendar, Syringe } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { t } from '@/i18n/it'
@@ -18,6 +18,43 @@ type InspectionEvent = {
   hiveIdentifier: string
   apiaryName: string
   performerDisplayName: string | null
+}
+
+type TreatmentEvent = {
+  id: string
+  date: string
+  endDate: string | null
+  productName: string
+  apiaryName: string
+  blocksMelari: boolean
+}
+
+function useTreatmentEvents(year: number, month: number) {
+  const start = new Date(year, month, 1).toISOString()
+  const end = new Date(year, month + 1, 1).toISOString()
+  return useQuery({
+    queryKey: ['treatmentEvents', year, month],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('treatments')
+        .select('id, product_name, start_date, end_date, blocks_melari, apiaries!inner(name)')
+        .gte('start_date', start)
+        .lt('start_date', end)
+        .order('start_date', { ascending: true })
+      if (error) throw error
+      return (data ?? []).map((row) => {
+        const apiary = Array.isArray(row.apiaries) ? row.apiaries[0] : row.apiaries
+        return {
+          id: row.id,
+          date: row.start_date,
+          endDate: row.end_date,
+          productName: row.product_name,
+          apiaryName: (apiary as { name: string } | null)?.name ?? '?',
+          blocksMelari: row.blocks_melari,
+        } satisfies TreatmentEvent
+      })
+    },
+  })
 }
 
 function useInspectionEvents(year: number, month: number) {
@@ -86,15 +123,44 @@ function CalendarioPage() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
-  const { data: events = [], isLoading } = useInspectionEvents(year, month)
+  const { data: inspections = [], isLoading: inspLoading } = useInspectionEvents(year, month)
+  const { data: treatments = [], isLoading: treatLoading } = useTreatmentEvents(year, month)
+  const isLoading = inspLoading || treatLoading
 
-  // Map: "YYYY-MM-DD" → events[]
-  const eventsByDay = events.reduce<Record<string, InspectionEvent[]>>((acc, ev) => {
+  type CalendarEvent =
+    | { kind: 'inspection'; id: string; hiveId: string; hiveIdentifier: string; apiaryName: string; performerDisplayName: string | null; date: string; time: string }
+    | { kind: 'treatment'; id: string; productName: string; apiaryName: string; blocksMelari: boolean; date: string }
+
+  // Merge both event types into a single "YYYY-MM-DD" → CalendarEvent[] map
+  const eventsByDay: Record<string, CalendarEvent[]> = {}
+
+  for (const ev of inspections) {
     const key = isoDate(new Date(ev.performed_at))
-    if (!acc[key]) acc[key] = []
-    acc[key].push(ev)
-    return acc
-  }, {})
+    if (!eventsByDay[key]) eventsByDay[key] = []
+    eventsByDay[key].push({
+      kind: 'inspection',
+      id: ev.id,
+      hiveId: ev.hive_id,
+      hiveIdentifier: ev.hiveIdentifier,
+      apiaryName: ev.apiaryName,
+      performerDisplayName: ev.performerDisplayName,
+      date: ev.performed_at,
+      time: new Date(ev.performed_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }),
+    })
+  }
+
+  for (const tr of treatments) {
+    const key = isoDate(new Date(tr.date))
+    if (!eventsByDay[key]) eventsByDay[key] = []
+    eventsByDay[key].push({
+      kind: 'treatment',
+      id: tr.id,
+      productName: tr.productName,
+      apiaryName: tr.apiaryName,
+      blocksMelari: tr.blocksMelari,
+      date: tr.date,
+    })
+  }
 
   const grid = buildGrid(year, month)
   const todayIso = isoDate(today)
@@ -206,10 +272,14 @@ function CalendarioPage() {
                           </span>
                           {hasEvents && (
                             <span className="flex gap-0.5">
-                              {dayEvents.slice(0, 3).map((_, i) => (
+                              {dayEvents.slice(0, 3).map((ev, i) => (
                                 <span
                                   key={i}
-                                  className={`size-1 rounded-full ${isSelected ? 'bg-honey-200' : 'bg-honey-500'}`}
+                                  className={`size-1 rounded-full ${
+                                    ev.kind === 'treatment'
+                                      ? (isSelected ? 'bg-amber-200' : 'bg-amber-500')
+                                      : (isSelected ? 'bg-honey-200' : 'bg-honey-500')
+                                  }`}
                                 />
                               ))}
                             </span>
@@ -231,36 +301,44 @@ function CalendarioPage() {
                   })}
                 </p>
                 {selectedEvents.length === 0 ? (
-                  <p className="text-sm text-wood-400">Nessuna visita</p>
+                  <p className="text-sm text-wood-400">Nessun evento</p>
                 ) : (
                   <ul className="flex flex-col gap-2">
-                    {selectedEvents.map((ev) => (
-                      <li key={ev.id}>
-                        <Link
-                          to="/hives/$hiveId/inspections/$inspectionId"
-                          params={{ hiveId: ev.hive_id, inspectionId: ev.id }}
-                          className="flex items-center justify-between bg-cream-100 border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-200 transition-colors"
-                        >
-                          <div>
-                            <p className="text-sm font-semibold text-wood-800">{ev.hiveIdentifier}</p>
-                            <p className="text-xs text-honey-600">{ev.apiaryName}</p>
-                            {ev.performerDisplayName && (
-                              <p className="text-[11px] text-wood-400 mt-0.5">da {ev.performerDisplayName}</p>
-                            )}
+                    {selectedEvents.map((ev) =>
+                      ev.kind === 'inspection' ? (
+                        <li key={`i-${ev.id}`}>
+                          <Link
+                            to="/hives/$hiveId/inspections/$inspectionId"
+                            params={{ hiveId: ev.hiveId, inspectionId: ev.id }}
+                            className="flex items-center justify-between bg-cream-100 border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-200 transition-colors"
+                          >
+                            <div>
+                              <p className="text-sm font-semibold text-wood-800">{ev.hiveIdentifier}</p>
+                              <p className="text-xs text-honey-600">{ev.apiaryName}</p>
+                              {ev.performerDisplayName && (
+                                <p className="text-[11px] text-wood-400 mt-0.5">da {ev.performerDisplayName}</p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-wood-400">{ev.time}</span>
+                              <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="text-wood-300">
+                                <path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </div>
+                          </Link>
+                        </li>
+                      ) : (
+                        <li key={`t-${ev.id}`}>
+                          <div className="flex items-center gap-2.5 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                            <Syringe size={18} strokeWidth={1.75} className="text-amber-600 shrink-0" />
+                            <div>
+                              <p className="text-sm font-semibold text-wood-800">{ev.productName}</p>
+                              <p className="text-xs text-wood-500">{ev.apiaryName}</p>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-wood-400">
-                              {new Date(ev.performed_at).toLocaleTimeString('it-IT', {
-                                hour: '2-digit', minute: '2-digit',
-                              })}
-                            </span>
-                            <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="text-wood-300">
-                              <path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                          </div>
-                        </Link>
-                      </li>
-                    ))}
+                        </li>
+                      ),
+                    )}
                   </ul>
                 )}
               </div>
@@ -271,17 +349,10 @@ function CalendarioPage() {
           <div className="px-4">
             {isLoading ? (
               <div className="py-12 text-center text-sm text-wood-400">{t.common.loading}</div>
-            ) : events.length === 0 ? (
+            ) : Object.keys(eventsByDay).length === 0 ? (
               <div className="py-12 text-center text-sm text-wood-400">Nessun evento questo mese</div>
             ) : (
-              Object.entries(
-                events.reduce<Record<string, InspectionEvent[]>>((acc, ev) => {
-                  const key = isoDate(new Date(ev.performed_at))
-                  if (!acc[key]) acc[key] = []
-                  acc[key].push(ev)
-                  return acc
-                }, {})
-              )
+              Object.entries(eventsByDay)
                 .sort(([a], [b]) => a.localeCompare(b))
                 .map(([dayIso, dayEvents]) => {
                   const d = new Date(dayIso + 'T12:00:00')
@@ -298,33 +369,41 @@ function CalendarioPage() {
                         {dayLabel}
                       </p>
                       <ul className="flex flex-col gap-2">
-                        {dayEvents.map((ev) => (
-                          <li key={ev.id}>
-                            <Link
-                              to="/hives/$hiveId/inspections/$inspectionId"
-                              params={{ hiveId: ev.hive_id, inspectionId: ev.id }}
-                              className="flex items-center justify-between bg-white border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-50 transition-colors shadow-sm"
-                            >
-                              <div className="flex items-center gap-3">
-                                <span className="text-sm font-semibold text-honey-600 min-w-[3rem]">
-                                  {new Date(ev.performed_at).toLocaleTimeString('it-IT', {
-                                    hour: '2-digit', minute: '2-digit',
-                                  })}
-                                </span>
+                        {dayEvents.map((ev) =>
+                          ev.kind === 'inspection' ? (
+                            <li key={`i-${ev.id}`}>
+                              <Link
+                                to="/hives/$hiveId/inspections/$inspectionId"
+                                params={{ hiveId: ev.hiveId, inspectionId: ev.id }}
+                                className="flex items-center justify-between bg-white border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-50 transition-colors shadow-sm"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <span className="text-sm font-semibold text-honey-600 min-w-[3rem]">{ev.time}</span>
+                                  <div>
+                                    <p className="text-sm font-semibold text-wood-800">{ev.hiveIdentifier}</p>
+                                    <p className="text-xs text-wood-400">{ev.apiaryName}</p>
+                                    {ev.performerDisplayName && (
+                                      <p className="text-[11px] text-wood-300">da {ev.performerDisplayName}</p>
+                                    )}
+                                  </div>
+                                </div>
+                                <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="text-wood-300 shrink-0">
+                                  <path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              </Link>
+                            </li>
+                          ) : (
+                            <li key={`t-${ev.id}`}>
+                              <div className="flex items-center gap-3 bg-white border border-amber-200 rounded-xl px-4 py-3 shadow-sm">
+                                <Syringe size={18} strokeWidth={1.75} className="text-amber-600 shrink-0" />
                                 <div>
-                                  <p className="text-sm font-semibold text-wood-800">{ev.hiveIdentifier}</p>
+                                  <p className="text-sm font-semibold text-wood-800">{ev.productName}</p>
                                   <p className="text-xs text-wood-400">{ev.apiaryName}</p>
-                                  {ev.performerDisplayName && (
-                                    <p className="text-[11px] text-wood-300">da {ev.performerDisplayName}</p>
-                                  )}
                                 </div>
                               </div>
-                              <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="text-wood-300 shrink-0">
-                                <path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
-                            </Link>
-                          </li>
-                        ))}
+                            </li>
+                          ),
+                        )}
                       </ul>
                     </div>
                   )
