@@ -168,6 +168,7 @@ function EditInspectionPage() {
   return (
     <InspectionScreen
       hiveId={hiveId}
+      inspectionId={inspectionId}
       hiveInfo={hive && apiary ? { identifier: hive.identifier, apiaryName: apiary.name } : undefined}
       prefillState={prefillState}
       initialMode={initialMode}
@@ -176,8 +177,8 @@ function EditInspectionPage() {
       isLoadingHistory={false}
       isSaving={isSaving}
       isDeleting={isDeleting}
-      onSave={(formState, mode) => updateInspection({ formState, mode })}
-      onBack={() => router.history.back()}
+      onSave={(formState, mode, commit) => { updateInspection({ formState, mode }); commit(inspectionId) }}
+      onBack={() => void navigate({ to: '/hives/$hiveId/inspections', params: { hiveId } })}
       onDelete={handleDelete}
     />
   )

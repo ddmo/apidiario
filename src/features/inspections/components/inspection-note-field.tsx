@@ -1,5 +1,7 @@
-import { Mic } from 'lucide-react'
+import { Mic, MicOff } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { VoiceNotePlayer } from './voice-note-player'
+import type { VoiceNote } from '../types'
 
 interface InspectionNoteFieldProps {
   value: string
@@ -7,9 +9,25 @@ interface InspectionNoteFieldProps {
   onExpand: () => void
   onChange: (value: string) => void
   dirty?: boolean
+  voiceNotes: VoiceNote[]
+  isRecording: boolean
+  onStartRecording: () => void
+  onStopRecording: () => void
+  onDeleteVoiceNote: (id: string) => void
 }
 
-export function InspectionNoteField({ value, expanded, onExpand, onChange, dirty = true }: InspectionNoteFieldProps) {
+export function InspectionNoteField({
+  value,
+  expanded,
+  onExpand,
+  onChange,
+  dirty = true,
+  voiceNotes,
+  isRecording,
+  onStartRecording,
+  onStopRecording,
+  onDeleteVoiceNote,
+}: InspectionNoteFieldProps) {
   if (!expanded) {
     return (
       <button
@@ -25,7 +43,9 @@ export function InspectionNoteField({ value, expanded, onExpand, onChange, dirty
             !value && 'text-wood-400',
           )}
         >
-          {value || 'Aggiungi nota o detta…'}
+          {value || voiceNotes.length > 0
+            ? `${voiceNotes.length} nota${voiceNotes.length > 1 ? 'e' : ''} vocale${voiceNotes.length > 1 ? 'i' : ''}`
+            : 'Aggiungi nota o detta…'}
         </span>
         <Mic size={20} className="text-wood-400 shrink-0" />
       </button>
@@ -45,13 +65,35 @@ export function InspectionNoteField({ value, expanded, onExpand, onChange, dirty
       <div className="flex items-center justify-between border-t border-cream-200 px-2 py-1.5">
         <button
           type="button"
-          aria-label="Inserisci nota vocale"
-          className="size-9 flex items-center justify-center text-wood-500 hover:text-wood-700 rounded transition-colors"
+          aria-label={isRecording ? 'Ferma registrazione' : 'Inserisci nota vocale'}
+          onClick={isRecording ? onStopRecording : onStartRecording}
+          className={cn(
+            'size-9 flex items-center justify-center rounded transition-colors',
+            isRecording
+              ? 'text-danger-500 bg-danger-50 animate-pulse'
+              : 'text-wood-500 hover:text-wood-700',
+          )}
         >
-          <Mic size={18} />
+          {isRecording ? <MicOff size={18} /> : <Mic size={18} />}
         </button>
-        <span className="text-xs text-wood-400 pr-2">{value.length} caratteri</span>
+        <span className="text-xs text-wood-400 pr-2">
+          {isRecording ? 'Registrazione…' : `${value.length} caratteri`}
+        </span>
       </div>
+
+      {/* Voice note players */}
+      {voiceNotes.length > 0 && (
+        <div className="border-t border-cream-200 px-3 py-2 flex flex-col gap-2">
+          {voiceNotes.map((vn) => (
+            <VoiceNotePlayer
+              key={vn.id}
+              url={vn.url ?? ''}
+              durationSeconds={vn.durationSeconds}
+              onDelete={() => onDeleteVoiceNote(vn.id)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

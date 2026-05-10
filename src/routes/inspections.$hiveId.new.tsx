@@ -70,7 +70,7 @@ function NewInspectionPage() {
     },
   })
 
-  const { mutate: saveInspection, isPending: isSaving } = useMutation({
+  const { mutateAsync: saveInspection, isPending: isSaving } = useMutation({
     mutationFn: async ({ formState, mode }: { formState: InspectionFormState; mode: string }) => {
       if (!session?.user?.id) throw new Error('Not authenticated')
       const isExpress = mode === 'express'
@@ -97,8 +97,13 @@ function NewInspectionPage() {
         temperature_c: weather?.temperature ?? null,
         weather_summary: weather?.summary ?? null,
       }
-      const { error } = await supabase.from('inspections').insert(payload)
+      const { data, error } = await supabase
+        .from('inspections')
+        .insert(payload)
+        .select('id')
+        .single()
       if (error) throw error
+      return data.id
     },
     onSuccess: () => {
       showToast('Ispezione salvata', 'success')
@@ -142,6 +147,7 @@ function NewInspectionPage() {
   return (
     <InspectionScreen
       hiveId={hiveId}
+      inspectionId={null}
       hiveInfo={hive && apiary ? { identifier: hive.identifier, apiaryName: apiary.name } : undefined}
       prefillState={prefillState}
       hasPrefill={lastInspection !== null && lastInspection !== undefined}
@@ -149,8 +155,11 @@ function NewInspectionPage() {
       isLoadingHistory={isLoadingHistory}
       isSaving={isSaving}
       weather={weather}
-      onSave={(formState, mode) => saveInspection({ formState, mode })}
-      onBack={() => router.history.back()}
+      onSave={async (formState, mode, commit) => {
+        const newId = await saveInspection({ formState, mode })
+        await commit(newId)
+      }}
+      onBack={() => void navigate({ to: '/hives/$hiveId/inspections', params: { hiveId } })}
     />
   )
 }

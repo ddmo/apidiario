@@ -41,7 +41,7 @@ function ApiaryDetailPage() {
         <button
           type="button"
           aria-label="Indietro"
-          onClick={() => router.history.back()}
+          onClick={() => void navigate({ to: '/' })}
           className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
         >
           <ArrowLeft size={22} strokeWidth={1.75} />

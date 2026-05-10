@@ -9,6 +9,15 @@ export type BehaviorType = Enums<'behavior_type'>
 export type VarroaMethod = Enums<'varroa_count_method'>
 export type PathologyType = Enums<'pathology'>
 
+export type VoiceNote = {
+  id: string
+  blob?: Blob
+  url?: string
+  storagePath?: string
+  durationSeconds: number
+  pending: boolean
+}
+
 export type BroodStage = boolean | null
 
 export type BroodState = {

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { FrameCounter } from '@/features/inspections/components/frame-counter'
-import { useHivesByApiary, useCreateHive } from '../hooks/use-hives'
+import { useHivesByApiary, useCreateHive, useUpdateHive } from '../hooks/use-hives'
 import { useToast } from '@/hooks/use-toast'
 import { t } from '@/i18n/it'
 import type { Database } from '@/types/database'
@@ -25,20 +25,33 @@ interface HiveFormProps {
   userId: string
   onSuccess: () => void
   onCancel: () => void
+  hive?: {
+    id: string
+    identifier: string
+    hive_type: HiveType
+    bee_race: BeeRace
+    installed_on: string | null
+    origin_notes: string | null
+    nido_frame_count: number
+    notes: string | null
+  }
 }
 
-export function HiveForm({ apiaryId, onSuccess, onCancel }: HiveFormProps) {
+export function HiveForm({ apiaryId, hive, onSuccess, onCancel }: HiveFormProps) {
+  const isEdit = !!hive
   const { showToast } = useToast()
-  const { mutate: createHive, isPending } = useCreateHive()
+  const { mutate: createHive, isPending: creating } = useCreateHive()
+  const { mutate: updateHive, isPending: updating } = useUpdateHive()
+  const isPending = creating || updating
   const { data: existingHives, isLoading: hivesLoading } = useHivesByApiary(apiaryId)
 
-  const [identifier, setIdentifier] = useState('')
-  const [hiveType, setHiveType] = useState<HiveType>('dadant_blatt')
-  const [beeRace, setBeeRace] = useState<BeeRace>('ligustica')
-  const [installedOn, setInstalledOn] = useState('')
-  const [originNotes, setOriginNotes] = useState('')
-  const [nidoFrameCount, setNidoFrameCount] = useState(10)
-  const [notes, setNotes] = useState('')
+  const [identifier, setIdentifier] = useState(hive?.identifier ?? '')
+  const [hiveType, setHiveType] = useState<HiveType>(hive?.hive_type ?? 'dadant_blatt')
+  const [beeRace, setBeeRace] = useState<BeeRace>(hive?.bee_race ?? 'ligustica')
+  const [installedOn, setInstalledOn] = useState(hive?.installed_on ?? '')
+  const [originNotes, setOriginNotes] = useState(hive?.origin_notes ?? '')
+  const [nidoFrameCount, setNidoFrameCount] = useState(hive?.nido_frame_count ?? 10)
+  const [notes, setNotes] = useState(hive?.notes ?? '')
 
   const [identifierError, setIdentifierError] = useState('')
   const [isDirty, setIsDirty] = useState(false)
@@ -63,7 +76,7 @@ export function HiveForm({ apiaryId, onSuccess, onCancel }: HiveFormProps) {
     }
 
     const duplicate = existingHives?.some(
-      (h) => h.identifier.toLowerCase() === trimmed.toLowerCase(),
+      (h) => h.identifier.toLowerCase() === trimmed.toLowerCase() && h.id !== hive?.id,
     )
     if (duplicate) {
       setIdentifierError(t.hive.new.identifierDuplicate)
@@ -72,25 +85,48 @@ export function HiveForm({ apiaryId, onSuccess, onCancel }: HiveFormProps) {
 
     setIdentifierError('')
 
-    createHive(
-      {
-        apiaryId,
-        identifier: trimmed,
-        hiveType,
-        beeRace,
-        installedOn: installedOn || null,
-        originNotes: originNotes.trim() || null,
-        nidoFrameCount,
-        notes: notes.trim() || null,
-      },
-      {
-        onSuccess: () => {
-          showToast(t.hive.new.saved, 'success')
-          onSuccess()
+    if (isEdit && hive) {
+      updateHive(
+        {
+          hiveId: hive.id,
+          apiaryId,
+          identifier: trimmed,
+          hiveType,
+          beeRace,
+          installedOn: installedOn || null,
+          originNotes: originNotes.trim() || null,
+          nidoFrameCount,
+          notes: notes.trim() || null,
         },
-        onError: () => showToast(t.hive.new.errorSave, 'error'),
-      },
-    )
+        {
+          onSuccess: () => {
+            showToast('Arnia aggiornata', 'success')
+            onSuccess()
+          },
+          onError: () => showToast(t.hive.new.errorSave, 'error'),
+        },
+      )
+    } else {
+      createHive(
+        {
+          apiaryId,
+          identifier: trimmed,
+          hiveType,
+          beeRace,
+          installedOn: installedOn || null,
+          originNotes: originNotes.trim() || null,
+          nidoFrameCount,
+          notes: notes.trim() || null,
+        },
+        {
+          onSuccess: () => {
+            showToast(t.hive.new.saved, 'success')
+            onSuccess()
+          },
+          onError: () => showToast(t.hive.new.errorSave, 'error'),
+        },
+      )
+    }
   }
 
   return (
@@ -107,7 +143,7 @@ export function HiveForm({ apiaryId, onSuccess, onCancel }: HiveFormProps) {
         </button>
         <div className="flex-1 min-w-0 px-1">
           <h1 className="text-base font-semibold text-wood-800 truncate tracking-tight">
-            {t.hive.new.title}
+            {isEdit ? 'Modifica arnia' : t.hive.new.title}
           </h1>
         </div>
       </header>
@@ -240,7 +276,7 @@ export function HiveForm({ apiaryId, onSuccess, onCancel }: HiveFormProps) {
           loading={isPending}
           disabled={hivesLoading}
         >
-          {t.hive.new.save}
+          {isEdit ? 'Salva modifiche' : t.hive.new.save}
         </Button>
       </div>
 

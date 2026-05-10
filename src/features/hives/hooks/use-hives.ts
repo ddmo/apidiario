@@ -222,6 +222,50 @@ export function useAllHives() {
   })
 }
 
+type UpdateHiveInput = {
+  hiveId: string
+  apiaryId: string
+  identifier: string
+  hiveType: Database['public']['Enums']['hive_type']
+  beeRace: Database['public']['Enums']['bee_race']
+  installedOn: string | null
+  originNotes: string | null
+  nidoFrameCount: number
+  notes: string | null
+}
+
+export function useUpdateHive() {
+  return useMutation({
+    mutationFn: async ({
+      hiveId,
+      apiaryId: _apiaryId,
+      identifier,
+      hiveType,
+      beeRace,
+      installedOn,
+      originNotes,
+      nidoFrameCount,
+      notes,
+    }: UpdateHiveInput) => {
+      const { error } = await supabase.from('hives').update({
+        identifier,
+        hive_type: hiveType,
+        bee_race: beeRace,
+        installed_on: installedOn as string,
+        origin_notes: originNotes as string,
+        nido_frame_count: nidoFrameCount,
+        notes: notes as string,
+      }).eq('id', hiveId)
+      if (error) throw error
+    },
+    onSuccess: (_, variables) => {
+      void queryClient.invalidateQueries({ queryKey: ['hives', variables.apiaryId] })
+      void queryClient.invalidateQueries({ queryKey: ['hives', 'all'] })
+      void queryClient.invalidateQueries({ queryKey: ['hive'] })
+    },
+  })
+}
+
 export function useToggleHiveAccessory() {
   return useMutation({
     mutationFn: async ({

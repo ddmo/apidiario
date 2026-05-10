@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { Link } from '@tanstack/react-router'
-import { ClipboardList, Trash2, DoorOpen, Grid3x3, Flower } from 'lucide-react'
+import { ClipboardList, Trash2, Pencil, DoorOpen, Grid3x3, Flower } from 'lucide-react'
 import { HiveSchematic } from './hive-schematic'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import {
@@ -10,7 +10,7 @@ import {
 } from '../hooks/use-hives'
 import { t } from '@/i18n/it'
 
-const REVEAL_W = 160
+const REVEAL_W = 240
 
 function relativeDate(iso: string): string {
   const now = new Date()
@@ -111,6 +111,14 @@ export function HiveCard({ hive, onDelete }: HiveCardProps) {
           <span className="text-[11px] font-semibold leading-none">
             {t.inspection.list.title}
           </span>
+        </Link>
+        <Link
+          to="/hives/$hiveId/edit"
+          params={{ hiveId: hive.id }}
+          className="flex-1 flex flex-col items-center justify-center gap-1 bg-honey-500 text-white"
+        >
+          <Pencil size={18} strokeWidth={1.75} />
+          <span className="text-[11px] font-semibold leading-none">Modifica</span>
         </Link>
         {onDelete && (
           <button

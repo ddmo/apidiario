@@ -18,14 +18,14 @@ export const suspectedOrphan: Rule = (ctx) => {
   const insp = ctx.lastInspection
   if (!insp) return null
   if (insp.queen_seen === 'vista') return null
-  if (insp.brood_eggs !== false) return null
+  if (insp.brood_eggs === true) return null
   return {
     id: 'suspected-orphan',
     severity: 'critical',
     category: 'queen',
     title: 'Sospetto orfanaggio',
-    description: "Regina non vista e nessuna covata fresca (uova). Verifica urgente dell'orfanaggio.",
-    reason: "queen_seen !== 'vista' AND brood_eggs === false",
+    description: "Regina non vista e uova assenti. Verifica urgente dell'orfanaggio.",
+    reason: "queen_seen !== 'vista' AND brood_eggs !== true",
     dueByDays: 3,
   }
 }

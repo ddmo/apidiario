@@ -135,11 +135,6 @@ function HomePage() {
                 ))}
               </div>
 
-              {/* Sync indicator */}
-              <div className="mt-5 flex items-center justify-center gap-1.5 text-[11px] text-wood-400">
-                <span className="size-1.5 rounded-full bg-success-500" aria-hidden="true" />
-                <span>{t.apiaries.synced}</span>
-              </div>
             </div>
           </>
         )}

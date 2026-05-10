@@ -8,6 +8,7 @@ import { PrefillBanner } from './components/prefill-banner'
 import { FormSubmitBar } from './components/form-submit-bar'
 import { UnsavedChangesSheet } from './components/unsaved-changes-sheet'
 import { useInspectionForm } from './use-inspection-form'
+import { useVoiceNotes } from './hooks/use-voice-notes'
 import type { InspectionFormState, InspectionMode } from './types'
 
 const MODE_OPTIONS = [
@@ -22,6 +23,7 @@ interface HiveInfo {
 
 interface InspectionScreenProps {
   hiveId: string
+  inspectionId?: string | null
   hiveInfo?: HiveInfo
   prefillState?: Partial<InspectionFormState>
   initialMode?: InspectionMode
@@ -31,13 +33,14 @@ interface InspectionScreenProps {
   isSaving?: boolean
   isDeleting?: boolean
   weather?: { temperature: number; summary: string } | null
-  onSave: (state: InspectionFormState, mode: string) => void | Promise<void>
+  onSave: (state: InspectionFormState, mode: string, commit: (inspectionId: string) => Promise<void>) => void | Promise<void>
   onBack: () => void
   onDelete?: () => void
 }
 
 export function InspectionScreen({
   hiveInfo,
+  inspectionId,
   prefillState,
   initialMode,
   hasPrefill,
@@ -52,6 +55,9 @@ export function InspectionScreen({
 }: InspectionScreenProps) {
   const { state, dirtyFields, mode, setMode, update, reset, markClean, hasChanges, showSheet, setShowSheet } =
     useInspectionForm({ prefillState, initialMode })
+
+  const { voiceNotes, isRecording, startRecording, stopRecording, removeVoiceNote, commit } =
+    useVoiceNotes({ inspectionId: inspectionId ?? null })
 
   const [showMenu, setShowMenu] = useState(false)
   const [showDeleteSheet, setShowDeleteSheet] = useState(false)
@@ -74,7 +80,7 @@ export function InspectionScreen({
   }
 
   async function handleSave() {
-    await onSave(state, mode)
+    await onSave(state, mode, commit)
     markClean()
   }
 
@@ -104,10 +110,15 @@ export function InspectionScreen({
             </div>
             <div className="flex items-center gap-2 text-xs text-wood-500">
               <span>{datetime}</span>
-              <span aria-hidden="true">·</span>
-              <span className="inline-flex items-center gap-1">
-                <Sun size={12} aria-hidden="true" />
-              </span>
+              {weather && (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span className="inline-flex items-center gap-1">
+                    <Sun size={12} aria-hidden="true" />
+                    <span>{weather.temperature}°C</span>
+                  </span>
+                </>
+              )}
             </div>
           </div>
           {onDelete && (
@@ -167,9 +178,28 @@ export function InspectionScreen({
       {/* Scrollable body */}
       <div className="flex-1 overflow-y-auto min-h-0">
         {mode === 'express' ? (
-          <ExpressBody state={state} dirtyFields={dirtyFields} onUpdate={update} />
+          <ExpressBody
+            state={state}
+            dirtyFields={dirtyFields}
+            onUpdate={update}
+            voiceNotes={voiceNotes}
+            isRecording={isRecording}
+            onStartRecording={startRecording}
+            onStopRecording={stopRecording}
+            onDeleteVoiceNote={removeVoiceNote}
+          />
         ) : (
-          <StandardBody state={state} dirtyFields={dirtyFields} onUpdate={update} weather={weather} />
+          <StandardBody
+            state={state}
+            dirtyFields={dirtyFields}
+            onUpdate={update}
+            weather={weather}
+            voiceNotes={voiceNotes}
+            isRecording={isRecording}
+            onStartRecording={startRecording}
+            onStopRecording={stopRecording}
+            onDeleteVoiceNote={removeVoiceNote}
+          />
         )}
       </div>
 

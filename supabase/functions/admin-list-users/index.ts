@@ -66,18 +66,20 @@ serve(async (req) => {
     )
   }
 
-  // 4. Lista admin per join
-  const { data: adminRows } = await supabase
-    .from('app_admins')
-    .select('user_id')
+  // 4. Lista admin + profili per join
+  const [{ data: adminRows }, { data: profileRows }] = await Promise.all([
+    supabase.from('app_admins').select('user_id'),
+    supabase.from('profiles').select('id, display_name'),
+  ])
 
   const adminIds = new Set(adminRows?.map((r) => r.user_id) ?? [])
+  const profileMap = new Map((profileRows ?? []).map((p) => [p.id, p.display_name]))
 
   // 5. Shape risposta
   const users = usersData.users.map((u) => ({
     id: u.id,
     email: u.email,
-    displayName: u.user_metadata?.display_name ?? u.email,
+    displayName: profileMap.get(u.id) ?? u.email ?? '',
     createdAt: u.created_at,
     lastSignInAt: u.last_sign_in_at,
     isConfirmed: u.email_confirmed_at != null,

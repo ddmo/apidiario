@@ -2,9 +2,10 @@ import { createFileRoute, redirect, Link } from '@tanstack/react-router'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { SwipeableRow } from '@/components/ui/swipeable-row'
 import { useEffect, useState } from 'react'
 import { t } from '@/i18n/it'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Trash2, BadgeCheck, Clock } from 'lucide-react'
 
 interface UserInfo {
   id: string
@@ -213,68 +214,72 @@ function AdminUsersPage() {
 
         <div className="flex flex-col gap-2">
           {users.map((user) => (
-            <div
+            <SwipeableRow
               key={user.id}
-              className="rounded-lg border border-wood-200 bg-white px-4 py-3"
-            >
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-medium text-wood-800 text-sm truncate">
-                  {user.email}
-                </span>
-                <div className="flex gap-2 shrink-0 items-center">
-                  <span
-                    className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-                      user.isAdmin
-                        ? 'bg-honey-100 text-honey-700'
-                        : 'bg-wood-100 text-wood-500'
-                    }`}
-                  >
-                    {user.isAdmin ? t.admin.admin : t.admin.notAdmin}
-                  </span>
-                  {user.isAdmin && user.id !== currentUserId && (
-                    <button
-                      type="button"
-                      onClick={() => handleRevoke(user.id)}
-                      disabled={revoking === user.id}
-                      className="text-xs text-danger-500 hover:text-danger-700 underline underline-offset-2 whitespace-nowrap"
-                    >
-                      {revoking === user.id ? '…' : 'Rimuovi'}
-                    </button>
-                  )}
-                  <span
-                    className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-                      user.isConfirmed
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-wood-100 text-wood-400'
-                    }`}
-                  >
-                    {user.isConfirmed ? t.admin.confirmed : t.admin.notConfirmed}
-                  </span>
-                </div>
-              </div>
-              <div className="flex gap-4 text-xs text-wood-400">
-                <span>
-                  {t.admin.invitedAt}: {user.createdAt
-                    ? new Date(user.createdAt).toLocaleDateString('it-IT')
-                    : '—'}
-                </span>
-                {user.lastSignInAt && (
-                  <span>
-                    {t.admin.lastLogin}: {new Date(user.lastSignInAt).toLocaleDateString('it-IT')}
-                  </span>
-                )}
-                {user.id !== currentUserId && (
+              revealWidth={84}
+              revealContent={
+                user.id !== currentUserId ? (
                   <button
                     type="button"
                     onClick={() => handleDeleteUser(user.id)}
                     disabled={deleting === user.id}
-                    className="ml-auto text-danger-500 hover:text-danger-700 underline underline-offset-2"
+                    className="flex-1 flex flex-col items-center justify-center gap-1 bg-danger-500 text-white"
                   >
-                    {deleting === user.id ? '…' : 'Elimina'}
+                    <Trash2 size={18} strokeWidth={1.75} />
+                    <span className="text-[11px] font-semibold leading-none">Elimina</span>
+                  </button>
+                ) : (
+                  <div />
+                )
+              }
+            >
+              <div className="border border-cream-200 bg-cream-100 px-4 py-3 text-left">
+                {/* Row 1: Nome + icona confermato */}
+                <div className="flex items-center gap-2 mb-1.5">
+                  <div className="min-w-0 flex-1">
+                    <span className="font-semibold text-wood-800 text-sm truncate block">
+                      {user.displayName}
+                    </span>
+                    <p className="text-xs text-wood-500 truncate">{user.email}</p>
+                  </div>
+                  {user.isConfirmed ? (
+                    <BadgeCheck size={18} className="text-green-600 shrink-0" />
+                  ) : (
+                    <Clock size={18} className="text-wood-400 shrink-0" />
+                  )}
+                </div>
+
+                {/* Row 2: Ruolo */}
+                <p className="text-xs text-wood-400 text-left mb-0.5">
+                  Ruolo: {user.isAdmin ? t.admin.admin : t.admin.notAdmin}
+                </p>
+
+                {/* Row 3: Data invito */}
+                <p className="text-xs text-wood-400 text-left mb-0.5">
+                  {t.admin.invitedAt}: {user.createdAt
+                    ? new Date(user.createdAt).toLocaleDateString('it-IT')
+                    : '—'}
+                </p>
+
+                {/* Row 4: Ultimo accesso */}
+                <p className="text-xs text-wood-400 text-left mb-2">
+                  {user.lastSignInAt
+                    ? `${t.admin.lastLogin}: ${new Date(user.lastSignInAt).toLocaleDateString('it-IT')}`
+                    : t.admin.lastLogin + ': —'}
+                </p>
+
+                {user.isAdmin && user.id !== currentUserId && (
+                  <button
+                    type="button"
+                    onClick={() => handleRevoke(user.id)}
+                    disabled={revoking === user.id}
+                    className="text-xs text-danger-500 hover:text-danger-700 underline underline-offset-2"
+                  >
+                    {revoking === user.id ? '…' : 'Rimuovi amministratore'}
                   </button>
                 )}
               </div>
-            </div>
+            </SwipeableRow>
           ))}
         </div>
       </section>

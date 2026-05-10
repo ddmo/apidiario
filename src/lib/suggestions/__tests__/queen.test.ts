@@ -48,8 +48,13 @@ describe('queenNotSeen', () => {
 })
 
 describe('suspectedOrphan', () => {
-  it('activates when queen not seen and no eggs', () => {
+  it('activates when queen not seen and eggs false (brood absent)', () => {
     const c = ctx({ lastInspection: { ...INSP, queen_seen: 'non_vista', brood_eggs: false } })
+    expect(suspectedOrphan(c)).toMatchObject({ id: 'suspected-orphan', severity: 'critical', dueByDays: 3 })
+  })
+
+  it('activates when queen not seen and eggs null (brood present but eggs not observed)', () => {
+    const c = ctx({ lastInspection: { ...INSP, queen_seen: 'non_vista', brood_eggs: null, brood_larvae: true } })
     expect(suspectedOrphan(c)).toMatchObject({ id: 'suspected-orphan', severity: 'critical', dueByDays: 3 })
   })
 
@@ -58,7 +63,7 @@ describe('suspectedOrphan', () => {
     expect(suspectedOrphan(c)).toBeNull()
   })
 
-  it('does not activate when eggs are present', () => {
+  it('does not activate when eggs are confirmed present', () => {
     const c = ctx({ lastInspection: { ...INSP, queen_seen: 'non_vista', brood_eggs: true } })
     expect(suspectedOrphan(c)).toBeNull()
   })

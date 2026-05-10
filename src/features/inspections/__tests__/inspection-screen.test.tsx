@@ -70,7 +70,7 @@ describe('InspectionScreen', () => {
       expect(onSave).toHaveBeenCalledTimes(1)
     })
 
-    const [stateArg, modeArg] = onSave.mock.calls[0] as [InspectionFormState, string]
+    const [stateArg, modeArg] = onSave.mock.calls[0] as [InspectionFormState, string, (id: string) => Promise<void>]
     expect(modeArg).toBe('express')
     expect(stateArg.population).toBe('forte')
   })

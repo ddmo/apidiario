@@ -15,6 +15,7 @@ export type ApiaryListItem = {
   name: string
   hiveCount: number
   photoUrl: string | null
+  sharedCount: number
 }
 
 export type ApiaryDetail = {
@@ -94,6 +95,7 @@ export function useApiaries() {
         name: r.name,
         hiveCount: Array.isArray(r.hives) ? r.hives.length : 0,
         photoUrl: signedMap[r.id] ?? null,
+        sharedCount: 0,
       }))
     },
     enabled: !!session?.user?.id,
@@ -262,6 +264,65 @@ export function useDeleteApiary() {
       if (error) throw error
     },
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['apiaries'] })
+    },
+  })
+}
+
+// ─────────────────────────────────────────────────────────────
+// Apiary shares
+// ─────────────────────────────────────────────────────────────
+
+export type ApiaryShare = {
+  userId: string
+  displayName: string
+  email?: string
+  role: string
+  grantedAt: string
+}
+
+export function useApiaryShares(apiaryId: string) {
+  return useQuery({
+    queryKey: ['apiaryShares', apiaryId],
+    queryFn: async (): Promise<ApiaryShare[]> => {
+      const { data, error } = await supabase
+        .from('apiary_access')
+        .select('user_id, role, granted_at, profiles!inner(display_name)')
+        .eq('apiary_id', apiaryId)
+
+      if (error) throw error
+
+      return (data as unknown as {
+        user_id: string
+        role: string
+        granted_at: string
+        profiles: { display_name: string } | { display_name: string }[]
+      }[]).map((row) => {
+        const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles
+        return {
+          userId: row.user_id,
+          displayName: profile?.display_name ?? '',
+          role: row.role,
+          grantedAt: row.granted_at,
+        }
+      })
+    },
+    enabled: !!apiaryId,
+  })
+}
+
+export function useRevokeApiaryAccess() {
+  return useMutation({
+    mutationFn: async ({ apiaryId, userId }: { apiaryId: string; userId: string }) => {
+      const { error } = await supabase
+        .from('apiary_access')
+        .delete()
+        .eq('apiary_id', apiaryId)
+        .eq('user_id', userId)
+      if (error) throw error
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: ['apiaryShares', variables.apiaryId] })
       void queryClient.invalidateQueries({ queryKey: ['apiaries'] })
     },
   })

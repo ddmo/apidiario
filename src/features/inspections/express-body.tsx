@@ -4,7 +4,7 @@ import { QueenSightingPicker } from './components/queen-sighting-picker'
 import { BroodStageToggles } from './components/brood-stage-toggles'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import { InspectionNoteField } from './components/inspection-note-field'
-import type { InspectionFormState } from './types'
+import type { InspectionFormState, VoiceNote } from './types'
 
 const POPULATION_OPTIONS = [
   { value: 'debole', label: 'Debole' },
@@ -16,9 +16,14 @@ interface ExpressBodyProps {
   state: InspectionFormState
   dirtyFields: Set<string>
   onUpdate: <K extends keyof InspectionFormState>(key: K, value: InspectionFormState[K]) => void
+  voiceNotes: VoiceNote[]
+  isRecording: boolean
+  onStartRecording: () => void
+  onStopRecording: () => void
+  onDeleteVoiceNote: (id: string) => void
 }
 
-export function ExpressBody({ state, dirtyFields, onUpdate }: ExpressBodyProps) {
+export function ExpressBody({ state, dirtyFields, onUpdate, voiceNotes, isRecording, onStartRecording, onStopRecording, onDeleteVoiceNote }: ExpressBodyProps) {
   const [noteOpen, setNoteOpen] = useState(false)
   const d = (key: string) => dirtyFields.has(key)
 
@@ -74,6 +79,11 @@ export function ExpressBody({ state, dirtyFields, onUpdate }: ExpressBodyProps) 
           onExpand={() => setNoteOpen(true)}
           onChange={(v) => onUpdate('notes', v)}
           dirty={d('notes')}
+          voiceNotes={voiceNotes}
+          isRecording={isRecording}
+          onStartRecording={onStartRecording}
+          onStopRecording={onStopRecording}
+          onDeleteVoiceNote={onDeleteVoiceNote}
         />
       </section>
 

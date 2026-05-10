@@ -10,7 +10,7 @@ import { PathologyChip } from './components/pathology-chip'
 import { InspectionNoteField } from './components/inspection-note-field'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import { PATHOLOGY_OPTIONS, VARROA_METHOD_OPTIONS, INTERVENTION_OPTIONS } from './constants'
-import type { InspectionFormState, PathologyType } from './types'
+import type { InspectionFormState, PathologyType, VoiceNote } from './types'
 
 const POPULATION_OPTIONS = [
   { value: 'debole', label: 'Debole' },
@@ -29,9 +29,14 @@ interface StandardBodyProps {
   dirtyFields: Set<string>
   onUpdate: <K extends keyof InspectionFormState>(key: K, value: InspectionFormState[K]) => void
   weather?: { temperature: number; summary: string } | null
+  voiceNotes: VoiceNote[]
+  isRecording: boolean
+  onStartRecording: () => void
+  onStopRecording: () => void
+  onDeleteVoiceNote: (id: string) => void
 }
 
-export function StandardBody({ state, dirtyFields, onUpdate, weather }: StandardBodyProps) {
+export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes, isRecording, onStartRecording, onStopRecording, onDeleteVoiceNote }: StandardBodyProps) {
   const [noteOpen, setNoteOpen] = useState(false)
   const d = (key: string) => dirtyFields.has(key)
 
@@ -212,6 +217,11 @@ export function StandardBody({ state, dirtyFields, onUpdate, weather }: Standard
           onExpand={() => setNoteOpen(true)}
           onChange={(v) => onUpdate('notes', v)}
           dirty={d('notes')}
+          voiceNotes={voiceNotes}
+          isRecording={isRecording}
+          onStartRecording={onStartRecording}
+          onStopRecording={onStopRecording}
+          onDeleteVoiceNote={onDeleteVoiceNote}
         />
       </section>
 
