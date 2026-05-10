@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate, useRouter } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { ArrowLeft, Box, CloudSun, Plus } from 'lucide-react'
 import { SuggestionsButton } from '@/features/suggestions/components/suggestions-button'
@@ -18,7 +18,6 @@ export const Route = createFileRoute('/_auth/apiaries/$apiaryId')({
 function ApiaryDetailPage() {
   const { apiaryId } = Route.useParams()
   const navigate = useNavigate()
-  const router = useRouter()
   const { showToast } = useToast()
   const { data: apiary } = useApiary(apiaryId)
   const { data: hives = [], isLoading } = useHivesByApiary(apiaryId)

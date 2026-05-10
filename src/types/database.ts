@@ -1,3 +1,4 @@
+Initialising login role...
 export type Json =
   | string
   | number
@@ -7,6 +8,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
+  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -133,6 +139,24 @@ export type Database = {
           },
         ]
       }
+      app_admins: {
+        Row: {
+          created_at: string
+          created_by: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       harvests: {
         Row: {
           apiary_id: string
@@ -258,6 +282,38 @@ export type Database = {
           },
         ]
       }
+      inspection_voice_notes: {
+        Row: {
+          created_at: string
+          duration_seconds: number
+          id: string
+          inspection_id: string
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds: number
+          id?: string
+          inspection_id: string
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          inspection_id?: string
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspection_voice_notes_inspection_id_fkey"
+            columns: ["inspection_id"]
+            isOneToOne: false
+            referencedRelation: "inspections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inspections: {
         Row: {
           behavior: Database["public"]["Enums"]["behavior_type"] | null
@@ -270,7 +326,6 @@ export type Database = {
           honey_frame_count: number | null
           id: string
           interventions: string[]
-          melari_count: number
           notes: string | null
           pathologies: Database["public"]["Enums"]["pathology"][] | null
           performed_at: string
@@ -299,7 +354,6 @@ export type Database = {
           honey_frame_count?: number | null
           id?: string
           interventions?: string[]
-          melari_count?: number
           notes?: string | null
           pathologies?: Database["public"]["Enums"]["pathology"][] | null
           performed_at?: string
@@ -328,7 +382,6 @@ export type Database = {
           honey_frame_count?: number | null
           id?: string
           interventions?: string[]
-          melari_count?: number
           notes?: string | null
           pathologies?: Database["public"]["Enums"]["pathology"][] | null
           performed_at?: string
@@ -442,6 +495,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      phenology_species: {
+        Row: {
+          bloom_period_text: string | null
+          common_name_it: string
+          gdd_bloom_end: number
+          gdd_bloom_peak: number
+          gdd_bloom_start: number
+          honey_relevance: number | null
+          id: string
+          notes_it: string | null
+          produces_honey: boolean | null
+          produces_pollen: boolean | null
+          scientific_name: string
+        }
+        Insert: {
+          bloom_period_text?: string | null
+          common_name_it: string
+          gdd_bloom_end: number
+          gdd_bloom_peak: number
+          gdd_bloom_start: number
+          honey_relevance?: number | null
+          id: string
+          notes_it?: string | null
+          produces_honey?: boolean | null
+          produces_pollen?: boolean | null
+          scientific_name: string
+        }
+        Update: {
+          bloom_period_text?: string | null
+          common_name_it?: string
+          gdd_bloom_end?: number
+          gdd_bloom_peak?: number
+          gdd_bloom_start?: number
+          honey_relevance?: number | null
+          id?: string
+          notes_it?: string | null
+          produces_honey?: boolean | null
+          produces_pollen?: boolean | null
+          scientific_name?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -696,10 +791,20 @@ export type Database = {
         }
         Returns: undefined
       }
-      storage_owns_apiary_media: {
+      is_app_admin: { Args: never; Returns: boolean }
+      storage_can_delete_apiary_media: {
         Args: { object_name: string }
         Returns: boolean
       }
+      storage_can_read_apiary_media: {
+        Args: { object_name: string }
+        Returns: boolean
+      }
+      storage_can_write_apiary_media: {
+        Args: { object_name: string }
+        Returns: boolean
+      }
+      storage_get_apiary_id: { Args: { object_name: string }; Returns: string }
       user_can_read_apiary: { Args: { p_apiary_id: string }; Returns: boolean }
       user_can_read_hive: { Args: { p_hive_id: string }; Returns: boolean }
       user_can_write_apiary: { Args: { p_apiary_id: string }; Returns: boolean }
@@ -944,4 +1049,4 @@ export const Constants = {
     },
   },
 } as const
-
+<claude-code-hint v="1" type="plugin" value="supabase@claude-plugins-official" />
