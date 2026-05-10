@@ -6,6 +6,7 @@ import type { Database } from '@/types/database'
 export type HiveListItem = {
   id: string
   identifier: string
+  apiaryId: string
   apiaryName?: string
   hiveType: Database['public']['Enums']['hive_type']
   beeRace: Database['public']['Enums']['bee_race']
@@ -26,7 +27,7 @@ export function useHivesByApiary(apiaryId: string) {
       const { data: hivesData, error: hivesError } = await supabase
         .from('hives')
         .select(
-          'id, identifier, hive_type, bee_race, nido_frame_count, melari_count, status, has_apiscampo, has_propolis_net, has_pollen_trap',
+          'id, identifier, apiary_id, hive_type, bee_race, nido_frame_count, melari_count, status, has_apiscampo, has_propolis_net, has_pollen_trap',
         )
         .eq('apiary_id', apiaryId)
         .is('archived_at', null)
@@ -69,6 +70,7 @@ export function useHivesByApiary(apiaryId: string) {
       return hivesData.map((h) => ({
         id: h.id,
         identifier: h.identifier,
+        apiaryId: h.apiary_id ?? apiaryId,
         hiveType: h.hive_type,
         beeRace: h.bee_race,
         nidoFrameCount: (() => {
@@ -152,7 +154,7 @@ export function useAllHives() {
       const { data: hivesData, error: hivesError } = await supabase
         .from('hives')
         .select(
-          'id, identifier, hive_type, bee_race, nido_frame_count, melari_count, status, has_apiscampo, has_propolis_net, has_pollen_trap, apiaries(name)',
+          'id, identifier, apiary_id, hive_type, bee_race, nido_frame_count, melari_count, status, has_apiscampo, has_propolis_net, has_pollen_trap, apiaries(name)',
         )
         .is('archived_at', null)
         .order('identifier', { ascending: true })
@@ -194,6 +196,7 @@ export function useAllHives() {
       return hivesData.map((h) => ({
         id: h.id,
         identifier: h.identifier,
+        apiaryId: h.apiary_id ?? '',
         apiaryName: Array.isArray(h.apiaries) ? h.apiaries[0]?.name : (h.apiaries as { name: string } | null)?.name,
         hiveType: h.hive_type,
         beeRace: h.bee_race,

@@ -23,12 +23,13 @@ export function useVoiceNotes({ inspectionId, initialNotes }: UseVoiceNotesOpts 
   // Fetch existing voice notes for edit flow
   useEffect(() => {
     if (!inspectionId || initialNotes) return
+    const id = inspectionId
     let cancelled = false
     async function fetchNotes() {
       const { data } = await supabase
         .from('inspection_voice_notes')
         .select('*')
-        .eq('inspection_id', inspectionId)
+        .eq('inspection_id', id)
         .order('created_at', { ascending: true })
       if (cancelled || !data) return
       const notes: VoiceNote[] = await Promise.all(

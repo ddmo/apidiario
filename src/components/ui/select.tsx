@@ -35,6 +35,7 @@ export function Select({ label, id, options, error, className, ...props }: Selec
         aria-describedby={error ? `${id}-error` : undefined}
         {...props}
       >
+        <option value="" disabled className="text-wood-400">Seleziona...</option>
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}

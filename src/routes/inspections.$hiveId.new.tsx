@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate, useRouter } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/query-client'
@@ -22,7 +22,6 @@ export const Route = createFileRoute('/inspections/$hiveId/new')({
 function NewInspectionPage() {
   const { hiveId } = Route.useParams()
   const navigate = useNavigate()
-  const router = useRouter()
   const { session } = useAuth()
   const { showToast } = useToast()
 

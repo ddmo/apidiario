@@ -1,4 +1,4 @@
-import { createFileRoute, useRouter, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
@@ -17,7 +17,6 @@ export const Route = createFileRoute('/_auth/hives/$hiveId/inspections')({
 function InspectionListPage() {
   const { hiveId } = Route.useParams()
   const navigate = useNavigate()
-  const router = useRouter()
   const { showToast } = useToast()
   const { mutate: deleteInspection } = useDeleteInspection()
 

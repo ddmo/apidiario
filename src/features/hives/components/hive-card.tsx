@@ -8,6 +8,7 @@ import {
   useUpdateMelariCount,
   type HiveListItem,
 } from '../hooks/use-hives'
+import { useActiveMelariBlock } from '@/features/treatments/hooks/use-treatments'
 import { t } from '@/i18n/it'
 
 const REVEAL_W = 240
@@ -34,6 +35,9 @@ interface HiveCardProps {
 export function HiveCard({ hive, onDelete }: HiveCardProps) {
   const { mutate: toggle } = useToggleHiveAccessory()
   const { mutate: updateMelari } = useUpdateMelariCount()
+  const { data: melariBlock } = useActiveMelariBlock(hive.id, hive.apiaryId)
+  const [showMelariWarning, setShowMelariWarning] = useState(false)
+  const [pendingMelariCount, setPendingMelariCount] = useState(0)
 
   const MELARI_OPTIONS = [
     { value: '0', label: '0' },
@@ -174,7 +178,15 @@ export function HiveCard({ hive, onDelete }: HiveCardProps) {
               <SegmentedControl
                 options={MELARI_OPTIONS}
                 value={String(hive.melariCount)}
-                onChange={(v) => updateMelari({ hiveId: hive.id, count: Number(v) })}
+                onChange={(v) => {
+                  const count = Number(v)
+                  if (count > hive.melariCount && melariBlock) {
+                    setPendingMelariCount(count)
+                    setShowMelariWarning(true)
+                  } else {
+                    updateMelari({ hiveId: hive.id, count })
+                  }
+                }}
                 ariaLabel="Numero melari"
               />
             </div>
@@ -254,6 +266,43 @@ export function HiveCard({ hive, onDelete }: HiveCardProps) {
           onTouchEnd={handleTouchEnd}
           onClick={close}
         />
+      )}
+
+      {/* Melari block warning */}
+      {showMelariWarning && (
+        <>
+          <div className="fixed inset-0 z-30 bg-wood-900/40" onClick={() => setShowMelariWarning(false)} aria-hidden="true" />
+          <div role="dialog" aria-modal="true" aria-label="Trattamento in corso" className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg">
+            <div className="flex justify-center pt-2.5 pb-1">
+              <span className="block w-9 h-1 rounded-full bg-cream-200" aria-hidden="true" />
+            </div>
+            <div className="px-5 pt-3 pb-4">
+              <h2 className="text-lg font-semibold text-wood-800 mb-1">Trattamento in corso</h2>
+              <p className="text-sm text-wood-500 leading-relaxed">
+                &ldquo;{melariBlock?.productName}&rdquo; &egrave; attivo su questa arnia e blocca i melari. Sei sicuro di voler aggiungere un melario?
+              </p>
+            </div>
+            <div className="px-4 flex flex-col gap-2 [padding-bottom:calc(1rem+env(safe-area-inset-bottom))]">
+              <button
+                type="button"
+                onClick={() => {
+                  updateMelari({ hiveId: hive.id, count: pendingMelariCount })
+                  setShowMelariWarning(false)
+                }}
+                className="w-full h-13 flex items-center justify-center gap-2 rounded-md font-medium bg-amber-500 text-white hover:bg-amber-600 transition-colors"
+              >
+                Aggiungi comunque
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowMelariWarning(false)}
+                className="w-full h-11 flex items-center justify-center rounded-md font-medium bg-transparent text-wood-700 hover:bg-cream-100 transition-colors"
+              >
+                Annulla
+              </button>
+            </div>
+          </div>
+        </>
       )}
     </div>
   )
