@@ -316,7 +316,7 @@ function CalendarioPage() {
                           </span>
                           {hasEvents && (
                             <span className="flex gap-0.5">
-                              {dayEvents.slice(0, 3).map((ev, i) => (
+                              {dayEvents.slice(0, 3).map((_ev, i) => (
                                 <span
                                   key={i}
                                   className={`size-1 rounded-full ${isSelected ? 'bg-white/70' : 'bg-honey-500'}`}

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { TreatmentForm } from '../components/treatment-form'
@@ -377,7 +377,7 @@ describe('TreatmentForm — unsaved changes', () => {
     await user.click(screen.getByLabelText('Indietro'))
     // Two "Annulla" buttons exist: footer + sheet. Pick sheet one (last).
     const annullaBtns = screen.getAllByText('Annulla')
-    await user.click(annullaBtns[annullaBtns.length - 1])
+    await user.click(annullaBtns[annullaBtns.length - 1]!)
     expect(screen.queryByText('Modifiche non salvate')).not.toBeInTheDocument()
   })
 })

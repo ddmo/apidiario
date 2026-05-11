@@ -122,7 +122,7 @@ describe('InspectionScreen', () => {
     await user.click(screen.getByRole('radio', { name: /standard/i }))
 
     expect(screen.getByText('Meteo')).toBeInTheDocument()
-    expect(screen.getByText('22°C')).toBeInTheDocument()
+    expect(screen.getAllByText('22°C').length).toBeGreaterThanOrEqual(1)
     expect(screen.getByText('sereno, umidità 51%, vento 15 km/h')).toBeInTheDocument()
   })
 

@@ -1,7 +1,7 @@
 import { createFileRoute, redirect, Link } from '@tanstack/react-router'
 import { supabase } from '@/lib/supabase'
 import { useActivityLog } from '@/features/admin/hooks/use-activity-log'
-import { ArrowLeft, Activity } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 
 export const Route = createFileRoute('/admin/attivita')({
   beforeLoad: async () => {
