@@ -19,6 +19,7 @@ import { Route as TrattamentiNewRouteImport } from './routes/trattamenti.new'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ApiariesNewRouteImport } from './routes/apiaries.new'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminAttivitaRouteImport } from './routes/admin.attivita'
 import { Route as AuthTrattamentiRouteImport } from './routes/_auth.trattamenti'
 import { Route as AuthHomeRouteImport } from './routes/_auth.home'
 import { Route as AuthCalendarioRouteImport } from './routes/_auth.calendario'
@@ -81,6 +82,11 @@ const ApiariesNewRoute = ApiariesNewRouteImport.update({
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/admin/users',
   path: '/admin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAttivitaRoute = AdminAttivitaRouteImport.update({
+  id: '/admin/attivita',
+  path: '/admin/attivita',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthTrattamentiRoute = AuthTrattamentiRouteImport.update({
@@ -169,6 +175,7 @@ export interface FileRoutesByFullPath {
   '/calendario': typeof AuthCalendarioRoute
   '/home': typeof AuthHomeRoute
   '/trattamenti': typeof AuthTrattamentiRoute
+  '/admin/attivita': typeof AdminAttivitaRoute
   '/admin/users': typeof AdminUsersRoute
   '/apiaries/new': typeof ApiariesNewRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -193,6 +200,7 @@ export interface FileRoutesByTo {
   '/calendario': typeof AuthCalendarioRoute
   '/home': typeof AuthHomeRoute
   '/trattamenti': typeof AuthTrattamentiRoute
+  '/admin/attivita': typeof AdminAttivitaRoute
   '/admin/users': typeof AdminUsersRoute
   '/apiaries/new': typeof ApiariesNewRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -220,6 +228,7 @@ export interface FileRoutesById {
   '/_auth/calendario': typeof AuthCalendarioRoute
   '/_auth/home': typeof AuthHomeRoute
   '/_auth/trattamenti': typeof AuthTrattamentiRoute
+  '/admin/attivita': typeof AdminAttivitaRoute
   '/admin/users': typeof AdminUsersRoute
   '/apiaries/new': typeof ApiariesNewRoute
   '/auth/callback': typeof AuthCallbackRoute
@@ -248,6 +257,7 @@ export interface FileRouteTypes {
     | '/calendario'
     | '/home'
     | '/trattamenti'
+    | '/admin/attivita'
     | '/admin/users'
     | '/apiaries/new'
     | '/auth/callback'
@@ -272,6 +282,7 @@ export interface FileRouteTypes {
     | '/calendario'
     | '/home'
     | '/trattamenti'
+    | '/admin/attivita'
     | '/admin/users'
     | '/apiaries/new'
     | '/auth/callback'
@@ -298,6 +309,7 @@ export interface FileRouteTypes {
     | '/_auth/calendario'
     | '/_auth/home'
     | '/_auth/trattamenti'
+    | '/admin/attivita'
     | '/admin/users'
     | '/apiaries/new'
     | '/auth/callback'
@@ -321,6 +333,7 @@ export interface RootRouteChildren {
   PiuRoute: typeof PiuRoute
   PrevisioniRoute: typeof PrevisioniRoute
   SetPasswordRoute: typeof SetPasswordRoute
+  AdminAttivitaRoute: typeof AdminAttivitaRoute
   AdminUsersRoute: typeof AdminUsersRoute
   ApiariesNewRoute: typeof ApiariesNewRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
@@ -405,6 +418,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/attivita': {
+      id: '/admin/attivita'
+      path: '/admin/attivita'
+      fullPath: '/admin/attivita'
+      preLoaderRoute: typeof AdminAttivitaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth/trattamenti': {
@@ -536,6 +556,7 @@ const rootRouteChildren: RootRouteChildren = {
   PiuRoute: PiuRoute,
   PrevisioniRoute: PrevisioniRoute,
   SetPasswordRoute: SetPasswordRoute,
+  AdminAttivitaRoute: AdminAttivitaRoute,
   AdminUsersRoute: AdminUsersRoute,
   ApiariesNewRoute: ApiariesNewRoute,
   AuthCallbackRoute: AuthCallbackRoute,

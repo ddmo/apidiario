@@ -2,7 +2,7 @@ import { createFileRoute, redirect, Link, useNavigate } from '@tanstack/react-ro
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
-import { ArrowLeft, Shield, LogOut, Sun, Moon, Monitor, User, Database, Flower2 } from 'lucide-react'
+import { ArrowLeft, Shield, LogOut, Sun, Moon, Monitor, User, Database, Flower2, Activity } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { setThemeMode, getThemeMode, type ThemeMode } from '@/lib/theme'
 import { t } from '@/i18n/it'
@@ -46,7 +46,7 @@ function PiuPage() {
     navigate({ to: '/login' })
   }
 
-  const userEmail = session?.user?.email ?? profile?.display_name ?? '—'
+  const displayName = profile?.display_name || session?.user?.email || '—'
   const lastUpdateLabel = dataUpdatedAt
     ? new Date(dataUpdatedAt).toLocaleString('it-IT', {
         day: 'numeric', month: 'short', year: 'numeric',
@@ -75,8 +75,8 @@ function PiuPage() {
           <div className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3">
             <User size={20} className="text-wood-500 shrink-0" />
             <div>
-              <p className="text-sm font-medium text-wood-800">{userEmail}</p>
-              {profile?.display_name && session?.user?.email && (
+              <p className="text-sm font-medium text-wood-800">{displayName}</p>
+              {profile?.display_name && session?.user?.email && session.user.email !== profile.display_name && (
                 <p className="text-xs text-wood-400">{session.user.email}</p>
               )}
             </div>
@@ -100,13 +100,23 @@ function PiuPage() {
           </Link>
 
           {isAdmin && (
-            <Link
-              to="/admin/users"
-              className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3 text-wood-800 hover:bg-cream-200 transition-colors"
-            >
-              <Shield size={20} className="text-honey-600 shrink-0" />
-              <span className="text-sm font-medium">{t.admin.users}</span>
-            </Link>
+            <>
+              <Link
+                to="/admin/users"
+                className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3 text-wood-800 hover:bg-cream-200 transition-colors"
+              >
+                <Shield size={20} className="text-honey-600 shrink-0" />
+                <span className="text-sm font-medium">{t.admin.users}</span>
+              </Link>
+
+              <Link
+                to="/admin/attivita"
+                className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3 text-wood-800 hover:bg-cream-200 transition-colors"
+              >
+                <Activity size={20} className="text-honey-600 shrink-0" />
+                <span className="text-sm font-medium">Attività</span>
+              </Link>
+            </>
           )}
 
           {/* Theme selector */}

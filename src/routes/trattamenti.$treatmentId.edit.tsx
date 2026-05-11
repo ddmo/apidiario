@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
 import { useTreatment, useUpdateTreatment } from '@/features/treatments/hooks/use-treatments'
@@ -16,11 +16,11 @@ export const Route = createFileRoute('/trattamenti/$treatmentId/edit')({
 
 function EditTreatmentPage() {
   const { treatmentId } = Route.useParams()
-  const navigate = useNavigate()
   const { session } = useAuth()
   const { data: treatment, isLoading } = useTreatment(treatmentId)
   const { mutate: updateTreatment, isPending } = useUpdateTreatment()
   const { showToast } = useToast()
+  const router = useRouter()
 
   if (!session?.user?.id) return null
   if (isLoading || !treatment) {
@@ -37,7 +37,7 @@ function EditTreatmentPage() {
       {
         onSuccess: () => {
           showToast('Trattamento aggiornato', 'success')
-          void navigate({ to: '/trattamenti' })
+          router.history.back()
         },
         onError: () => showToast('Salvataggio fallito. Riprova.', 'error'),
       },
@@ -50,7 +50,7 @@ function EditTreatmentPage() {
         userId={session.user.id}
         treatment={treatment}
         onSave={handleSave}
-        onCancel={() => void navigate({ to: '/trattamenti' })}
+        onCancel={() => router.history.back()}
         isPending={isPending}
       />
     </div>

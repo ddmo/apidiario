@@ -1,6 +1,7 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/query-client'
+import { logActivity } from '@/lib/activity-log'
 import type { TablesInsert } from '@/types/database'
 
 export type TreatmentListItem = {
@@ -180,8 +181,9 @@ export function useCreateTreatment() {
 
       return id
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       void queryClient.invalidateQueries({ queryKey: ['treatments'] })
+      void logActivity(variables.userId, 'insert', 'treatment', data, `Trattamento "${variables.productName}" creato`)
     },
   })
 }
@@ -227,20 +229,40 @@ export function useUpdateTreatment() {
         if (hiveErr) throw hiveErr
       }
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: ['treatments'] })
+      void queryClient.invalidateQueries({ queryKey: ['treatment', variables.treatmentId] })
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user?.id) {
+          void logActivity(session.user.id, 'update', 'treatment', variables.treatmentId, `Trattamento "${variables.productName}" modificato`)
+        }
+      })
     },
   })
 }
 
 export function useDeleteTreatment() {
-  return useMutation<void, Error, string>({
+  return useMutation<string, Error, string>({
     mutationFn: async (id) => {
+      const { data: treatment } = await supabase
+        .from('treatments')
+        .select('product_name')
+        .eq('id', id)
+        .single()
+      const productName = treatment?.product_name ?? ''
+
       const { error } = await supabase.from('treatments').delete().eq('id', id)
       if (error) throw error
+
+      return productName
     },
-    onSuccess: () => {
+    onSuccess: (productName) => {
       void queryClient.invalidateQueries({ queryKey: ['treatments'] })
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user?.id) {
+          void logActivity(session.user.id, 'delete', 'treatment', null, `Trattamento "${productName}" eliminato`)
+        }
+      })
     },
   })
 }

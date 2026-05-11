@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight, List, Calendar, Syringe } from 'lucide-react'
+import { ChevronLeft, ChevronRight, List, Calendar, Syringe, Search } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/hooks/use-auth'
 import { t } from '@/i18n/it'
 
 export const Route = createFileRoute('/_auth/calendario')({
@@ -15,8 +16,10 @@ type InspectionEvent = {
   id: string
   performed_at: string
   hive_id: string
+  apiaryId: string
   hiveIdentifier: string
   apiaryName: string
+  performedBy: string | null
   performerDisplayName: string | null
 }
 
@@ -25,8 +28,11 @@ type TreatmentEvent = {
   date: string
   endDate: string | null
   productName: string
+  apiaryId: string
   apiaryName: string
   blocksMelari: boolean
+  performedBy: string | null
+  performerDisplayName: string | null
 }
 
 function useTreatmentEvents(year: number, month: number) {
@@ -37,20 +43,23 @@ function useTreatmentEvents(year: number, month: number) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('treatments')
-        .select('id, product_name, start_date, end_date, blocks_melari, apiaries!inner(name)')
-        .gte('start_date', start)
-        .lt('start_date', end)
+        .select('id, apiary_id, product_name, start_date, end_date, blocks_melari, performed_by, apiaries!inner(name), profiles!inner(display_name)')
+        .or(`and(start_date.gte.${start},start_date.lt.${end}),and(end_date.gte.${start},end_date.lt.${end})`)
         .order('start_date', { ascending: true })
       if (error) throw error
       return (data ?? []).map((row) => {
         const apiary = Array.isArray(row.apiaries) ? row.apiaries[0] : row.apiaries
+        const profile = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles
         return {
           id: row.id,
           date: row.start_date,
           endDate: row.end_date,
           productName: row.product_name,
+          apiaryId: row.apiary_id,
           apiaryName: (apiary as { name: string } | null)?.name ?? '?',
           blocksMelari: row.blocks_melari,
+          performedBy: row.performed_by as string | null,
+          performerDisplayName: (profile as { display_name: string } | null)?.display_name ?? null,
         } satisfies TreatmentEvent
       })
     },
@@ -65,7 +74,7 @@ function useInspectionEvents(year: number, month: number) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('inspections')
-        .select('id, performed_at, hive_id, performed_by, hives!inner(identifier, apiaries!inner(name)), profiles!inner(display_name)')
+        .select('id, performed_at, hive_id, performed_by, hives!inner(identifier, apiary_id, apiaries!inner(name)), profiles!inner(display_name)')
         .gte('performed_at', start)
         .lt('performed_at', end)
         .order('performed_at', { ascending: true })
@@ -78,8 +87,10 @@ function useInspectionEvents(year: number, month: number) {
           id: row.id,
           performed_at: row.performed_at,
           hive_id: row.hive_id,
+          apiaryId: (hive as { apiary_id: string } | null)?.apiary_id ?? '',
           hiveIdentifier: (hive as { identifier: string } | null)?.identifier ?? '?',
           apiaryName: (apiary as { name: string } | null)?.name ?? '?',
+          performedBy: row.performed_by as string | null,
           performerDisplayName: (profile as { display_name: string } | null)?.display_name ?? null,
         } satisfies InspectionEvent
       })
@@ -123,13 +134,20 @@ function CalendarioPage() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
+  const { session } = useAuth()
+  const userId = session?.user?.id
+
   const { data: inspections = [], isLoading: inspLoading } = useInspectionEvents(year, month)
   const { data: treatments = [], isLoading: treatLoading } = useTreatmentEvents(year, month)
   const isLoading = inspLoading || treatLoading
 
+  function showPerformer(performedBy: string | null | undefined): boolean {
+    return !!performedBy && performedBy !== userId
+  }
+
   type CalendarEvent =
-    | { kind: 'inspection'; id: string; hiveId: string; hiveIdentifier: string; apiaryName: string; performerDisplayName: string | null; date: string; time: string }
-    | { kind: 'treatment'; id: string; productName: string; apiaryName: string; blocksMelari: boolean; date: string }
+    | { kind: 'inspection'; id: string; hiveId: string; apiaryId: string; hiveIdentifier: string; apiaryName: string; performedBy: string | null; performerDisplayName: string | null; date: string; time: string }
+    | { kind: 'treatment'; id: string; productName: string; apiaryId: string; apiaryName: string; performedBy: string | null; performerDisplayName: string | null; blocksMelari: boolean; date: string; subKind: 'start' | 'end' }
 
   // Merge both event types into a single "YYYY-MM-DD" → CalendarEvent[] map
   const eventsByDay: Record<string, CalendarEvent[]> = {}
@@ -141,8 +159,10 @@ function CalendarioPage() {
       kind: 'inspection',
       id: ev.id,
       hiveId: ev.hive_id,
+      apiaryId: ev.apiaryId,
       hiveIdentifier: ev.hiveIdentifier,
       apiaryName: ev.apiaryName,
+      performedBy: ev.performedBy,
       performerDisplayName: ev.performerDisplayName,
       date: ev.performed_at,
       time: new Date(ev.performed_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }),
@@ -150,16 +170,40 @@ function CalendarioPage() {
   }
 
   for (const tr of treatments) {
-    const key = isoDate(new Date(tr.date))
-    if (!eventsByDay[key]) eventsByDay[key] = []
-    eventsByDay[key].push({
+    const startKey = isoDate(new Date(tr.date))
+    if (!eventsByDay[startKey]) eventsByDay[startKey] = []
+    eventsByDay[startKey].push({
       kind: 'treatment',
       id: tr.id,
       productName: tr.productName,
+      apiaryId: tr.apiaryId,
       apiaryName: tr.apiaryName,
+      performedBy: tr.performedBy,
+      performerDisplayName: tr.performerDisplayName,
       blocksMelari: tr.blocksMelari,
       date: tr.date,
+      subKind: 'start',
     })
+
+    // Add entry for end date too (if different from start)
+    if (tr.endDate) {
+      const endKey = isoDate(new Date(tr.endDate))
+      if (endKey !== startKey) {
+        if (!eventsByDay[endKey]) eventsByDay[endKey] = []
+        eventsByDay[endKey].push({
+          kind: 'treatment',
+          id: tr.id,
+          productName: tr.productName,
+          apiaryId: tr.apiaryId,
+          apiaryName: tr.apiaryName,
+          performedBy: tr.performedBy,
+          performerDisplayName: tr.performerDisplayName,
+          blocksMelari: tr.blocksMelari,
+          date: tr.endDate,
+          subKind: 'end',
+        })
+      }
+    }
   }
 
   const grid = buildGrid(year, month)
@@ -275,11 +319,7 @@ function CalendarioPage() {
                               {dayEvents.slice(0, 3).map((ev, i) => (
                                 <span
                                   key={i}
-                                  className={`size-1 rounded-full ${
-                                    ev.kind === 'treatment'
-                                      ? (isSelected ? 'bg-amber-200' : 'bg-amber-500')
-                                      : (isSelected ? 'bg-honey-200' : 'bg-honey-500')
-                                  }`}
+                                  className={`size-1 rounded-full ${isSelected ? 'bg-white/70' : 'bg-honey-500'}`}
                                 />
                               ))}
                             </span>
@@ -312,30 +352,42 @@ function CalendarioPage() {
                             params={{ hiveId: ev.hiveId, inspectionId: ev.id }}
                             className="flex items-center justify-between bg-cream-100 border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-200 transition-colors"
                           >
-                            <div>
-                              <p className="text-sm font-semibold text-wood-800">{ev.hiveIdentifier}</p>
-                              <p className="text-xs text-honey-600">{ev.apiaryName}</p>
-                              {ev.performerDisplayName && (
-                                <p className="text-[11px] text-wood-400 mt-0.5">da {ev.performerDisplayName}</p>
-                              )}
+                            <div className="flex items-center gap-2.5">
+                              <Search size={16} strokeWidth={1.75} className="text-honey-600 shrink-0" />
+                              <div>
+                                <p className="text-sm font-semibold text-wood-800">Ispezionata arnia {ev.hiveIdentifier}</p>
+                                <p className="text-xs text-honey-600">{ev.apiaryName}</p>
+                                {ev.performerDisplayName && showPerformer(ev.performedBy) && (
+                                  <p className="text-[11px] text-wood-400 mt-0.5">da {ev.performerDisplayName}</p>
+                                )}
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs text-wood-400">{ev.time}</span>
-                              <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="text-wood-300">
-                                <path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
-                            </div>
+                            <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="text-wood-300 shrink-0">
+                              <path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
                           </Link>
                         </li>
                       ) : (
                         <li key={`t-${ev.id}`}>
-                          <div className="flex items-center gap-2.5 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-                            <Syringe size={18} strokeWidth={1.75} className="text-amber-600 shrink-0" />
-                            <div>
-                              <p className="text-sm font-semibold text-wood-800">{ev.productName}</p>
-                              <p className="text-xs text-wood-500">{ev.apiaryName}</p>
+                          <Link
+                            to="/trattamenti/$treatmentId/edit"
+                            params={{ treatmentId: ev.id }}
+                            className="flex items-center justify-between bg-cream-100 border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-200 transition-colors"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <Syringe size={16} strokeWidth={1.75} className="text-honey-600 shrink-0" />
+                              <div>
+                                <p className="text-sm font-semibold text-wood-800">{ev.subKind === 'start' ? 'Inizio trattamento' : 'Fine trattamento'} {ev.productName}</p>
+                                <p className="text-xs text-honey-600">{ev.apiaryName}</p>
+                                {ev.performerDisplayName && showPerformer(ev.performedBy) && (
+                                  <p className="text-[11px] text-wood-400 mt-0.5">da {ev.performerDisplayName}</p>
+                                )}
+                              </div>
                             </div>
-                          </div>
+                            <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="text-wood-300 shrink-0">
+                              <path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </Link>
                         </li>
                       ),
                     )}
@@ -375,14 +427,14 @@ function CalendarioPage() {
                               <Link
                                 to="/hives/$hiveId/inspections/$inspectionId"
                                 params={{ hiveId: ev.hiveId, inspectionId: ev.id }}
-                                className="flex items-center justify-between bg-white border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-50 transition-colors shadow-sm"
+                                className="flex items-center justify-between bg-cream-100 border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-200 transition-colors shadow-sm"
                               >
-                                <div className="flex items-center gap-3">
-                                  <span className="text-sm font-semibold text-honey-600 min-w-[3rem]">{ev.time}</span>
+                                <div className="flex items-center gap-2.5">
+                                  <Search size={16} strokeWidth={1.75} className="text-honey-600 shrink-0" />
                                   <div>
-                                    <p className="text-sm font-semibold text-wood-800">{ev.hiveIdentifier}</p>
+                                    <p className="text-sm font-semibold text-wood-800">Ispezionata arnia {ev.hiveIdentifier}</p>
                                     <p className="text-xs text-wood-400">{ev.apiaryName}</p>
-                                    {ev.performerDisplayName && (
+                                    {ev.performerDisplayName && showPerformer(ev.performedBy) && (
                                       <p className="text-[11px] text-wood-300">da {ev.performerDisplayName}</p>
                                     )}
                                   </div>
@@ -394,13 +446,25 @@ function CalendarioPage() {
                             </li>
                           ) : (
                             <li key={`t-${ev.id}`}>
-                              <div className="flex items-center gap-3 bg-white border border-amber-200 rounded-xl px-4 py-3 shadow-sm">
-                                <Syringe size={18} strokeWidth={1.75} className="text-amber-600 shrink-0" />
-                                <div>
-                                  <p className="text-sm font-semibold text-wood-800">{ev.productName}</p>
-                                  <p className="text-xs text-wood-400">{ev.apiaryName}</p>
+                              <Link
+                                to="/trattamenti/$treatmentId/edit"
+                                params={{ treatmentId: ev.id }}
+                                className="flex items-center justify-between bg-cream-100 border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-200 transition-colors shadow-sm"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <Syringe size={16} strokeWidth={1.75} className="text-honey-600 shrink-0" />
+                                  <div>
+                                    <p className="text-sm font-semibold text-wood-800">{ev.subKind === 'start' ? 'Inizio trattamento' : 'Fine trattamento'} {ev.productName}</p>
+                                    <p className="text-xs text-wood-400">{ev.apiaryName}</p>
+                                    {ev.performerDisplayName && showPerformer(ev.performedBy) && (
+                                      <p className="text-[11px] text-wood-300">da {ev.performerDisplayName}</p>
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
+                                <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="text-wood-300 shrink-0">
+                                  <path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              </Link>
                             </li>
                           ),
                         )}

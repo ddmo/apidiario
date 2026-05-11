@@ -42,7 +42,7 @@ export function TreatmentForm({ userId: _userId, prefillApiaryId, treatment, onS
   const { data: apiaries = [] } = useApiaries()
 
   const [apiaryId, setApiaryId] = useState(treatment?.apiaryId ?? prefillApiaryId ?? '')
-  const [scope, setScope] = useState(treatment?.appliesToAllHives ? 'all' : 'specific')
+  const [scope, setScope] = useState(treatment ? (treatment.appliesToAllHives ? 'all' : 'specific') : 'all')
   const [productName, setProductName] = useState(treatment?.productName ?? '')
   const [blocksMelari, setBlocksMelari] = useState(treatment?.blocksMelari ?? true)
   const [startDate, setStartDate] = useState(treatment?.startDate ?? '')
@@ -83,6 +83,10 @@ export function TreatmentForm({ userId: _userId, prefillApiaryId, treatment, onS
     }
     if (scope === 'specific' && hiveIds.length === 0) {
       showToast('Seleziona almeno un\'arnia.', 'error')
+      return
+    }
+    if (endDate && startDate > endDate) {
+      showToast('La data fine non può essere prima della data inizio.', 'error')
       return
     }
 
@@ -132,7 +136,7 @@ export function TreatmentForm({ userId: _userId, prefillApiaryId, treatment, onS
             options={apiaryOptions}
             value={apiaryId}
             onChange={(e) => { setApiaryId(e.target.value); markDirty() }}
-            disabled={isEdit || !!prefillApiaryId}
+            disabled={!!prefillApiaryId}
           />
 
           {/* Ambito */}
@@ -147,27 +151,34 @@ export function TreatmentForm({ userId: _userId, prefillApiaryId, treatment, onS
           </div>
 
           {/* Selezione arnie (solo se ambito specifico) */}
-          {scope === 'specific' && apiaryId && (
+          {scope === 'specific' && (
             <div className="flex flex-col gap-2">
               <p className="text-sm font-medium text-wood-700">Arnie</p>
-              {hives.length === 0 ? (
+              {!apiaryId ? (
+                <p className="text-xs text-wood-400">Seleziona prima un apiario.</p>
+              ) : hives.length === 0 ? (
                 <p className="text-xs text-wood-400">Nessuna arnia in questo apiario.</p>
               ) : (
-                <div className="flex flex-col gap-1.5">
-                  {hives.map((hive) => (
-                    <label
-                      key={hive.id}
-                      className="flex items-center gap-3 px-3 py-2 bg-cream-50 border border-cream-200 rounded-lg cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={hiveIds.includes(hive.id)}
-                        onChange={() => toggleHive(hive.id)}
-                        className="size-4 rounded border-cream-300 text-honey-500 focus:ring-honey-500"
-                      />
-                      <span className="text-sm text-wood-800">{hive.identifier}</span>
-                    </label>
-                  ))}
+                <div className="grid grid-cols-2 gap-2">
+                  {hives.map((hive) => {
+                    const selected = hiveIds.includes(hive.id)
+                    return (
+                      <button
+                        key={hive.id}
+                        type="button"
+                        aria-pressed={selected}
+                        onClick={() => toggleHive(hive.id)}
+                        className={[
+                          'h-12 rounded-lg border text-sm font-medium transition-all duration-150',
+                          selected
+                            ? 'bg-honey-300/60 border-honey-500 text-wood-800'
+                            : 'bg-cream-50 border-cream-200 text-wood-400 hover:border-wood-400/40',
+                        ].join(' ')}
+                      >
+                        {hive.identifier}
+                      </button>
+                    )
+                  })}
                 </div>
               )}
             </div>
@@ -184,15 +195,21 @@ export function TreatmentForm({ userId: _userId, prefillApiaryId, treatment, onS
           />
 
           {/* Blocco melari */}
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={blocksMelari}
-              onChange={(e) => { setBlocksMelari(e.target.checked); markDirty() }}
-              className="size-4 rounded border-cream-300 text-honey-500 focus:ring-honey-500"
-            />
-            <span className="text-sm text-wood-700">Blocca melari</span>
-          </label>
+          <div>
+            <button
+              type="button"
+              aria-pressed={blocksMelari}
+              onClick={() => { setBlocksMelari(!blocksMelari); markDirty() }}
+              className={[
+                'h-12 w-full rounded-lg border text-sm font-medium transition-all duration-150',
+                blocksMelari
+                  ? 'bg-honey-300/60 border-honey-500 text-wood-800'
+                  : 'bg-cream-50 border-cream-200 text-wood-400 hover:border-wood-400/40',
+              ].join(' ')}
+            >
+              {blocksMelari ? 'Blocca melari attivo' : 'Blocca melari disattivato'}
+            </button>
+          </div>
           {blocksMelari && (
             <p className="text-xs text-wood-400 -mt-3">
               Durante il trattamento, l&rsquo;app avviser&agrave; se aggiungi melari alle arnie coinvolte.
@@ -272,7 +289,7 @@ export function TreatmentForm({ userId: _userId, prefillApiaryId, treatment, onS
         <Button type="button" variant="ghost" size="md" className="flex-none px-4" onClick={handleCancel}>
           Annulla
         </Button>
-        <Button type="button" variant="primary" size="md" className="flex-1" onClick={doSubmit} loading={isPending}>
+        <Button type="button" variant="primary" size="md" className="flex-1" onClick={doSubmit} loading={isPending} disabled={isEdit && !isDirty}>
           {isEdit ? 'Salva modifiche' : 'Salva trattamento'}
         </Button>
       </div>

@@ -1,6 +1,7 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/query-client'
+import { logActivity } from '@/lib/activity-log'
 import type { Database } from '@/types/database'
 
 export type HiveListItem = {
@@ -140,9 +141,14 @@ export function useCreateHive() {
 
       return id
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (data, variables) => {
       void queryClient.invalidateQueries({ queryKey: ['hives', variables.apiaryId] })
       void queryClient.invalidateQueries({ queryKey: ['apiaries'] })
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user?.id) {
+          void logActivity(session.user.id, 'insert', 'hive', data, `Arnia "${variables.identifier}" creata`)
+        }
+      })
     },
   })
 }
@@ -265,6 +271,11 @@ export function useUpdateHive() {
       void queryClient.invalidateQueries({ queryKey: ['hives', variables.apiaryId] })
       void queryClient.invalidateQueries({ queryKey: ['hives', 'all'] })
       void queryClient.invalidateQueries({ queryKey: ['hive'] })
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user?.id) {
+          void logActivity(session.user.id, 'update', 'hive', variables.hiveId, `Arnia "${variables.identifier}" modificata`)
+        }
+      })
     },
   })
 }
@@ -306,17 +317,31 @@ export function useUpdateMelariCount() {
 }
 
 export function useDeleteHive() {
-  return useMutation({
-    mutationFn: async (hiveId: string) => {
+  return useMutation<string, Error, string>({
+    mutationFn: async (hiveId) => {
+      const { data: hive } = await supabase
+        .from('hives')
+        .select('identifier')
+        .eq('id', hiveId)
+        .single()
+      const identifier = hive?.identifier ?? ''
+
       const { error } = await supabase
         .from('hives')
         .update({ archived_at: new Date().toISOString() })
         .eq('id', hiveId)
       if (error) throw error
+
+      return identifier
     },
-    onSuccess: () => {
+    onSuccess: (identifier) => {
       void queryClient.invalidateQueries({ queryKey: ['hives'] })
       void queryClient.invalidateQueries({ queryKey: ['apiaries'] })
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user?.id) {
+          void logActivity(session.user.id, 'delete', 'hive', null, `Arnia "${identifier}" eliminata`)
+        }
+      })
     },
   })
 }

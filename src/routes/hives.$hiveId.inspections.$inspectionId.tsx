@@ -178,7 +178,7 @@ function EditInspectionPage() {
       isSaving={isSaving}
       isDeleting={isDeleting}
       onSave={(formState, mode, commit) => { updateInspection({ formState, mode }); commit(inspectionId) }}
-      onBack={() => void navigate({ to: '/hives/$hiveId/inspections', params: { hiveId } })}
+      onBack={() => router.history.back()}
       onDelete={handleDelete}
     />
   )

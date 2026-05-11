@@ -2,6 +2,7 @@ import { useQuery, useMutation } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
 import { queryClient } from '@/lib/query-client'
+import { logActivity } from '@/lib/activity-log'
 import type { Tables, TablesInsert } from '@/types/database'
 
 // Augmented row type — main_photo_path already in generated types.
@@ -183,8 +184,9 @@ export function useCreateApiary() {
 
       return { id }
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       void queryClient.invalidateQueries({ queryKey: ['apiaries'] })
+      void logActivity(variables.userId, 'insert', 'apiary', data.id, `Apiario "${variables.name}" creato`)
     },
   })
 }
@@ -248,23 +250,42 @@ export function useUpdateApiary() {
 
       if (error) throw error
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: ['apiaries'] })
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user?.id) {
+          void logActivity(session.user.id, 'update', 'apiary', variables.apiaryId, `Apiario "${variables.name}" modificato`)
+        }
+      })
     },
   })
 }
 
 export function useDeleteApiary() {
-  return useMutation({
-    mutationFn: async (apiaryId: string) => {
+  return useMutation<string, Error, string>({
+    mutationFn: async (apiaryId) => {
+      const { data: apiary } = await supabase
+        .from('apiaries')
+        .select('name')
+        .eq('id', apiaryId)
+        .single()
+      const name = apiary?.name ?? ''
+
       const { error } = await supabase
         .from('apiaries')
         .update({ archived_at: new Date().toISOString() })
         .eq('id', apiaryId)
       if (error) throw error
+
+      return name
     },
-    onSuccess: () => {
+    onSuccess: (name) => {
       void queryClient.invalidateQueries({ queryKey: ['apiaries'] })
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user?.id) {
+          void logActivity(session.user.id, 'delete', 'apiary', null, `Apiario "${name}" eliminato`)
+        }
+      })
     },
   })
 }

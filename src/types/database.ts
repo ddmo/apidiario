@@ -774,6 +774,44 @@ export type Database = {
           },
         ]
       }
+      activity_log: {
+        Row: {
+          id: string
+          user_id: string
+          action: string
+          entity_type: string
+          entity_id: string | null
+          description: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          action: string
+          entity_type: string
+          entity_id?: string | null
+          description: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          action?: string
+          entity_type?: string
+          entity_id?: string | null
+          description?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
