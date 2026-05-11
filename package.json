@@ -13,6 +13,8 @@
     "type-check": "tsr generate && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "router:gen": "tsr generate",
     "db:types": "node scripts/gen-db-types.mjs",
     "deploy": "npm run build && wrangler deploy"
