@@ -62,9 +62,11 @@ export function InspectionScreen({
 
   const {
     media: inspectionMedia,
+    pendingMedia,
     uploading: mediaUploading,
     pickFiles: pickMediaFiles,
     removeMedia,
+    removePending,
     commit: commitMedia,
   } = useInspectionMedia(inspectionId ?? null)
 
@@ -216,9 +218,11 @@ export function InspectionScreen({
             onPickAudioFile={pickAudioFile}
             onDeleteVoiceNote={removeVoiceNote}
             inspectionMedia={inspectionMedia}
+            pendingMedia={pendingMedia}
             mediaUploading={mediaUploading}
             onPickMediaFiles={pickMediaFiles}
             onRemoveMedia={removeMedia}
+            onRemovePendingMedia={removePending}
           />
         )}
       </div>

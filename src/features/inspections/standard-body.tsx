@@ -38,9 +38,11 @@ interface StandardBodyProps {
   onPickAudioFile: () => void
   onDeleteVoiceNote: (id: string) => void
   inspectionMedia: MediaItem[]
+  pendingMedia: PendingMediaItem[]
   mediaUploading: boolean
   onPickMediaFiles: () => void
   onRemoveMedia: (id: string) => void
+  onRemovePendingMedia: (id: string) => void
 }
 
 interface MediaItem {
@@ -49,7 +51,12 @@ interface MediaItem {
   signedUrl?: string
 }
 
-export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes, isRecording, canRecord, onStartRecording, onStopRecording, onPickAudioFile, onDeleteVoiceNote, inspectionMedia, mediaUploading, onPickMediaFiles, onRemoveMedia }: StandardBodyProps) {
+interface PendingMediaItem {
+  id: string
+  previewUrl: string
+}
+
+export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes, isRecording, canRecord, onStartRecording, onStopRecording, onPickAudioFile, onDeleteVoiceNote, inspectionMedia, pendingMedia, mediaUploading, onPickMediaFiles, onRemoveMedia, onRemovePendingMedia }: StandardBodyProps) {
   const [noteOpen, setNoteOpen] = useState(false)
   const d = (key: string) => dirtyFields.has(key)
 
@@ -213,9 +220,11 @@ export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes
         <SectionLabel>Foto / video</SectionLabel>
         <InspectionMediaPicker
           media={inspectionMedia}
+          pendingMedia={pendingMedia}
           uploading={mediaUploading}
           onPickFiles={onPickMediaFiles}
           onRemove={onRemoveMedia}
+          onRemovePending={onRemovePendingMedia}
         />
       </section>
 

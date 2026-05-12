@@ -105,11 +105,11 @@ function NewInspectionPage() {
       if (error) throw error
       return data.id
     },
-    onSuccess: () => {
+    onSuccess: (newId) => {
       showToast('Ispezione salvata', 'success')
       void queryClient.invalidateQueries({ queryKey: ['lastInspection', hiveId] })
       void queryClient.invalidateQueries({ queryKey: ['hives'] })
-      void navigate({ to: '/hives/$hiveId/inspections', params: { hiveId }, replace: true })
+      void navigate({ to: '/hives/$hiveId/inspections/$inspectionId', params: { hiveId, inspectionId: newId }, replace: true })
     },
     onError: () => {
       showToast('Salvataggio fallito. Riprova.', 'error')

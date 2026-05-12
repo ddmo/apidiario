@@ -1,6 +1,7 @@
-import { Camera, Loader2, X, Play } from 'lucide-react'
+import { Camera, Clock, Loader2, X, Play } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
+import type { PendingMediaItem } from '../hooks/use-inspection-media'
 
 interface MediaItem {
   id: string
@@ -10,12 +11,14 @@ interface MediaItem {
 
 interface InspectionMediaPickerProps {
   media: MediaItem[]
+  pendingMedia: PendingMediaItem[]
   uploading: boolean
   onPickFiles: () => void
   onRemove: (id: string) => void
+  onRemovePending: (id: string) => void
 }
 
-export function InspectionMediaPicker({ media, uploading, onPickFiles, onRemove }: InspectionMediaPickerProps) {
+export function InspectionMediaPicker({ media, pendingMedia, uploading, onPickFiles, onRemove, onRemovePending }: InspectionMediaPickerProps) {
   const [preview, setPreview] = useState<string | null>(null)
 
   return (
@@ -47,6 +50,33 @@ export function InspectionMediaPicker({ media, uploading, onPickFiles, onRemove 
             <button
               type="button"
               onClick={() => onRemove(item.id)}
+              className="absolute top-1 right-1 size-6 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors"
+              aria-label="Rimuovi"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        ))}
+
+        {/* Local previews for pending files (not yet saved) */}
+        {pendingMedia.map((item) => (
+          <div key={item.id} className="relative aspect-square rounded-md overflow-hidden bg-wood-100">
+            <img
+              src={item.previewUrl}
+              alt=""
+              className="size-full object-cover opacity-60"
+            />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="flex flex-col items-center gap-1">
+                <Clock size={18} className="text-wood-600" />
+                <span className="text-[10px] font-medium text-wood-600 leading-tight text-center px-1">
+                  Da salvare
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => onRemovePending(item.id)}
               className="absolute top-1 right-1 size-6 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors"
               aria-label="Rimuovi"
             >

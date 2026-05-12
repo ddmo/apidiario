@@ -4,9 +4,15 @@ import type { Tables } from '@/types/database'
 
 type MediaRow = Tables<'inspection_media'> & { signedUrl?: string }
 
-async function uploadFiles(files: File[], inspId: string): Promise<MediaRow[]> {
+export interface PendingMediaItem {
+  id: string
+  previewUrl: string
+  file: File
+}
+
+async function uploadFiles(files: { file: File }[], inspId: string): Promise<MediaRow[]> {
   const newMedia: MediaRow[] = []
-  for (const file of files) {
+  for (const { file } of files) {
     const id = crypto.randomUUID()
     const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
     const mediaType = file.type.startsWith('video/') ? 'video' : 'image'
@@ -37,8 +43,8 @@ async function uploadFiles(files: File[], inspId: string): Promise<MediaRow[]> {
 
 export function useInspectionMedia(inspectionId: string | null) {
   const [media, setMedia] = useState<MediaRow[]>([])
+  const [pendingMedia, setPendingMedia] = useState<PendingMediaItem[]>([])
   const [uploading, setUploading] = useState(false)
-  const pendingRef = useRef<File[]>([])
 
   // Load existing media
   useEffect(() => {
@@ -65,6 +71,15 @@ export function useInspectionMedia(inspectionId: string | null) {
     return () => { cancelled = true }
   }, [inspectionId])
 
+  // Cleanup pending object URLs on unmount
+  useEffect(() => {
+    return () => {
+      for (const p of pendingMedia) {
+        URL.revokeObjectURL(p.previewUrl)
+      }
+    }
+  }, [pendingMedia])
+
   const pickFiles = useCallback(() => {
     const input = document.createElement('input')
     input.type = 'file'
@@ -73,12 +88,23 @@ export function useInspectionMedia(inspectionId: string | null) {
     input.onchange = async () => {
       const files = input.files
       if (!files?.length) return
+
+      // Create local previews for all selected files
+      const pending: PendingMediaItem[] = Array.from(files).map((file) => ({
+        id: crypto.randomUUID(),
+        previewUrl: URL.createObjectURL(file),
+        file,
+      }))
+
       if (!inspectionId) {
-        pendingRef.current.push(...Array.from(files))
+        setPendingMedia((prev) => [...prev, ...pending])
         return
       }
+
       setUploading(true)
-      const uploaded = await uploadFiles(Array.from(files), inspectionId)
+      const uploaded = await uploadFiles(pending, inspectionId)
+      // Revoke local previews since real URLs will be used
+      for (const p of pending) URL.revokeObjectURL(p.previewUrl)
       setMedia((prev) => [...prev, ...uploaded])
       setUploading(false)
     }
@@ -86,14 +112,15 @@ export function useInspectionMedia(inspectionId: string | null) {
   }, [inspectionId])
 
   const commit = useCallback(async (id: string) => {
-    const files = pendingRef.current
-    if (files.length === 0) return
-    pendingRef.current = []
+    if (pendingMedia.length === 0) return
+    const pending = pendingMedia
+    setPendingMedia([])
     setUploading(true)
-    const uploaded = await uploadFiles(files, id)
+    const uploaded = await uploadFiles(pending, id)
+    for (const p of pending) URL.revokeObjectURL(p.previewUrl)
     setMedia((prev) => [...prev, ...uploaded])
     setUploading(false)
-  }, [])
+  }, [pendingMedia])
 
   const removeMedia = useCallback(
     async (id: string) => {
@@ -106,5 +133,13 @@ export function useInspectionMedia(inspectionId: string | null) {
     [media],
   )
 
-  return { media, uploading, pickFiles, removeMedia, commit }
+  const removePending = useCallback((id: string) => {
+    setPendingMedia((prev) => {
+      const item = prev.find((p) => p.id === id)
+      if (item) URL.revokeObjectURL(item.previewUrl)
+      return prev.filter((p) => p.id !== id)
+    })
+  }, [])
+
+  return { media, pendingMedia, uploading, pickFiles, removeMedia, removePending, commit }
 }
