@@ -113,6 +113,7 @@ export function useWeatherData(lat: number | null, lng: number | null, year: num
 export function useBloomPredictions(
   weather: WeatherDay[] | undefined,
   species: PhenologySpecies[] | undefined,
+  correctionFactors?: Record<string, number>,
 ): BloomPrediction[] {
   if (!weather || weather.length === 0 || !species) return []
 
@@ -123,6 +124,7 @@ export function useBloomPredictions(
       gdd_bloom_start: s.gdd_bloom_start,
       gdd_bloom_peak: s.gdd_bloom_peak,
       gdd_bloom_end: s.gdd_bloom_end,
-    }),
+    }, undefined,
+    { correctionFactor: correctionFactors?.[s.id] }),
   )
 }

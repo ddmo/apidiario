@@ -4,12 +4,18 @@ import { useState, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, MapPin, Flower2, ChevronDown, HelpCircle } from 'lucide-react'
+import { ArrowLeft, MapPin, Flower2, ChevronDown, HelpCircle, X } from 'lucide-react'
 import {
   usePhenologySpecies,
   useWeatherData,
   useBloomPredictions,
 } from '@/features/phenology/hooks/use-phenology'
+import { computeCorrectionFactor } from '@/lib/phenology/predict'
+import {
+  useBloomObservations,
+  useUpsertBloomObservation,
+} from '@/features/phenology/hooks/use-bloom-observations'
+import { logActivity } from '@/lib/activity-log'
 
 export const Route = createFileRoute('/previsioni')({
   beforeLoad: async () => {
@@ -55,6 +61,10 @@ function PrevisioniPage() {
   const [forecastLng, setForecastLng] = useState<number | null>(null)
   const [year] = useState(() => new Date().getFullYear())
   const [showHelp, setShowHelp] = useState(false)
+  const [usePersonalObs, setUsePersonalObs] = useState(false)
+  const [showObsSheet, setShowObsSheet] = useState(false)
+  const [obsStartDate, setObsStartDate] = useState('')
+  const [obsEndDate, setObsEndDate] = useState('')
 
   const { data: apiaries = [] } = useQuery({
     queryKey: ['apiaries-with-coords'],
@@ -79,14 +89,32 @@ function PrevisioniPage() {
 
   const { data: species = [] } = usePhenologySpecies()
   const { data: weather, isLoading: weatherLoading } = useWeatherData(forecastLat, forecastLng, year)
-  const predictions = useBloomPredictions(weather, species)
-
-  const selectedPrediction = selectedSpeciesId
-    ? predictions.find((p) => p.species_id === selectedSpeciesId) ?? null
-    : null
+  const { data: observations = [] } = useBloomObservations(
+    selectedApiaryId ?? undefined,
+    selectedSpeciesId ?? undefined,
+  )
+  const upsertObs = useUpsertBloomObservation(session?.user?.id ?? '')
 
   const selectedSpecies = selectedSpeciesId
     ? species.find((s) => s.id === selectedSpeciesId) ?? null
+    : null
+
+  const correctionFactor = useMemo(() => {
+    if (!usePersonalObs || !weather || !selectedSpecies || observations.length === 0 || forecastLat == null) return null
+    const obs = observations.find((o) => o.year === year)
+    if (!obs?.observed_start_date) return null
+    return computeCorrectionFactor(weather, obs.observed_start_date, selectedSpecies.gdd_bloom_start)
+  }, [usePersonalObs, weather, selectedSpecies, observations, year, forecastLat])
+
+  const correctionFactors = useMemo(() => {
+    if (correctionFactor == null || !selectedSpeciesId) return undefined
+    return { [selectedSpeciesId]: correctionFactor }
+  }, [correctionFactor, selectedSpeciesId])
+
+  const predictions = useBloomPredictions(weather, species, correctionFactors)
+
+  const selectedPrediction = selectedSpeciesId
+    ? predictions.find((p) => p.species_id === selectedSpeciesId) ?? null
     : null
 
   return (
@@ -304,7 +332,59 @@ function PrevisioniPage() {
               {selectedSpecies.notes_it && (
                 <p className="text-xs text-wood-500 italic">{selectedSpecies.notes_it}</p>
               )}
+
+              {/* Toggle osservazioni personali */}
+              <div className="border-t border-cream-200 pt-3">
+                <label className="flex items-center justify-between cursor-pointer">
+                  <span className="text-sm font-medium text-wood-700">Usa osservazioni personali</span>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={usePersonalObs}
+                    onClick={() => setUsePersonalObs((v) => !v)}
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                      usePersonalObs ? 'bg-honey-500' : 'bg-cream-200'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                        usePersonalObs ? 'translate-x-[18px]' : 'translate-x-[2px]'
+                      }`}
+                    />
+                  </button>
+                </label>
+                {usePersonalObs && correctionFactor != null && (
+                  <p className="mt-1.5 text-xs text-green-700">
+                    Tarato ×{correctionFactor.toFixed(3)} su osservazione inizio fioritura
+                  </p>
+                )}
+                {usePersonalObs && correctionFactor == null && observations.length === 0 && (
+                  <p className="mt-1.5 text-xs text-wood-500">
+                    Nessuna osservazione registrata. Registra la prima qui sotto.
+                  </p>
+                )}
+                {usePersonalObs && correctionFactor == null && observations.length > 0 && (
+                  <p className="mt-1.5 text-xs text-wood-500">
+                    Nessuna data inizio fioritura registrata per {year}.
+                  </p>
+                )}
+              </div>
             </div>
+          )}
+
+          {/* Registra osservazione button */}
+          {forecastLat != null && selectedPrediction && selectedSpecies && (
+            <button
+              type="button"
+              onClick={() => {
+                setObsStartDate(selectedPrediction.bloom_start?.date ?? '')
+                setObsEndDate(selectedPrediction.bloom_end?.date ?? '')
+                setShowObsSheet(true)
+              }}
+              className="w-full text-sm bg-cream-100 border border-dashed border-cream-300 rounded-xl py-3 text-wood-600 hover:bg-cream-200 hover:border-wood-300 transition-colors"
+            >
+              + Registra osservazione fioritura
+            </button>
           )}
 
           {/* No apiaries with location warning */}
@@ -319,6 +399,96 @@ function PrevisioniPage() {
         </div>
       </div>
 
+      {/* Observation form sheet */}
+      {showObsSheet && selectedPrediction && selectedSpecies && (
+        <>
+          <div className="fixed inset-0 z-30 bg-wood-900/40" onClick={() => setShowObsSheet(false)} aria-hidden="true" />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Registra osservazione fioritura"
+            className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg max-h-[80dvh] flex flex-col"
+          >
+            <div className="flex justify-center pt-2.5 pb-1 shrink-0">
+              <span className="block w-9 h-1 rounded-full bg-cream-200" aria-hidden="true" />
+            </div>
+            <div className="px-5 pt-2 pb-1 shrink-0 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-wood-800">Registra osservazione</h2>
+              <button
+                type="button"
+                aria-label="Chiudi"
+                onClick={() => setShowObsSheet(false)}
+                className="size-8 flex items-center justify-center text-wood-500 hover:text-wood-700 hover:bg-cream-100 rounded-md transition-colors -mr-1"
+              >
+                <X size={20} strokeWidth={1.75} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-5 pb-6 text-sm text-wood-600 space-y-4">
+              <p className="text-wood-700 font-medium">{selectedSpecies.common_name_it} — {year}</p>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider font-semibold text-wood-500 mb-1">
+                  Inizio fioritura osservato
+                </label>
+                <input
+                  type="date"
+                  value={obsStartDate}
+                  onChange={(e) => setObsStartDate(e.target.value)}
+                  className="w-full bg-cream-100 border border-cream-200 rounded-lg px-3 py-2.5 text-sm text-wood-700"
+                />
+                {selectedPrediction.bloom_start?.date && (
+                  <p className="text-[10px] text-wood-400 mt-0.5">
+                    Previsto: {new Date(selectedPrediction.bloom_start.date).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider font-semibold text-wood-500 mb-1">
+                  Fine fioritura osservata
+                </label>
+                <input
+                  type="date"
+                  value={obsEndDate}
+                  onChange={(e) => setObsEndDate(e.target.value)}
+                  className="w-full bg-cream-100 border border-cream-200 rounded-lg px-3 py-2.5 text-sm text-wood-700"
+                />
+                {selectedPrediction.bloom_end?.date && (
+                  <p className="text-[10px] text-wood-400 mt-0.5">
+                    Previsto: {new Date(selectedPrediction.bloom_end.date).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })}
+                  </p>
+                )}
+              </div>
+
+              <button
+                type="button"
+                className="w-full bg-honey-500 text-white rounded-lg py-3 text-sm font-semibold disabled:opacity-50"
+                disabled={upsertObs.isPending}
+                onClick={async () => {
+                  if (!selectedApiaryId || !selectedSpeciesId) return
+                  await upsertObs.mutateAsync({
+                    apiary_id: selectedApiaryId,
+                    species_id: selectedSpeciesId,
+                    year,
+                    observed_start_date: obsStartDate || null,
+                    observed_end_date: obsEndDate || null,
+                  })
+                  if (session?.user?.id) {
+                    logActivity(session.user.id, 'insert', 'bloom_observation', null,
+                      `Osservazione fioritura: ${selectedSpecies.common_name_it} (${year})`
+                    )
+                  }
+                  setUsePersonalObs(true)
+                  setShowObsSheet(false)
+                }}
+              >
+                {upsertObs.isPending ? 'Salvataggio…' : 'Salva osservazione'}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
       {/* Help sheet */}
       {showHelp && (
         <>
@@ -332,8 +502,16 @@ function PrevisioniPage() {
             <div className="flex justify-center pt-2.5 pb-1 shrink-0">
               <span className="block w-9 h-1 rounded-full bg-cream-200" aria-hidden="true" />
             </div>
-            <div className="px-5 pt-2 pb-1 shrink-0">
+            <div className="px-5 pt-2 pb-1 shrink-0 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-wood-800">Come funzionano le previsioni</h2>
+              <button
+                type="button"
+                aria-label="Chiudi"
+                onClick={() => setShowHelp(false)}
+                className="size-8 flex items-center justify-center text-wood-500 hover:text-wood-700 hover:bg-cream-100 rounded-md transition-colors -mr-1"
+              >
+                <X size={20} strokeWidth={1.75} />
+              </button>
             </div>
             <div className="flex-1 overflow-y-auto px-5 pb-6 text-sm text-wood-600 leading-relaxed space-y-4">
               <section>

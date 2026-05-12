@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase'
 
-type EntityType = 'apiary' | 'hive' | 'treatment'
+type EntityType = 'apiary' | 'hive' | 'treatment' | 'bloom_observation'
 type Action = 'insert' | 'update' | 'delete'
 
 export async function logActivity(
