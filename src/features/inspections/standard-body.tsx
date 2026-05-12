@@ -31,12 +31,13 @@ interface StandardBodyProps {
   weather?: { temperature: number; summary: string } | null
   voiceNotes: VoiceNote[]
   isRecording: boolean
+  canRecord: boolean
   onStartRecording: () => void
   onStopRecording: () => void
   onDeleteVoiceNote: (id: string) => void
 }
 
-export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes, isRecording, onStartRecording, onStopRecording, onDeleteVoiceNote }: StandardBodyProps) {
+export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes, isRecording, canRecord, onStartRecording, onStopRecording, onDeleteVoiceNote }: StandardBodyProps) {
   const [noteOpen, setNoteOpen] = useState(false)
   const d = (key: string) => dirtyFields.has(key)
 
@@ -219,6 +220,7 @@ export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes
           dirty={d('notes')}
           voiceNotes={voiceNotes}
           isRecording={isRecording}
+          canRecord={canRecord}
           onStartRecording={onStartRecording}
           onStopRecording={onStopRecording}
           onDeleteVoiceNote={onDeleteVoiceNote}

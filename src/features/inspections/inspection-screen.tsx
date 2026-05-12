@@ -56,7 +56,7 @@ export function InspectionScreen({
   const { state, dirtyFields, mode, setMode, update, reset, markClean, hasChanges, showSheet, setShowSheet } =
     useInspectionForm({ prefillState, initialMode })
 
-  const { voiceNotes, isRecording, startRecording, stopRecording, removeVoiceNote, commit } =
+  const { voiceNotes, isRecording, canRecord, startRecording, stopRecording, removeVoiceNote, commit } =
     useVoiceNotes({ inspectionId: inspectionId ?? null })
 
   const [showMenu, setShowMenu] = useState(false)
@@ -184,6 +184,7 @@ export function InspectionScreen({
             onUpdate={update}
             voiceNotes={voiceNotes}
             isRecording={isRecording}
+            canRecord={canRecord}
             onStartRecording={startRecording}
             onStopRecording={stopRecording}
             onDeleteVoiceNote={removeVoiceNote}
@@ -196,6 +197,7 @@ export function InspectionScreen({
             weather={weather}
             voiceNotes={voiceNotes}
             isRecording={isRecording}
+            canRecord={canRecord}
             onStartRecording={startRecording}
             onStopRecording={stopRecording}
             onDeleteVoiceNote={removeVoiceNote}

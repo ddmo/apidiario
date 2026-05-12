@@ -52,7 +52,11 @@ export function useVoiceNotes({ inspectionId, initialNotes }: UseVoiceNotesOpts 
     return () => { cancelled = true }
   }, [inspectionId, initialNotes])
 
+  // iOS PWA standalone non supporta getUserMedia
+  const canRecord = typeof navigator.mediaDevices?.getUserMedia === 'function'
+
   const startRecording = useCallback(async () => {
+    if (!canRecord) return
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/aac'].find((m) => MediaRecorder.isTypeSupported(m)) ?? ''
@@ -147,5 +151,5 @@ export function useVoiceNotes({ inspectionId, initialNotes }: UseVoiceNotesOpts 
     [voiceNotes],
   )
 
-  return { voiceNotes, isRecording, startRecording, stopRecording, removeVoiceNote, commit }
+  return { voiceNotes, isRecording, canRecord, startRecording, stopRecording, removeVoiceNote, commit }
 }

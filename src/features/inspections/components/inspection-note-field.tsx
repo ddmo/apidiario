@@ -11,6 +11,7 @@ interface InspectionNoteFieldProps {
   dirty?: boolean
   voiceNotes: VoiceNote[]
   isRecording: boolean
+  canRecord: boolean
   onStartRecording: () => void
   onStopRecording: () => void
   onDeleteVoiceNote: (id: string) => void
@@ -24,6 +25,7 @@ export function InspectionNoteField({
   dirty = true,
   voiceNotes,
   isRecording,
+  canRecord,
   onStartRecording,
   onStopRecording,
   onDeleteVoiceNote,
@@ -47,7 +49,7 @@ export function InspectionNoteField({
             ? `${voiceNotes.length} nota${voiceNotes.length > 1 ? 'e' : ''} vocale${voiceNotes.length > 1 ? 'i' : ''}`
             : 'Aggiungi nota o detta…'}
         </span>
-        <Mic size={20} className="text-wood-400 shrink-0" />
+        {canRecord && <Mic size={20} className="text-wood-400 shrink-0" />}
       </button>
     )
   }
@@ -63,19 +65,21 @@ export function InspectionNoteField({
         className="w-full bg-transparent px-4 py-3 text-base text-wood-700 placeholder:text-wood-400 focus:outline-none resize-none"
       />
       <div className="flex items-center justify-between border-t border-cream-200 px-2 py-1.5">
-        <button
-          type="button"
-          aria-label={isRecording ? 'Ferma registrazione' : 'Inserisci nota vocale'}
-          onClick={isRecording ? onStopRecording : onStartRecording}
-          className={cn(
-            'size-9 flex items-center justify-center rounded transition-colors',
-            isRecording
-              ? 'text-danger-500 bg-danger-50 animate-pulse'
-              : 'text-wood-500 hover:text-wood-700',
-          )}
-        >
-          {isRecording ? <MicOff size={18} /> : <Mic size={18} />}
-        </button>
+        {canRecord && (
+          <button
+            type="button"
+            aria-label={isRecording ? 'Ferma registrazione' : 'Inserisci nota vocale'}
+            onClick={isRecording ? onStopRecording : onStartRecording}
+            className={cn(
+              'size-9 flex items-center justify-center rounded transition-colors',
+              isRecording
+                ? 'text-danger-500 bg-danger-50 animate-pulse'
+                : 'text-wood-500 hover:text-wood-700',
+            )}
+          >
+            {isRecording ? <MicOff size={18} /> : <Mic size={18} />}
+          </button>
+        )}
         <span className="text-xs text-wood-400 pr-2">
           {isRecording ? 'Registrazione…' : `${value.length} caratteri`}
         </span>

@@ -18,12 +18,13 @@ interface ExpressBodyProps {
   onUpdate: <K extends keyof InspectionFormState>(key: K, value: InspectionFormState[K]) => void
   voiceNotes: VoiceNote[]
   isRecording: boolean
+  canRecord: boolean
   onStartRecording: () => void
   onStopRecording: () => void
   onDeleteVoiceNote: (id: string) => void
 }
 
-export function ExpressBody({ state, dirtyFields, onUpdate, voiceNotes, isRecording, onStartRecording, onStopRecording, onDeleteVoiceNote }: ExpressBodyProps) {
+export function ExpressBody({ state, dirtyFields, onUpdate, voiceNotes, isRecording, canRecord, onStartRecording, onStopRecording, onDeleteVoiceNote }: ExpressBodyProps) {
   const [noteOpen, setNoteOpen] = useState(false)
   const d = (key: string) => dirtyFields.has(key)
 
@@ -81,6 +82,7 @@ export function ExpressBody({ state, dirtyFields, onUpdate, voiceNotes, isRecord
           dirty={d('notes')}
           voiceNotes={voiceNotes}
           isRecording={isRecording}
+          canRecord={canRecord}
           onStartRecording={onStartRecording}
           onStopRecording={onStopRecording}
           onDeleteVoiceNote={onDeleteVoiceNote}
