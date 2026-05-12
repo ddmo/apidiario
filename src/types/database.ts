@@ -812,6 +812,60 @@ export type Database = {
           },
         ]
       }
+      bloom_observations: {
+        Row: {
+          id: string
+          apiary_id: string
+          species_id: string
+          year: number
+          observed_start_date: string | null
+          observed_end_date: string | null
+          notes: string | null
+          user_id: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          apiary_id: string
+          species_id: string
+          year: number
+          observed_start_date?: string | null
+          observed_end_date?: string | null
+          notes?: string | null
+          user_id: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          apiary_id?: string
+          species_id?: string
+          year?: number
+          observed_start_date?: string | null
+          observed_end_date?: string | null
+          notes?: string | null
+          user_id?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bloom_observations_apiary_id_fkey"
+            columns: ["apiary_id"]
+            isOneToOne: false
+            referencedRelation: "apiaries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bloom_observations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
