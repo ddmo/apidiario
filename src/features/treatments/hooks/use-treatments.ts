@@ -273,20 +273,23 @@ export function useActiveMelariBlock(hiveId: string, apiaryId: string) {
     queryKey: ['activeMelariBlock', hiveId],
     queryFn: async () => {
       const today = new Date().toISOString().slice(0, 10)
-      // Check: treatment_hives specific to this hive
-      const { data: specific } = await supabase
+      // Check: treatment_hives for this hive → match active treatments
+      const { data: links } = await supabase
         .from('treatment_hives')
-        .select('treatment_id, treatments!inner(id, product_name, blocks_melari, applies_to_all_hives)')
+        .select('treatment_id')
         .eq('hive_id', hiveId)
-        .eq('treatments.blocks_melari', true)
-        .lte('treatments.start_date', today)
-        .or(`treatments.end_date.is.null,treatments.end_date.gte.${today}`)
-        .maybeSingle()
 
-      if (specific) {
-        const t = specific.treatments as any
-        const treatment = Array.isArray(t) ? t[0] : t
-        if (treatment) return { productName: treatment.product_name ?? '' }
+      if (links?.length) {
+        const ids = links.map((l) => l.treatment_id)
+        const { data: treatment } = await supabase
+          .from('treatments')
+          .select('id, product_name')
+          .in('id', ids)
+          .eq('blocks_melari', true)
+          .lte('start_date', today)
+          .or(`end_date.is.null,end_date.gte.${today}`)
+          .maybeSingle()
+        if (treatment) return { productName: treatment.product_name }
       }
 
       // Check: applies_to_all_hives for the hive's apiary
