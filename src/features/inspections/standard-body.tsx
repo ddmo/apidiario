@@ -37,9 +37,20 @@ interface StandardBodyProps {
   onStopRecording: () => void
   onPickAudioFile: () => void
   onDeleteVoiceNote: (id: string) => void
+  inspectionId: string | null
+  inspectionMedia: MediaItem[]
+  mediaUploading: boolean
+  onPickMediaFiles: () => void
+  onRemoveMedia: (id: string) => void
 }
 
-export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes, isRecording, canRecord, onStartRecording, onStopRecording, onPickAudioFile, onDeleteVoiceNote }: StandardBodyProps) {
+interface MediaItem {
+  id: string
+  media_type: string
+  signedUrl?: string
+}
+
+export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes, isRecording, canRecord, onStartRecording, onStopRecording, onPickAudioFile, onDeleteVoiceNote, inspectionId, inspectionMedia, mediaUploading, onPickMediaFiles, onRemoveMedia }: StandardBodyProps) {
   const [noteOpen, setNoteOpen] = useState(false)
   const d = (key: string) => dirtyFields.has(key)
 
@@ -201,15 +212,12 @@ export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes
 
       <section>
         <SectionLabel>Foto / video</SectionLabel>
-        <div className="grid grid-cols-3 gap-2">
-          <button
-            type="button"
-            className="aspect-square rounded-md border border-dashed border-cream-200 bg-cream-50 text-wood-500 flex flex-col items-center justify-center gap-1 hover:bg-cream-100 transition-colors"
-          >
-            <Camera size={22} />
-            <span className="text-xs font-medium">Aggiungi</span>
-          </button>
-        </div>
+        <InspectionMediaPicker
+          media={inspectionMedia}
+          uploading={mediaUploading}
+          onPickFiles={onPickMediaFiles}
+          onRemove={onRemoveMedia}
+        />
       </section>
 
       <section>

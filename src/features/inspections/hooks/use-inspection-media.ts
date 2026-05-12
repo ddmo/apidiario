@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { Tables } from '@/types/database'
 
@@ -7,17 +7,16 @@ type MediaRow = Tables<'inspection_media'> & { signedUrl?: string }
 export function useInspectionMedia(inspectionId: string | null) {
   const [media, setMedia] = useState<MediaRow[]>([])
   const [uploading, setUploading] = useState(false)
-  const fileInput = useRef<HTMLInputElement | null>(null)
-
   // Load existing media
   useEffect(() => {
-    if (!inspectionId) return
+    const id = inspectionId
+    if (!id) return
     let cancelled = false
     async function load() {
       const { data } = await supabase
         .from('inspection_media')
         .select('*')
-        .eq('inspection_id', inspectionId)
+        .eq('inspection_id', id)
         .order('created_at', { ascending: true })
       if (cancelled || !data) return
       const withUrls = await Promise.all(

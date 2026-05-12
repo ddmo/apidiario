@@ -1,4 +1,4 @@
-import { Camera, Loader2, X, Trash2, Play } from 'lucide-react'
+import { Camera, Loader2, X, Play } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 
