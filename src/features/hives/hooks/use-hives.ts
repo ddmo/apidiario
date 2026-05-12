@@ -268,9 +268,9 @@ export function useUpdateHive() {
       if (error) throw error
     },
     onSuccess: (_, variables) => {
-      void queryClient.invalidateQueries({ queryKey: ['hives', variables.apiaryId] })
-      void queryClient.invalidateQueries({ queryKey: ['hives', 'all'] })
-      void queryClient.invalidateQueries({ queryKey: ['hive'] })
+      void queryClient.invalidateQueries({ queryKey: ['hives', variables.apiaryId], refetchType: 'all' })
+      void queryClient.invalidateQueries({ queryKey: ['hives', 'all'], refetchType: 'all' })
+      void queryClient.invalidateQueries({ queryKey: ['hive', variables.hiveId], refetchType: 'all' })
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session?.user?.id) {
           void logActivity(session.user.id, 'update', 'hive', variables.hiveId, `Arnia "${variables.identifier}" modificata`)

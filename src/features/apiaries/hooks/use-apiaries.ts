@@ -251,7 +251,9 @@ export function useUpdateApiary() {
       if (error) throw error
     },
     onSuccess: (_data, variables) => {
-      void queryClient.invalidateQueries({ queryKey: ['apiaries'] })
+      void queryClient.invalidateQueries({ queryKey: ['apiaries'], refetchType: 'all' })
+      void queryClient.invalidateQueries({ queryKey: ['apiary', variables.apiaryId], refetchType: 'all' })
+      void queryClient.invalidateQueries({ queryKey: ['hives', 'all'], refetchType: 'all' })
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session?.user?.id) {
           void logActivity(session.user.id, 'update', 'apiary', variables.apiaryId, `Apiario "${variables.name}" modificato`)

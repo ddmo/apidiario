@@ -11,11 +11,12 @@ interface SegmentedControlProps {
   onChange: (value: string) => void
   ariaLabel: string
   dirty?: boolean
+  compact?: boolean
 }
 
-export function SegmentedControl({ options, value, onChange, ariaLabel, dirty = true }: SegmentedControlProps) {
+export function SegmentedControl({ options, value, onChange, ariaLabel, dirty = true, compact = false }: SegmentedControlProps) {
   return (
-    <div role="radiogroup" aria-label={ariaLabel} className="flex items-center bg-cream-200 p-1 rounded-md w-full">
+    <div role="radiogroup" aria-label={ariaLabel} className={`flex items-center bg-cream-200 p-1 rounded-md ${compact ? '' : 'w-full'}`}>
       {options.map((opt) => {
         const active = opt.value === value
         return (
@@ -26,7 +27,8 @@ export function SegmentedControl({ options, value, onChange, ariaLabel, dirty = 
             aria-checked={active}
             onClick={() => onChange(opt.value)}
             className={cn(
-              'flex-1 h-10 px-3 text-sm font-medium rounded transition-colors duration-150',
+              'flex-1 rounded transition-colors duration-150',
+              compact ? 'h-7 text-xs px-2 font-medium' : 'h-10 px-3 text-sm font-medium',
               active && dirty && 'bg-cream-50 shadow-xs text-wood-800',
               active && !dirty && 'bg-cream-50/60 text-wood-700 border border-dashed border-honey-500/60',
               !active && 'text-wood-500 hover:text-wood-700',

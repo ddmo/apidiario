@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { ArrowLeft, Box, CloudSun, Plus } from 'lucide-react'
+import { ArrowLeft, Box, CloudSun, LayoutList, PanelLeft, Plus } from 'lucide-react'
 import { SuggestionsButton } from '@/features/suggestions/components/suggestions-button'
 import { useApiarySuggestions } from '@/features/suggestions/hooks/use-apiary-suggestions'
 import { useApiary } from '@/features/apiaries/hooks/use-apiaries'
@@ -25,6 +25,10 @@ function ApiaryDetailPage() {
   const { data: suggestions } = useApiarySuggestions(apiaryId)
 
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [showSchematic, setShowSchematic] = useState(() => {
+    const saved = localStorage.getItem('hiveCardView')
+    return saved ? saved === 'schematic' : true
+  })
 
   function handleDelete(hiveId: string) {
     deleteHive(hiveId, {
@@ -36,7 +40,7 @@ function ApiaryDetailPage() {
 
   return (
     <div className="flex flex-col h-full bg-cream-50">
-      <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2">
+      <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-1">
         <button
           type="button"
           aria-label="Indietro"
@@ -49,13 +53,25 @@ function ApiaryDetailPage() {
           {apiary?.name ?? '…'}
         </h1>
         <span className="flex items-center gap-0.5">
+          <button
+            type="button"
+            aria-label={showSchematic ? 'Vista compatta' : 'Vista schematica'}
+            onClick={() => setShowSchematic((v) => {
+              const next = !v
+              localStorage.setItem('hiveCardView', next ? 'schematic' : 'compact')
+              return next
+            })}
+            className="size-9 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
+          >
+            {showSchematic ? <LayoutList size={18} strokeWidth={1.75} /> : <PanelLeft size={18} strokeWidth={1.75} />}
+          </button>
           {apiary?.latitude != null && apiary?.longitude != null && (
             <Link
               to="/apiaries/$apiaryId/meteo"
               params={{ apiaryId }}
-              className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
+              className="size-9 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
             >
-              <CloudSun size={22} strokeWidth={1.75} />
+              <CloudSun size={18} strokeWidth={1.75} />
             </Link>
           )}
           <SuggestionsButton
@@ -82,7 +98,7 @@ function ApiaryDetailPage() {
           <ul className="px-4 pt-4 flex flex-col gap-3">
             {hives.map((hive) => (
               <li key={hive.id}>
-                <HiveCard hive={hive} onDelete={(id) => setDeleteId(id)} />
+                <HiveCard hive={hive} showSchematic={showSchematic} onDelete={(id) => setDeleteId(id)} />
               </li>
             ))}
           </ul>
