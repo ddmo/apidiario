@@ -54,6 +54,7 @@ interface MediaItem {
 interface PendingMediaItem {
   id: string
   previewUrl: string
+  file: File
 }
 
 export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes, isRecording, canRecord, onStartRecording, onStopRecording, onPickAudioFile, onDeleteVoiceNote, inspectionMedia, pendingMedia, mediaUploading, onPickMediaFiles, onRemoveMedia, onRemovePendingMedia }: StandardBodyProps) {
