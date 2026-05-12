@@ -21,10 +21,11 @@ interface ExpressBodyProps {
   canRecord: boolean
   onStartRecording: () => void
   onStopRecording: () => void
+  onPickAudioFile: () => void
   onDeleteVoiceNote: (id: string) => void
 }
 
-export function ExpressBody({ state, dirtyFields, onUpdate, voiceNotes, isRecording, canRecord, onStartRecording, onStopRecording, onDeleteVoiceNote }: ExpressBodyProps) {
+export function ExpressBody({ state, dirtyFields, onUpdate, voiceNotes, isRecording, canRecord, onStartRecording, onStopRecording, onPickAudioFile, onDeleteVoiceNote }: ExpressBodyProps) {
   const [noteOpen, setNoteOpen] = useState(false)
   const d = (key: string) => dirtyFields.has(key)
 
@@ -85,6 +86,7 @@ export function ExpressBody({ state, dirtyFields, onUpdate, voiceNotes, isRecord
           canRecord={canRecord}
           onStartRecording={onStartRecording}
           onStopRecording={onStopRecording}
+          onPickAudioFile={onPickAudioFile}
           onDeleteVoiceNote={onDeleteVoiceNote}
         />
       </section>

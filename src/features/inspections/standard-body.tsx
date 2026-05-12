@@ -34,10 +34,11 @@ interface StandardBodyProps {
   canRecord: boolean
   onStartRecording: () => void
   onStopRecording: () => void
+  onPickAudioFile: () => void
   onDeleteVoiceNote: (id: string) => void
 }
 
-export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes, isRecording, canRecord, onStartRecording, onStopRecording, onDeleteVoiceNote }: StandardBodyProps) {
+export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes, isRecording, canRecord, onStartRecording, onStopRecording, onPickAudioFile, onDeleteVoiceNote }: StandardBodyProps) {
   const [noteOpen, setNoteOpen] = useState(false)
   const d = (key: string) => dirtyFields.has(key)
 
@@ -223,6 +224,7 @@ export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes
           canRecord={canRecord}
           onStartRecording={onStartRecording}
           onStopRecording={onStopRecording}
+          onPickAudioFile={onPickAudioFile}
           onDeleteVoiceNote={onDeleteVoiceNote}
         />
       </section>

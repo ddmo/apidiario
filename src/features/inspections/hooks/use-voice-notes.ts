@@ -97,12 +97,34 @@ export function useVoiceNotes({ inspectionId, initialNotes }: UseVoiceNotesOpts 
     setIsRecording(false)
   }, [])
 
+  // Fallback iOS PWA: file picker per allegare audio da Memo Vocali
+  const pickAudioFile = useCallback(() => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'audio/*'
+    input.onchange = () => {
+      const file = input.files?.[0]
+      if (!file) return
+      const id = nextId()
+      const url = URL.createObjectURL(file)
+      // Determine a reasonable duration from file size (rough estimate)
+      const estimatedDuration = Math.max(1, Math.round(file.size / 16000))
+      const note: VoiceNote = { id, blob: file, url, durationSeconds: estimatedDuration, pending: true }
+      setVoiceNotes((prev) => [...prev, note])
+      if (inspectionId) {
+        uploadNote(note, inspectionId)
+      }
+    }
+    input.click()
+  }, [inspectionId])
+
   const uploadNote = async (note: VoiceNote, inspId: string) => {
     if (!note.blob) return
-    const path = `inspections/${inspId}/voice-notes/${note.id}.webm`
+    const ext = note.blob.type.includes('mp4') ? 'm4a' : note.blob.type.includes('aac') ? 'aac' : 'webm'
+    const path = `inspections/${inspId}/voice-notes/${note.id}.${ext}`
     const { error } = await supabase.storage
       .from('apidiario-media')
-      .upload(path, note.blob, { contentType: 'audio/webm', upsert: true })
+      .upload(path, note.blob, { contentType: note.blob.type || 'audio/webm', upsert: true })
     if (error) {
       console.error('Voice note upload failed', error)
       return
@@ -151,5 +173,5 @@ export function useVoiceNotes({ inspectionId, initialNotes }: UseVoiceNotesOpts 
     [voiceNotes],
   )
 
-  return { voiceNotes, isRecording, canRecord, startRecording, stopRecording, removeVoiceNote, commit }
+  return { voiceNotes, isRecording, canRecord, startRecording, stopRecording, pickAudioFile, removeVoiceNote, commit }
 }
