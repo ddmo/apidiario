@@ -65,6 +65,7 @@ export function InspectionScreen({
     uploading: mediaUploading,
     pickFiles: pickMediaFiles,
     removeMedia,
+    commit: commitMedia,
   } = useInspectionMedia(inspectionId ?? null)
 
   const [showMenu, setShowMenu] = useState(false)
@@ -88,7 +89,10 @@ export function InspectionScreen({
   }
 
   async function handleSave() {
-    await onSave(state, mode, commit)
+    await onSave(state, mode, async (id) => {
+      await commit(id)
+      await commitMedia(id)
+    })
     markClean()
   }
 
