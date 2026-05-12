@@ -9,10 +9,9 @@ export function useInspectionMedia(inspectionId: string | null) {
   const [uploading, setUploading] = useState(false)
   // Load existing media
   useEffect(() => {
-    const id = inspectionId
-    if (!id) return
+    if (!inspectionId) return
     let cancelled = false
-    async function load() {
+    async function load(id: string) {
       const { data } = await supabase
         .from('inspection_media')
         .select('*')
@@ -29,7 +28,7 @@ export function useInspectionMedia(inspectionId: string | null) {
       )
       setMedia(withUrls)
     }
-    load()
+    load(inspectionId)
     return () => { cancelled = true }
   }, [inspectionId])
 

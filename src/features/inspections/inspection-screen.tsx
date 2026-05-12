@@ -211,7 +211,6 @@ export function InspectionScreen({
             onStopRecording={stopRecording}
             onPickAudioFile={pickAudioFile}
             onDeleteVoiceNote={removeVoiceNote}
-            inspectionId={inspectionId ?? null}
             inspectionMedia={inspectionMedia}
             mediaUploading={mediaUploading}
             onPickMediaFiles={pickMediaFiles}
