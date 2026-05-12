@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, MapPin, Flower2, ChevronDown } from 'lucide-react'
+import { ArrowLeft, MapPin, Flower2, ChevronDown, HelpCircle } from 'lucide-react'
 import {
   usePhenologySpecies,
   useWeatherData,
@@ -54,6 +54,7 @@ function PrevisioniPage() {
   const [forecastLat, setForecastLat] = useState<number | null>(null)
   const [forecastLng, setForecastLng] = useState<number | null>(null)
   const [year] = useState(() => new Date().getFullYear())
+  const [showHelp, setShowHelp] = useState(false)
 
   const { data: apiaries = [] } = useQuery({
     queryKey: ['apiaries-with-coords'],
@@ -101,6 +102,14 @@ function PrevisioniPage() {
         <h1 className="text-base font-semibold text-wood-800 tracking-tight flex-1 px-1">
           Previsioni fioriture
         </h1>
+        <button
+          type="button"
+          aria-label="Come funziona"
+          onClick={() => setShowHelp(true)}
+          className="size-11 flex items-center justify-center text-wood-500 hover:text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
+        >
+          <HelpCircle size={22} strokeWidth={1.75} />
+        </button>
       </header>
 
       <div className="flex-1 overflow-y-auto px-4 py-4">
@@ -309,6 +318,73 @@ function PrevisioniPage() {
           )}
         </div>
       </div>
+
+      {/* Help sheet */}
+      {showHelp && (
+        <>
+          <div className="fixed inset-0 z-30 bg-wood-900/40" onClick={() => setShowHelp(false)} aria-hidden="true" />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Come funzionano le previsioni"
+            className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg max-h-[80dvh] flex flex-col"
+          >
+            <div className="flex justify-center pt-2.5 pb-1 shrink-0">
+              <span className="block w-9 h-1 rounded-full bg-cream-200" aria-hidden="true" />
+            </div>
+            <div className="px-5 pt-2 pb-1 shrink-0">
+              <h2 className="text-lg font-semibold text-wood-800">Come funzionano le previsioni</h2>
+            </div>
+            <div className="flex-1 overflow-y-auto px-5 pb-6 text-sm text-wood-600 leading-relaxed space-y-4">
+              <section>
+                <h3 className="font-semibold text-wood-700 mb-1">GDD — Gradi Giorno di Sviluppo</h3>
+                <p>
+                  I GDD (Growing Degree Days) sono un indice che misura l'accumulo di calore necessario
+                  affinché una pianta completi le fasi del suo ciclo fenologico. Si calcolano giorno per giorno
+                  sottraendo la temperatura di base (sotto la quale la pianta non si sviluppa) dalla
+                  temperatura media giornaliera.
+                </p>
+              </section>
+              <section>
+                <h3 className="font-semibold text-wood-700 mb-1">Formula</h3>
+                <p className="font-mono text-xs bg-cream-100 border border-cream-200 rounded-md p-3 text-wood-600">
+                  GDD_giornaliero = max(0, (T_max + T_min) / 2 − T_base)
+                </p>
+                <p className="mt-1">
+                  Dove T<sub>max</sub> e T<sub>min</sub> sono le temperature massima e minima del giorno,
+                  e T<sub>base</sub> è la temperatura soglia specifica per ogni specie (tipicamente 10°C).
+                  I GDD si accumulano a partire dal 1° gennaio di ogni anno.
+                </p>
+              </section>
+              <section>
+                <h3 className="font-semibold text-wood-700 mb-1">Fasi della fioritura</h3>
+                <ul className="space-y-1.5">
+                  <li><span className="font-medium text-wood-700">Pre-fioritura</span> — la pianta sta accumulando calore ma non ha ancora raggiunto la soglia di inizio fioritura.</li>
+                  <li><span className="font-medium text-wood-700">Inizio fioritura</span> — sono stati accumulati abbastanza GDD per avviare la fioritura (soglia <em>gdd_bloom_start</em>).</li>
+                  <li><span className="font-medium text-wood-700">Picco fioritura</span> — massima attività floreale, raggiunto alla soglia <em>gdd_bloom_peak</em>.</li>
+                  <li><span className="font-medium text-wood-700">Post-fioritura</span> — la fioritura sta terminando; i GDD accumulati hanno superato la soglia <em>gdd_bloom_end</em>.</li>
+                </ul>
+              </section>
+              <section>
+                <h3 className="font-semibold text-wood-700 mb-1">Fonti dati</h3>
+                <p>
+                  I dati meteo provengono da <strong>Open-Meteo</strong>, un servizio gratuito che fornisce
+                  temperature storiche e stimate per le coordinate dell'apiario selezionato. Le soglie GDD
+                  per ogni specie sono definite nel database e si basano su dati bibliografici.
+                </p>
+              </section>
+              <section>
+                <h3 className="font-semibold text-wood-700 mb-1">Limitazioni</h3>
+                <p>
+                  Le previsioni sono una stima basata su medie storiche e dati meteorologici generici.
+                  Microclimi locali, altitudine, esposizione e pratiche di gestione possono influenzare
+                  le date reali di fioritura. Usa le previsioni come riferimento, non come dato certo.
+                </p>
+              </section>
+            </div>
+          </div>
+        </>
+      )}
     </main>
   )
 }
