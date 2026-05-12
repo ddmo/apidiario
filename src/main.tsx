@@ -10,8 +10,23 @@ import '@/app.css'
 applyTheme()
 
 // Prevent pinch-to-zoom on iOS Safari (ignores user-scalable=no since iOS 10)
-document.addEventListener('gesturestart', (e) => e.preventDefault(), { passive: false })
-document.addEventListener('gesturechange', (e) => e.preventDefault(), { passive: false })
+// NB: gesturestart/gesturechange NON bloccati su input/textarea — necessario per dettatura iOS
+document.addEventListener('gesturestart', (e) => {
+  const tag = (e.target as HTMLElement)?.tagName?.toLowerCase()
+  if (tag === 'input' || tag === 'textarea') {
+    console.log('[gesturestart] su input — permesso per dettatura')
+    return
+  }
+  e.preventDefault()
+}, { passive: false })
+document.addEventListener('gesturechange', (e) => {
+  const tag = (e.target as HTMLElement)?.tagName?.toLowerCase()
+  if (tag === 'input' || tag === 'textarea') {
+    console.log('[gesturechange] su input — permesso per dettatura')
+    return
+  }
+  e.preventDefault()
+}, { passive: false })
 document.addEventListener('touchmove', (e) => {
   if (e.touches.length > 1) {
     const target = e.target as HTMLElement | null
