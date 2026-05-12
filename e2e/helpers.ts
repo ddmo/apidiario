@@ -17,7 +17,7 @@ async function login(page: Page) {
   await page.fill('input[type="email"]', email)
   await page.fill('input[type="password"]', password)
   await page.click('button[type="submit"]')
-  await page.waitForURL(/\/apiari$|\/$/, { timeout: 15000 })
+  await page.waitForURL(/\/$/, { timeout: 15000 })
 }
 
 /**
