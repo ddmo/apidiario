@@ -9,6 +9,7 @@ import { FormSubmitBar } from './components/form-submit-bar'
 import { UnsavedChangesSheet } from './components/unsaved-changes-sheet'
 import { useInspectionForm } from './use-inspection-form'
 import { useVoiceNotes } from './hooks/use-voice-notes'
+import { useInspectionMedia } from './hooks/use-inspection-media'
 import type { InspectionFormState, InspectionMode } from './types'
 
 const MODE_OPTIONS = [
@@ -58,6 +59,13 @@ export function InspectionScreen({
 
   const { voiceNotes, isRecording, canRecord, startRecording, stopRecording, pickAudioFile, removeVoiceNote, commit } =
     useVoiceNotes({ inspectionId: inspectionId ?? null })
+
+  const {
+    media: inspectionMedia,
+    uploading: mediaUploading,
+    pickFiles: pickMediaFiles,
+    removeMedia,
+  } = useInspectionMedia(inspectionId ?? null)
 
   const [showMenu, setShowMenu] = useState(false)
   const [showDeleteSheet, setShowDeleteSheet] = useState(false)
@@ -203,6 +211,11 @@ export function InspectionScreen({
             onStopRecording={stopRecording}
             onPickAudioFile={pickAudioFile}
             onDeleteVoiceNote={removeVoiceNote}
+            inspectionId={inspectionId ?? null}
+            inspectionMedia={inspectionMedia}
+            mediaUploading={mediaUploading}
+            onPickMediaFiles={pickMediaFiles}
+            onRemoveMedia={removeMedia}
           />
         )}
       </div>

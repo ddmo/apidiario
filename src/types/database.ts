@@ -313,6 +313,38 @@ export type Database = {
           },
         ]
       }
+      inspection_media: {
+        Row: {
+          created_at: string
+          id: string
+          inspection_id: string
+          media_type: string
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          inspection_id: string
+          media_type: string
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          inspection_id?: string
+          media_type?: string
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspection_media_inspection_id_fkey"
+            columns: ["inspection_id"]
+            isOneToOne: false
+            referencedRelation: "inspections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inspections: {
         Row: {
           behavior: Database["public"]["Enums"]["behavior_type"] | null
