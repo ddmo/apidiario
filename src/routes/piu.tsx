@@ -2,7 +2,7 @@ import { createFileRoute, redirect, Link, useNavigate } from '@tanstack/react-ro
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
-import { ArrowLeft, Shield, LogOut, Sun, Moon, Monitor, User, Database, Flower2, Activity } from 'lucide-react'
+import { ArrowLeft, Shield, LogOut, Sun, Moon, Monitor, User, Database, Flower2, Activity, BarChart3 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { setThemeMode, getThemeMode, type ThemeMode } from '@/lib/theme'
 import { t } from '@/i18n/it'
@@ -97,6 +97,14 @@ function PiuPage() {
           >
             <Flower2 size={20} className="text-honey-600 shrink-0" />
             <span className="text-sm font-medium">Previsioni fioriture</span>
+          </Link>
+
+          <Link
+            to="/statistiche"
+            className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3 text-wood-800 hover:bg-cream-200 transition-colors"
+          >
+            <BarChart3 size={20} className="text-honey-600 shrink-0" />
+            <span className="text-sm font-medium">Statistiche</span>
           </Link>
 
           {isAdmin && (

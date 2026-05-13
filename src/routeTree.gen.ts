@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StatisticheRouteImport } from './routes/statistiche'
 import { Route as SetPasswordRouteImport } from './routes/set-password'
 import { Route as PrevisioniRouteImport } from './routes/previsioni'
 import { Route as PiuRouteImport } from './routes/piu'
@@ -35,6 +36,11 @@ import { Route as HivesHiveIdInspectionsInspectionIdRouteImport } from './routes
 import { Route as ApiariesApiaryIdHivesNewRouteImport } from './routes/apiaries.$apiaryId.hives.new'
 import { Route as AuthHivesHiveIdInspectionsRouteImport } from './routes/_auth.hives.$hiveId.inspections'
 
+const StatisticheRoute = StatisticheRouteImport.update({
+  id: '/statistiche',
+  path: '/statistiche',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SetPasswordRoute = SetPasswordRouteImport.update({
   id: '/set-password',
   path: '/set-password',
@@ -171,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/piu': typeof PiuRoute
   '/previsioni': typeof PrevisioniRoute
   '/set-password': typeof SetPasswordRoute
+  '/statistiche': typeof StatisticheRoute
   '/arnie': typeof AuthArnieRoute
   '/calendario': typeof AuthCalendarioRoute
   '/home': typeof AuthHomeRoute
@@ -196,6 +203,7 @@ export interface FileRoutesByTo {
   '/piu': typeof PiuRoute
   '/previsioni': typeof PrevisioniRoute
   '/set-password': typeof SetPasswordRoute
+  '/statistiche': typeof StatisticheRoute
   '/arnie': typeof AuthArnieRoute
   '/calendario': typeof AuthCalendarioRoute
   '/home': typeof AuthHomeRoute
@@ -224,6 +232,7 @@ export interface FileRoutesById {
   '/piu': typeof PiuRoute
   '/previsioni': typeof PrevisioniRoute
   '/set-password': typeof SetPasswordRoute
+  '/statistiche': typeof StatisticheRoute
   '/_auth/arnie': typeof AuthArnieRoute
   '/_auth/calendario': typeof AuthCalendarioRoute
   '/_auth/home': typeof AuthHomeRoute
@@ -253,6 +262,7 @@ export interface FileRouteTypes {
     | '/piu'
     | '/previsioni'
     | '/set-password'
+    | '/statistiche'
     | '/arnie'
     | '/calendario'
     | '/home'
@@ -278,6 +288,7 @@ export interface FileRouteTypes {
     | '/piu'
     | '/previsioni'
     | '/set-password'
+    | '/statistiche'
     | '/arnie'
     | '/calendario'
     | '/home'
@@ -305,6 +316,7 @@ export interface FileRouteTypes {
     | '/piu'
     | '/previsioni'
     | '/set-password'
+    | '/statistiche'
     | '/_auth/arnie'
     | '/_auth/calendario'
     | '/_auth/home'
@@ -333,6 +345,7 @@ export interface RootRouteChildren {
   PiuRoute: typeof PiuRoute
   PrevisioniRoute: typeof PrevisioniRoute
   SetPasswordRoute: typeof SetPasswordRoute
+  StatisticheRoute: typeof StatisticheRoute
   AdminAttivitaRoute: typeof AdminAttivitaRoute
   AdminUsersRoute: typeof AdminUsersRoute
   ApiariesNewRoute: typeof ApiariesNewRoute
@@ -350,6 +363,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/statistiche': {
+      id: '/statistiche'
+      path: '/statistiche'
+      fullPath: '/statistiche'
+      preLoaderRoute: typeof StatisticheRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/set-password': {
       id: '/set-password'
       path: '/set-password'
@@ -556,6 +576,7 @@ const rootRouteChildren: RootRouteChildren = {
   PiuRoute: PiuRoute,
   PrevisioniRoute: PrevisioniRoute,
   SetPasswordRoute: SetPasswordRoute,
+  StatisticheRoute: StatisticheRoute,
   AdminAttivitaRoute: AdminAttivitaRoute,
   AdminUsersRoute: AdminUsersRoute,
   ApiariesNewRoute: ApiariesNewRoute,
