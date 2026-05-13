@@ -21,11 +21,9 @@ function EditApiaryPage() {
   const { session } = useAuth()
   const { data: apiary, isLoading } = useApiary(apiaryId)
 
-  if (!session?.user?.id) return null
-
   return (
     <div className="flex flex-col h-dvh bg-cream-50">
-      {isLoading ? (
+      {!session?.user?.id || isLoading ? (
         <div className="flex items-center justify-center h-40 text-sm text-wood-400">
           Caricamento…
         </div>

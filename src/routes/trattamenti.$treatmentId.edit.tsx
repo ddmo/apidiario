@@ -22,14 +22,14 @@ function EditTreatmentPage() {
   const { showToast } = useToast()
   const router = useRouter()
 
-  if (!session?.user?.id) return null
-  if (isLoading || !treatment) {
+  if (!session?.user?.id || isLoading) {
     return (
-      <div className="flex flex-col h-dvh bg-cream-50">
-        <div className="flex items-center justify-center h-40 text-sm text-wood-400">Caricamento…</div>
+      <div className="flex flex-col h-dvh bg-cream-50 items-center justify-center">
+        <div className="text-sm text-wood-400">Caricamento…</div>
       </div>
     )
   }
+  if (!treatment) return null
 
   function handleSave(data: TreatmentFormData) {
     updateTreatment(

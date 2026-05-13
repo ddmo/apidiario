@@ -32,9 +32,7 @@ function EditHivePage() {
     staleTime: 5 * 60 * 1000,
   })
 
-  if (!session?.user?.id) return null
-
-  if (isLoading) {
+  if (!session?.user?.id || isLoading) {
     return (
       <div className="flex flex-col h-dvh bg-cream-50 items-center justify-center">
         <div className="text-sm text-wood-400">Caricamento…</div>
