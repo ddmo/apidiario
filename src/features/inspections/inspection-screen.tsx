@@ -64,7 +64,6 @@ export function InspectionScreen({
     media: inspectionMedia,
     pendingMedia,
     uploading: mediaUploading,
-    pickFiles: pickMediaFiles,
     handleMediaFiles: onMediaFilesSelected,
     removeMedia,
     removePending,
@@ -221,7 +220,6 @@ export function InspectionScreen({
             inspectionMedia={inspectionMedia}
             pendingMedia={pendingMedia}
             mediaUploading={mediaUploading}
-            onPickMediaFiles={pickMediaFiles}
             onMediaFilesSelected={onMediaFilesSelected}
             onRemoveMedia={removeMedia}
             onRemovePendingMedia={removePending}

@@ -40,7 +40,6 @@ interface StandardBodyProps {
   inspectionMedia: MediaItem[]
   pendingMedia: PendingMediaItem[]
   mediaUploading: boolean
-  onPickMediaFiles: () => void
   onMediaFilesSelected: (files: File[]) => void
   onRemoveMedia: (id: string) => void
   onRemovePendingMedia: (id: string) => void
@@ -58,7 +57,7 @@ interface PendingMediaItem {
   file: File
 }
 
-export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes, isRecording, canRecord, onStartRecording, onStopRecording, onPickAudioFile, onDeleteVoiceNote, inspectionMedia, pendingMedia, mediaUploading, onPickMediaFiles, onMediaFilesSelected, onRemoveMedia, onRemovePendingMedia }: StandardBodyProps) {
+export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes, isRecording, canRecord, onStartRecording, onStopRecording, onPickAudioFile, onDeleteVoiceNote, inspectionMedia, pendingMedia, mediaUploading, onMediaFilesSelected, onRemoveMedia, onRemovePendingMedia }: StandardBodyProps) {
   const [noteOpen, setNoteOpen] = useState(false)
   const d = (key: string) => dirtyFields.has(key)
 
