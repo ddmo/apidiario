@@ -53,6 +53,8 @@ export function useApiary(apiaryId: string) {
       return { ...data, photoUrl } as ApiaryDetail
     },
     enabled: !!apiaryId,
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,
   })
 }
 

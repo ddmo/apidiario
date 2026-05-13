@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { MapContainer, TileLayer, Circle, useMap } from 'react-leaflet'
-import { X, LocateFixed, Maximize2 } from 'lucide-react'
+import { X, LocateFixed, Maximize2, Satellite, Map as MapIcon } from 'lucide-react'
 import L from 'leaflet'
 import { Button } from '@/components/ui/button'
 import 'leaflet/dist/leaflet.css'
@@ -102,6 +102,7 @@ export function MapPickerSheet({ open, onClose, onConfirm, initialLat, initialLn
   const [geolocating, setGeolocating] = useState(false)
   const [flyTarget, setFlyTarget] = useState<{ lat: number; lng: number } | null>(null)
   const [zoomFitTrigger, setZoomFitTrigger] = useState(0)
+  const [satellite, setSatellite] = useState(false)
 
   const mapCenter = initialLat != null && initialLng != null
     ? { lat: initialLat, lng: initialLng }
@@ -170,6 +171,14 @@ export function MapPickerSheet({ open, onClose, onConfirm, initialLat, initialLn
         </button>
         <button
           type="button"
+          onClick={() => setSatellite((v) => !v)}
+          className={`size-11 flex items-center justify-center rounded-md transition-colors ${satellite ? 'bg-honey-300/60 text-honey-700' : 'text-wood-700 hover:bg-cream-100'}`}
+          aria-label={satellite ? 'Mappa standard' : 'Satellite'}
+        >
+          {satellite ? <MapIcon size={20} strokeWidth={1.75} /> : <Satellite size={20} strokeWidth={1.75} />}
+        </button>
+        <button
+          type="button"
           onClick={handleLocate}
           disabled={geolocating}
           className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors disabled:opacity-50"
@@ -189,10 +198,17 @@ export function MapPickerSheet({ open, onClose, onConfirm, initialLat, initialLn
             zoomControl={false}
             attributionControl={false}
           >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
+            {satellite ? (
+              <TileLayer
+                attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
+                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+              />
+            ) : (
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+            )}
             {center && (
               <Circle
                 center={[center.lat, center.lng]}

@@ -28,10 +28,21 @@ function EditHivePage() {
       if (error) throw error
       return data
     },
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,
   })
 
   if (!session?.user?.id) return null
-  if (isLoading || !hive) return null
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col h-dvh bg-cream-50 items-center justify-center">
+        <div className="text-sm text-wood-400">Caricamento…</div>
+      </div>
+    )
+  }
+
+  if (!hive) return null
 
   const goToInspections = () => void navigate({ to: '/hives/$hiveId/inspections', params: { hiveId } })
 

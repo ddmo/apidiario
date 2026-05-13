@@ -134,6 +134,8 @@ export function useTreatment(id: string) {
       }
     },
     enabled: !!id,
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,
   })
 }
 

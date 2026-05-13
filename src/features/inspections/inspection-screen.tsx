@@ -152,11 +152,11 @@ export function InspectionScreen({
                     onClick={() => setShowMenu(false)}
                     aria-hidden="true"
                   />
-                  <div className="absolute right-0 top-full mt-1 z-30 bg-cream-50 border border-cream-200 rounded-xl shadow-lg min-w-[160px] overflow-hidden">
+                  <div className="absolute right-0 top-full mt-1 z-30 bg-cream-50 border border-cream-200 rounded-xl shadow-lg min-w-[200px] overflow-hidden">
                     <button
                       type="button"
                       onClick={() => { setShowMenu(false); setShowDeleteSheet(true) }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-danger-500 hover:bg-cream-100 transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium whitespace-nowrap text-danger-500 hover:bg-cream-100 transition-colors"
                     >
                       <Trash2 size={16} />
                       Elimina ispezione
