@@ -99,7 +99,7 @@ function StatistichePage() {
             >
               <Icon size={24} className={`${color} shrink-0`} />
               <span className="text-2xl font-semibold text-wood-800 tabular-nums">
-                {value !== undefined ? value.toLocaleString('it-IT') : '…'}
+                {value != null ? value.toLocaleString('it-IT') : '…'}
               </span>
               <span className="text-xs text-wood-500">{label}</span>
             </div>

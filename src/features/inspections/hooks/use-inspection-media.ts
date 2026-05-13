@@ -15,7 +15,9 @@ async function uploadFiles(files: { file: File }[], inspId: string): Promise<Med
   const newMedia: MediaRow[] = []
   console.log('[mediaUpload] uploadFiles start, files:', files.length, 'inspId:', inspId)
   for (let i = 0; i < files.length; i++) {
-    const { file } = files[i]
+    const item = files[i]
+    if (!item) continue
+    const { file } = item
     const id = crypto.randomUUID()
     const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
     const mediaType = file.type.startsWith('video/') ? 'video' : 'image'
