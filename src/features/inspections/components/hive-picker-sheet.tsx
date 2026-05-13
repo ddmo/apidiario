@@ -15,13 +15,14 @@ export function HivePickerSheet({ open, onClose }: HivePickerSheetProps) {
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
 
   const { data: apiaries, isPending: loadingApiaries } = useQuery({
-    queryKey: ['apiaries'],
+    queryKey: ['apiaries-picker'],
     queryFn: async () => {
       const { data, error } = await supabase.from('apiaries').select('id, name').order('name')
       if (error) throw error
       return data
     },
     enabled: open,
+    staleTime: 60 * 1000,
   })
 
   const { data: hives, isPending: loadingHives } = useQuery({
