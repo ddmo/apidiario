@@ -1,7 +1,6 @@
 import { Camera, Clock, Loader2, X, Play } from 'lucide-react'
 import { useState, useRef } from 'react'
 import { cn } from '@/lib/utils'
-import { useToast } from '@/hooks/use-toast'
 import type { PendingMediaItem } from '../hooks/use-inspection-media'
 
 interface MediaItem {
@@ -23,7 +22,6 @@ interface InspectionMediaPickerProps {
 export function InspectionMediaPicker({ media, pendingMedia, uploading, onPickFiles, onFilesSelected, onRemove, onRemovePending }: InspectionMediaPickerProps) {
   const [preview, setPreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { showToast } = useToast()
 
   return (
     <>
