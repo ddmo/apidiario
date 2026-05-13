@@ -1,8 +1,16 @@
 import { createFileRoute, redirect, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import { ArrowLeft, TreePine, Hexagon, ClipboardList, Syringe, Users, HardDrive, Database } from 'lucide-react'
+import { ArrowLeft, TreePine, Hexagon, ClipboardList, Syringe, Users, HardDrive, Database, Mic } from 'lucide-react'
 import { useState, useEffect } from 'react'
+
+function fmtBytes(bytes: number): string {
+  if (bytes === 0) return '0 B'
+  const units = ['B', 'KB', 'MB', 'GB']
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1)
+  const v = bytes / Math.pow(1024, i)
+  return `${v.toFixed(i === 0 ? 0 : 1)} ${units[i]}`
+}
 
 export const Route = createFileRoute('/statistiche')({
   beforeLoad: async () => {
@@ -51,6 +59,24 @@ function StatistichePage() {
     },
   })
 
+  const { data: audioCount } = useQuery({
+    queryKey: ['stats', 'audio'],
+    queryFn: async () => {
+      const { count } = await supabase.from('inspection_voice_notes').select('*', { count: 'exact', head: true })
+      return count ?? 0
+    },
+  })
+
+  const { data: storageUsage } = useQuery({
+    queryKey: ['stats', 'storage'],
+    queryFn: async () => {
+      if (!isAdmin) return null
+      const { data } = await (supabase.rpc as any)('get_storage_usage', { bucket_name: 'apidiario-media' })
+      return data as { total_size: number; total_files: number } | null
+    },
+    enabled: isAdmin,
+  })
+
   const { data: mediaCount } = useQuery({
     queryKey: ['stats', 'media'],
     queryFn: async () => {
@@ -74,8 +100,6 @@ function StatistichePage() {
     { icon: Hexagon, label: 'Arnie', value: hiveCount, color: 'text-honey-600' },
     { icon: ClipboardList, label: 'Ispezioni', value: inspectionCount, color: 'text-honey-600' },
     { icon: Syringe, label: 'Trattamenti', value: treatmentCount, color: 'text-honey-600' },
-    { icon: HardDrive, label: 'Foto / video', value: mediaCount, color: 'text-wood-500' },
-    ...(isAdmin ? [{ icon: Users, label: 'Utenti registrati', value: totalUsers, color: 'text-wood-500' }] : []),
   ]
 
   return (
@@ -91,7 +115,7 @@ function StatistichePage() {
           Statistiche
         </h1>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 mb-6">
           {stats.map(({ icon: Icon, label, value, color }) => (
             <div
               key={label}
@@ -106,13 +130,56 @@ function StatistichePage() {
           ))}
         </div>
 
+        {/* Media & Storage */}
+        <h2 className="text-sm font-semibold text-wood-600 mb-3 uppercase tracking-wider">Media</h2>
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className="rounded-lg border border-cream-200 bg-cream-100 px-4 py-4 flex flex-col items-center gap-2">
+            <HardDrive size={24} className="text-wood-500 shrink-0" />
+            <span className="text-2xl font-semibold text-wood-800 tabular-nums">
+              {mediaCount != null ? mediaCount.toLocaleString('it-IT') : '…'}
+            </span>
+            <span className="text-xs text-wood-500">Foto / video</span>
+          </div>
+          <div className="rounded-lg border border-cream-200 bg-cream-100 px-4 py-4 flex flex-col items-center gap-2">
+            <Mic size={24} className="text-wood-500 shrink-0" />
+            <span className="text-2xl font-semibold text-wood-800 tabular-nums">
+              {audioCount != null ? audioCount.toLocaleString('it-IT') : '…'}
+            </span>
+            <span className="text-xs text-wood-500">Note vocali</span>
+          </div>
+          <div className="col-span-2 rounded-lg border border-cream-200 bg-cream-100 px-4 py-4 flex items-center gap-4">
+            <Database size={24} className="text-wood-500 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-wood-400">Spazio utilizzato (bucket)</p>
+              <p className="text-xl font-semibold text-wood-800 tabular-nums">
+                {storageUsage != null ? fmtBytes(storageUsage.total_size) : '…'}
+              </p>
+              {storageUsage != null && (
+                <p className="text-xs text-wood-400">{storageUsage.total_files.toLocaleString('it-IT')} file</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Users (admin only) */}
+        {isAdmin && (
+          <>
+            <h2 className="text-sm font-semibold text-wood-600 mb-3 uppercase tracking-wider">Sistema</h2>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-lg border border-cream-200 bg-cream-100 px-4 py-4 flex flex-col items-center gap-2">
+                <Users size={24} className="text-wood-500 shrink-0" />
+                <span className="text-2xl font-semibold text-wood-800 tabular-nums">
+                  {totalUsers != null ? totalUsers.toLocaleString('it-IT') : '…'}
+                </span>
+                <span className="text-xs text-wood-500">Utenti registrati</span>
+              </div>
+            </div>
+          </>
+        )}
+
         <div className="mt-6 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3">
           <div className="flex items-center gap-3">
-            <Database size={20} className="text-wood-500 shrink-0" />
-            <div>
-              <p className="text-xs text-wood-400">Limite upload file</p>
-              <p className="text-sm font-medium text-wood-800">20 MB per file</p>
-            </div>
+            <span className="text-xs text-wood-400">Limite upload file: 20 MB per file</span>
           </div>
         </div>
       </div>
