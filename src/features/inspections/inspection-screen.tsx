@@ -65,6 +65,7 @@ export function InspectionScreen({
     pendingMedia,
     uploading: mediaUploading,
     pickFiles: pickMediaFiles,
+    handleMediaFiles: onMediaFilesSelected,
     removeMedia,
     removePending,
     commit: commitMedia,
@@ -221,6 +222,7 @@ export function InspectionScreen({
             pendingMedia={pendingMedia}
             mediaUploading={mediaUploading}
             onPickMediaFiles={pickMediaFiles}
+            onMediaFilesSelected={onMediaFilesSelected}
             onRemoveMedia={removeMedia}
             onRemovePendingMedia={removePending}
           />

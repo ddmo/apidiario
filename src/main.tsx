@@ -35,6 +35,11 @@ document.addEventListener('touchmove', (e) => {
   }
 }, { passive: false })
 
+// Register push‑only service worker (no fetch handler — no caching issues)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js')
+}
+
 const rootEl = document.getElementById('root')
 if (!rootEl) throw new Error('Root element #root non trovato in index.html')
 

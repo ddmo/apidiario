@@ -2,7 +2,8 @@ import { createFileRoute, redirect, Link, useNavigate } from '@tanstack/react-ro
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
-import { ArrowLeft, Shield, LogOut, Sun, Moon, Monitor, User, Database, Flower2, Activity, BarChart3 } from 'lucide-react'
+import { getPushStatus, subscribeToPush, unsubscribeFromPush } from '@/lib/push-notifications'
+import { ArrowLeft, Shield, LogOut, Sun, Moon, Monitor, User, Database, Flower2, Activity, BarChart3, Bell, BellOff } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { setThemeMode, getThemeMode, type ThemeMode } from '@/lib/theme'
 import { t } from '@/i18n/it'
@@ -23,6 +24,9 @@ function PiuPage() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
   const [themeMode, setThemeLocal] = useState<ThemeMode>(getThemeMode())
+  const [pushSupported, setPushSupported] = useState(false)
+  const [pushSubscribed, setPushSubscribed] = useState(false)
+  const [pushToggling, setPushToggling] = useState(false)
 
   const { dataUpdatedAt } = useQuery({
     queryKey: ['lastDataUpdate'],
@@ -40,7 +44,26 @@ function PiuPage() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).__APP_VERSION__ = __APP_VERSION__
     ;(supabase.rpc as any)('is_app_admin').then(({ data }: { data: boolean | null }) => setIsAdmin(!!data))
+    getPushStatus().then((s) => {
+      setPushSupported(s.supported)
+      setPushSubscribed(s.subscribed)
+    })
   }, [])
+
+  async function togglePush() {
+    setPushToggling(true)
+    try {
+      if (pushSubscribed) {
+        await unsubscribeFromPush()
+        setPushSubscribed(false)
+      } else {
+        const ok = await subscribeToPush()
+        setPushSubscribed(ok)
+      }
+    } finally {
+      setPushToggling(false)
+    }
+  }
 
   async function handleLogout() {
     setLoggingOut(true)
@@ -157,6 +180,32 @@ function PiuPage() {
               })}
             </div>
           </div>
+
+          {/* Push notification toggle */}
+          {pushSupported && (
+            <button
+              type="button"
+              onClick={togglePush}
+              disabled={pushToggling}
+              className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3 text-wood-800 hover:bg-cream-200 transition-colors text-left disabled:opacity-50"
+            >
+              {pushSubscribed ? (
+                <Bell size={20} className="text-honey-600 shrink-0" />
+              ) : (
+                <BellOff size={20} className="text-wood-400 shrink-0" />
+              )}
+              <div>
+                <p className="text-sm font-medium">
+                  {pushSubscribed ? 'Notifiche attive' : 'Notifiche disattivate'}
+                </p>
+                <p className="text-xs text-wood-400">
+                  {pushSubscribed
+                    ? 'Ricevi notifiche quando qualcuno aggiunge un\'ispezione su un apiario condiviso'
+                    : 'Attiva per ricevere notifiche su nuovi inserimenti'}
+                </p>
+              </div>
+            </button>
+          )}
 
           <button
             type="button"

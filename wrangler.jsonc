@@ -7,7 +7,13 @@
   },
   "assets": {
     "directory": "dist",
-    "not_found_handling": "single-page-application"
+    "not_found_handling": "single-page-application",
+    "cache_control": [
+      { "match": "*.html", "headers": { "cache-control": "no-cache" } },
+      { "match": "*.js", "headers": { "cache-control": "max-age=31536000, immutable" } },
+      { "match": "*.css", "headers": { "cache-control": "max-age=31536000, immutable" } },
+      { "match": "*.{png,jpg,svg,ico,webp}", "headers": { "cache-control": "max-age=31536000, immutable" } }
+    ]
   },
   "compatibility_flags": [
     "nodejs_compat"

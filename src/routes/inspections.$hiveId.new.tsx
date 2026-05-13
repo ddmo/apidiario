@@ -158,6 +158,10 @@ function NewInspectionPage() {
       onSave={async (formState, mode, commit) => {
         const newId = await saveInspection({ formState, mode })
         await commit(newId)
+        // Notify shared apiary members (fire‑and‑forget)
+        supabase.functions.invoke('send-push-notification', {
+          body: { inspection_id: newId },
+        }).catch(() => {})
       }}
       onBack={() => router.history.back()}
     />

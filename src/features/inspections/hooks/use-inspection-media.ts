@@ -5,6 +5,16 @@ import type { Tables } from '@/types/database'
 
 type MediaRow = Tables<'inspection_media'> & { signedUrl?: string }
 
+function uuid(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID()
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0
+    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
+  })
+}
+
 export interface PendingMediaItem {
   id: string
   previewUrl: string
@@ -18,7 +28,7 @@ async function uploadFiles(files: { file: File }[], inspId: string): Promise<Med
     const item = files[i]
     if (!item) continue
     const { file } = item
-    const id = crypto.randomUUID()
+    const id = uuid()
     const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
     const mediaType = file.type.startsWith('video/') ? 'video' : 'image'
     const path = `inspections/${inspId}/media/${id}.${ext}`
