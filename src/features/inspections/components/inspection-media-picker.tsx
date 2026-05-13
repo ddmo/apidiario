@@ -91,16 +91,21 @@ export function InspectionMediaPicker({ media, pendingMedia, uploading, onPickFi
             )}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="flex flex-col items-center gap-1">
-                <Clock size={18} className="text-wood-600" />
+                {uploading ? (
+                  <Loader2 size={18} className="text-wood-600 animate-spin" />
+                ) : (
+                  <Clock size={18} className="text-wood-600" />
+                )}
                 <span className="text-[10px] font-medium text-wood-600 leading-tight text-center px-1">
-                  Da salvare
+                  {uploading ? 'Caricamento…' : 'Da salvare'}
                 </span>
               </div>
             </div>
             <button
               type="button"
               onClick={() => onRemovePending(item.id)}
-              className="absolute top-1 right-1 size-6 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors"
+              disabled={uploading}
+              className="absolute top-1 right-1 size-6 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors disabled:opacity-30"
               aria-label="Rimuovi"
             >
               <X size={14} />
@@ -108,13 +113,6 @@ export function InspectionMediaPicker({ media, pendingMedia, uploading, onPickFi
           </div>
           )
         })}
-
-        {/* Uploading placeholder */}
-        {uploading && (
-          <div className="aspect-square rounded-md border border-dashed border-cream-200 bg-cream-50 flex items-center justify-center">
-            <Loader2 size={22} className="text-wood-400 animate-spin" />
-          </div>
-        )}
 
         {/* Add button */}
         <button

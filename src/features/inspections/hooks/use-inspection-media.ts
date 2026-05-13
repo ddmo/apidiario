@@ -91,13 +91,15 @@ export function useInspectionMedia(inspectionId: string | null) {
       file,
     }))
 
-    if (!inspectionId) {
-      setPendingMedia((prev) => [...prev, ...pending])
-      return
-    }
+    // Show items immediately so user gets feedback
+    setPendingMedia((prev) => [...prev, ...pending])
+
+    if (!inspectionId) return
 
     setUploading(true)
     const uploaded = await uploadFiles(pending, inspectionId)
+    // Remove from pending, add as uploaded media
+    setPendingMedia((prev) => prev.filter((p) => !pending.some((x) => x.id === p.id)))
     for (const p of pending) URL.revokeObjectURL(p.previewUrl)
     setMedia((prev) => [...prev, ...uploaded])
     setUploading(false)
