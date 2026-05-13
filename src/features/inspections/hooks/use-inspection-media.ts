@@ -105,10 +105,12 @@ export function useInspectionMedia(inspectionId: string | null) {
 
     if (!inspectionId) {
       console.log('[mediaUpload] no inspectionId, items stay pending')
+      showToast('File selezionati — salva per caricarli', 'success')
       return
     }
 
     setUploading(true)
+    showToast(`Caricamento ${pending.length} file…`, 'success')
     console.log('[mediaUpload] uploading=true, starting upload...')
     const uploaded = await uploadFiles(pending, inspectionId)
     console.log('[mediaUpload] upload complete:', uploaded.length, 'uploaded,', pending.length - uploaded.length, 'failed')
@@ -118,8 +120,12 @@ export function useInspectionMedia(inspectionId: string | null) {
     setMedia((prev) => [...prev, ...uploaded])
     setUploading(false)
     console.log('[mediaUpload] uploading=false, media updated')
-    if (uploaded.length < pending.length) {
-      showToast('Alcuni file non sono stati caricati (limite 20 MB per file)', 'error')
+    if (uploaded.length === pending.length) {
+      showToast(`Caricati ${uploaded.length} file`, 'success')
+    } else if (uploaded.length > 0) {
+      showToast(`Caricati ${uploaded.length}/${pending.length} file — alcuni hanno superato il limite di 20 MB`, 'error')
+    } else {
+      showToast('Nessun file caricato (limite 20 MB per file)', 'error')
     }
   }, [inspectionId, showToast])
 
@@ -146,14 +152,19 @@ export function useInspectionMedia(inspectionId: string | null) {
     console.log('[mediaUpload] commit start, pending:', pendingMedia.length, 'files, inspectionId:', id)
     const pending = pendingMedia
     setPendingMedia([])
+    showToast(`Caricamento ${pending.length} file…`, 'success')
     setUploading(true)
     const uploaded = await uploadFiles(pending, id)
     console.log('[mediaUpload] commit upload complete:', uploaded.length, 'uploaded,', pending.length - uploaded.length, 'failed')
     for (const p of pending) URL.revokeObjectURL(p.previewUrl)
     setMedia((prev) => [...prev, ...uploaded])
     setUploading(false)
-    if (uploaded.length < pending.length) {
-      showToast('Alcuni file non sono stati caricati (limite 20 MB per file)', 'error')
+    if (uploaded.length === pending.length) {
+      showToast(`Caricati ${uploaded.length} file`, 'success')
+    } else if (uploaded.length > 0) {
+      showToast(`Caricati ${uploaded.length}/${pending.length} file — alcuni hanno superato il limite di 20 MB`, 'error')
+    } else {
+      showToast('Nessun file caricato (limite 20 MB per file)', 'error')
     }
   }, [pendingMedia, showToast])
 
