@@ -70,11 +70,10 @@ function StatistichePage() {
   const { data: storageUsage } = useQuery({
     queryKey: ['stats', 'storage'],
     queryFn: async () => {
-      if (!isAdmin) return null
       const { data } = await (supabase.rpc as any)('get_storage_usage', { bucket_name: 'apidiario-media' })
       return data as { total_size: number; total_files: number } | null
     },
-    enabled: isAdmin,
+    staleTime: 2 * 60 * 1000,
   })
 
   const { data: mediaCount } = useQuery({
