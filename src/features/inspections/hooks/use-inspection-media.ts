@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import { useToast } from '@/hooks/use-toast'
 import type { Tables } from '@/types/database'
 
 type MediaRow = Tables<'inspection_media'> & { signedUrl?: string }
@@ -45,6 +46,7 @@ export function useInspectionMedia(inspectionId: string | null) {
   const [media, setMedia] = useState<MediaRow[]>([])
   const [pendingMedia, setPendingMedia] = useState<PendingMediaItem[]>([])
   const [uploading, setUploading] = useState(false)
+  const { showToast } = useToast()
 
   // Load existing media
   useEffect(() => {
@@ -80,36 +82,42 @@ export function useInspectionMedia(inspectionId: string | null) {
     }
   }, [pendingMedia])
 
+  const handleMediaFiles = useCallback(async (files: File[]) => {
+    if (!files.length) return
+
+    const pending: PendingMediaItem[] = Array.from(files).map((file) => ({
+      id: crypto.randomUUID(),
+      previewUrl: URL.createObjectURL(file),
+      file,
+    }))
+
+    if (!inspectionId) {
+      setPendingMedia((prev) => [...prev, ...pending])
+      return
+    }
+
+    setUploading(true)
+    const uploaded = await uploadFiles(pending, inspectionId)
+    for (const p of pending) URL.revokeObjectURL(p.previewUrl)
+    setMedia((prev) => [...prev, ...uploaded])
+    setUploading(false)
+    if (uploaded.length < pending.length) {
+      showToast('Alcuni file non sono stati caricati (limite 20 MB per file)', 'error')
+    }
+  }, [inspectionId, showToast])
+
   const pickFiles = useCallback(() => {
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = 'image/*,video/*'
     input.multiple = true
-    input.onchange = async () => {
+    input.onchange = () => {
       const files = input.files
       if (!files?.length) return
-
-      // Create local previews for all selected files
-      const pending: PendingMediaItem[] = Array.from(files).map((file) => ({
-        id: crypto.randomUUID(),
-        previewUrl: URL.createObjectURL(file),
-        file,
-      }))
-
-      if (!inspectionId) {
-        setPendingMedia((prev) => [...prev, ...pending])
-        return
-      }
-
-      setUploading(true)
-      const uploaded = await uploadFiles(pending, inspectionId)
-      // Revoke local previews since real URLs will be used
-      for (const p of pending) URL.revokeObjectURL(p.previewUrl)
-      setMedia((prev) => [...prev, ...uploaded])
-      setUploading(false)
+      handleMediaFiles(Array.from(files))
     }
     input.click()
-  }, [inspectionId])
+  }, [handleMediaFiles])
 
   const commit = useCallback(async (id: string) => {
     if (pendingMedia.length === 0) return
@@ -120,7 +128,10 @@ export function useInspectionMedia(inspectionId: string | null) {
     for (const p of pending) URL.revokeObjectURL(p.previewUrl)
     setMedia((prev) => [...prev, ...uploaded])
     setUploading(false)
-  }, [pendingMedia])
+    if (uploaded.length < pending.length) {
+      showToast('Alcuni file non sono stati caricati (limite 20 MB per file)', 'error')
+    }
+  }, [pendingMedia, showToast])
 
   const removeMedia = useCallback(
     async (id: string) => {
@@ -141,5 +152,5 @@ export function useInspectionMedia(inspectionId: string | null) {
     })
   }, [])
 
-  return { media, pendingMedia, uploading, pickFiles, removeMedia, removePending, commit }
+  return { media, pendingMedia, uploading, pickFiles, handleMediaFiles, removeMedia, removePending, commit }
 }
