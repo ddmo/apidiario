@@ -71,7 +71,7 @@ function StatistichePage() {
     queryKey: ['stats', 'storage'],
     queryFn: async () => {
       const { data } = await (supabase.rpc as any)('get_storage_usage', { bucket_name: 'apidiario-media' })
-      return data as { total_size: number; total_files: number } | null
+      return (Array.isArray(data) ? data[0] : null) ?? null
     },
     staleTime: 2 * 60 * 1000,
   })
