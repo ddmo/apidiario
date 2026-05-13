@@ -35,8 +35,10 @@ function PiuPage() {
     setThemeMode(mode)
   }
 
+  // Expose version globally for console debugging
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).__APP_VERSION__ = __APP_VERSION__
     ;(supabase.rpc as any)('is_app_admin').then(({ data }: { data: boolean | null }) => setIsAdmin(!!data))
   }, [])
 
@@ -166,6 +168,10 @@ function PiuPage() {
             <span className="text-sm font-medium">Esci</span>
           </button>
         </div>
+
+        <p className="mt-8 text-center text-xs text-wood-400 select-all">
+          v{__APP_VERSION__}
+        </p>
       </div>
     </main>
   )
