@@ -1,5 +1,5 @@
 import { Camera, Clock, Loader2, X, Play } from 'lucide-react'
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import type { PendingMediaItem } from '../hooks/use-inspection-media'
 
@@ -14,32 +14,15 @@ interface InspectionMediaPickerProps {
   pendingMedia: PendingMediaItem[]
   uploading: boolean
   onPickFiles: () => void
-  onFilesSelected?: (files: File[]) => void
   onRemove: (id: string) => void
   onRemovePending: (id: string) => void
 }
 
-export function InspectionMediaPicker({ media, pendingMedia, uploading, onPickFiles, onFilesSelected, onRemove, onRemovePending }: InspectionMediaPickerProps) {
+export function InspectionMediaPicker({ media, pendingMedia, uploading, onPickFiles, onRemove, onRemovePending }: InspectionMediaPickerProps) {
   const [preview, setPreview] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   return (
     <>
-      {onFilesSelected && (
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*,video/*"
-          multiple
-          className="hidden"
-          onChange={(e) => {
-            const files = e.target.files
-            if (!files?.length) return
-            e.target.value = ''
-            onFilesSelected(Array.from(files))
-          }}
-        />
-      )}
       <div className="grid grid-cols-3 gap-2">
         {/* Existing media */}
         {media.map((item) => (
@@ -117,7 +100,7 @@ export function InspectionMediaPicker({ media, pendingMedia, uploading, onPickFi
         {/* Add button */}
         <button
           type="button"
-          onClick={() => (onFilesSelected ? fileInputRef.current?.click() : onPickFiles())}
+          onClick={onPickFiles}
           disabled={uploading}
           className={cn(
             'aspect-square rounded-md border border-dashed border-cream-200 bg-cream-50 flex flex-col items-center justify-center gap-1 transition-colors',

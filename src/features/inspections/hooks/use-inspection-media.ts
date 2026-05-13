@@ -135,12 +135,17 @@ export function useInspectionMedia(inspectionId: string | null) {
     input.type = 'file'
     input.accept = 'image/*,video/*'
     input.multiple = true
+    input.style.position = 'absolute'
+    input.style.opacity = '0'
+    input.style.pointerEvents = 'none'
     input.onchange = () => {
       const files = input.files
+      if (input.parentNode) input.parentNode.removeChild(input)
       if (!files?.length) return
       console.log('[mediaUpload] files selected via pickFiles:', files.length)
       handleMediaFiles(Array.from(files))
     }
+    document.body.appendChild(input)
     input.click()
   }, [handleMediaFiles])
 
