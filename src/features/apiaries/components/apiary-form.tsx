@@ -315,10 +315,7 @@ export function ApiaryForm({ userId, onSuccess, onCancel, initialData }: ApiaryF
               <LocationPreview
                 lat={location.lat}
                 lng={location.lng}
-                onEdit={() => {
-                  setLocation(null)
-                  setShowCoordEditor(false)
-                }}
+                onEdit={() => setShowMapPicker(true)}
               />
             )}
 
