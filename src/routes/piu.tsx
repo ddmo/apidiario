@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
 import { getPushStatus, subscribeToPush, unsubscribeFromPush } from '@/lib/push-notifications'
-import { ArrowLeft, Shield, LogOut, Sun, Moon, Monitor, User, Database, Flower2, Activity, BarChart3, Bell, BellOff } from 'lucide-react'
+import { ArrowLeft, Shield, LogOut, Sun, Moon, Monitor, User, Flower2, Activity, BarChart3, Bell, BellOff, Trees } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { setThemeMode, getThemeMode, type ThemeMode } from '@/lib/theme'
 import { t } from '@/i18n/it'
@@ -106,16 +106,13 @@ function PiuPage() {
               )}
             </div>
           </div>
-
-          {/* Last data update */}
-          <div className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3">
-            <Database size={20} className="text-wood-500 shrink-0" />
-            <div>
-              <p className="text-xs text-wood-400">Ultimo aggiornamento dati</p>
-              <p className="text-sm font-medium text-wood-800">{lastUpdateLabel}</p>
-            </div>
-          </div>
-
+          <Link
+            to="/apiaries/new"
+            className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3 text-wood-800 hover:bg-cream-200 transition-colors"
+          >
+            <Trees size={20} className="text-honey-600 shrink-0" />
+            <span className="text-sm font-medium">Nuovo apiario</span>
+          </Link>
           <Link
             to="/previsioni"
             className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3 text-wood-800 hover:bg-cream-200 transition-colors"
@@ -221,6 +218,11 @@ function PiuPage() {
         <p className="mt-8 text-center text-xs text-wood-400 select-all">
           v{__APP_VERSION__}
         </p>
+
+        {/* Last data update — lighter style at bottom */}
+        <div className="mt-3 text-center">
+          <p className="text-[11px] text-wood-300">Ultimo aggiornamento dati: {lastUpdateLabel}</p>
+        </div>
       </div>
     </main>
   )

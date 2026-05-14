@@ -1,42 +1,103 @@
-import { Trees, ChevronRight } from 'lucide-react'
-import { t } from '@/i18n/it'
+import { Syringe, ClipboardCheck, Hexagon, Trees } from 'lucide-react'
 import type { ApiaryListItem as ApiaryListItemData } from '../hooks/use-apiaries'
+import type { AccessLevel, WeatherInfo } from '@/features/home/hooks/use-apiary-cards'
 
 interface ApiaryListItemProps {
   apiary: ApiaryListItemData
   onClick: () => void
+  lastInspectionAt?: string | null
+  hasActiveTreatment?: boolean
+  accessLevel?: AccessLevel
+  weather?: WeatherInfo | null
+  photoUrl?: string | null
 }
 
-export function ApiaryListItem({ apiary, onClick }: ApiaryListItemProps) {
-  const { name, hiveCount, photoUrl } = apiary
+function formatRelativeDate(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime()
+  const days = Math.floor(diff / 86_400_000)
+  if (days === 0) return 'oggi'
+  if (days === 1) return 'ieri'
+  return `${days} g fa`
+}
 
-  const meta =
-    hiveCount === 0
-      ? t.apiaries.noHives
-      : t.apiaries.hiveCount(hiveCount)
+function RoleBadge({ level }: { level: AccessLevel }) {
+  if (level === 'owner') return null
+  const label = level === 'editor' ? 'editor' : 'lettore'
+  return (
+    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#E6F1FB] text-[#0C447C] leading-none font-medium">
+      {label}
+    </span>
+  )
+}
+
+function WeatherIcon({ code }: { code: number }) {
+  // WMO codes: 0=clear, 1-3=cloudy, 45-48=fog, 51-57=drizzle, 61-67=rain, 71-77=snow, 80-82=showers, 85-86=snow showers, 95-99=thunderstorm
+  if (code === 0 || code === 1) return '☀️'
+  if (code === 2) return '⛅'
+  if (code === 3) return '☁️'
+  if (code >= 45 && code <= 48) return '🌫️'
+  if ((code >= 51 && code <= 57) || (code >= 80 && code <= 82)) return '🌦️'
+  if (code >= 61 && code <= 67) return '🌧️'
+  if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) return '🌨️'
+  if (code >= 95) return '⛈️'
+  return '☀️'
+}
+
+export function ApiaryListItem({ apiary, onClick, lastInspectionAt, hasActiveTreatment, accessLevel, weather, photoUrl }: ApiaryListItemProps) {
+  const { name, hiveCount } = apiary
 
   return (
     <button
       type="button"
       onClick={onClick}
-      className="w-full bg-cream-100 border border-cream-200 p-3 flex items-center gap-3 text-left transition-colors duration-150 hover:bg-cream-50 active:bg-cream-200 shadow-xs"
+      className="w-full bg-cream-100 border border-cream-200 rounded-lg text-left transition-colors duration-150 hover:bg-cream-50 active:bg-cream-200 shadow-xs overflow-hidden"
+      style={{ borderLeft: '3px solid #BA7517' }}
     >
-      {/* Thumbnail */}
-      <div className="size-16 shrink-0 rounded-md overflow-hidden bg-cream-200 flex items-center justify-center">
+      <div className="flex items-stretch">
         {photoUrl ? (
-          <img src={photoUrl} alt="" className="w-full h-full object-cover" />
+          <img
+            src={photoUrl}
+            alt=""
+            className="w-16 shrink-0 object-cover"
+          />
         ) : (
-          <Trees size={28} strokeWidth={1.75} className="text-wood-400" aria-hidden="true" />
+          <div className="w-16 shrink-0 flex items-center justify-center bg-cream-200">
+            <Trees size={20} className="text-wood-400" strokeWidth={1.5} />
+          </div>
         )}
-      </div>
+        <div className="flex-1 min-w-0 px-3.5 py-2.5">
+          {/* Top row: name + badges | date */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-wood-800 truncate">{name}</span>
+            {accessLevel && accessLevel !== 'owner' && <RoleBadge level={accessLevel} />}
+            {hasActiveTreatment && (
+              <Syringe size={13} className="text-warning-600 shrink-0" />
+            )}
+            {lastInspectionAt && (
+              <span className="text-[10px] text-wood-400 shrink-0 ml-auto flex items-center gap-1">
+                <ClipboardCheck size={10} className="shrink-0" />
+                {formatRelativeDate(lastInspectionAt)}
+              </span>
+            )}
+          </div>
 
-      {/* Text */}
-      <div className="flex-1 min-w-0">
-        <div className="text-base font-semibold text-wood-800 truncate">{name}</div>
-        <div className="text-sm text-wood-500 truncate mt-0.5">{meta}</div>
+          {/* Bottom row: weather | hive count */}
+          <div className="flex items-center gap-2 mt-1">
+            {weather ? (
+              <span className="text-[11px] text-wood-500">
+                <span>{WeatherIcon({ code: weather.code })}</span>
+                {' '}{weather.label}, {weather.temp}°C
+              </span>
+            ) : (
+              <span />
+            )}
+            <span className="text-xs text-wood-500 font-medium tabular-nums ml-auto flex items-center gap-1">
+              <Hexagon size={10} className="shrink-0" />
+              {hiveCount}
+            </span>
+          </div>
+        </div>
       </div>
-
-      <ChevronRight size={20} strokeWidth={1.75} className="text-wood-400 shrink-0" aria-hidden="true" />
     </button>
   )
 }

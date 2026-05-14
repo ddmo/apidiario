@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { Link } from '@tanstack/react-router'
-import { ClipboardList, Trash2, Pencil, DoorOpen, Grid3x3, Flower } from 'lucide-react'
+import { ClipboardList, Trash2, Pencil, DoorOpen, Grid3x3, Flower, Droplets, ClipboardCheck } from 'lucide-react'
 import { HiveSchematic } from './hive-schematic'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import {
@@ -162,19 +162,27 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
                 />
               </div>
               <div className="flex-1 min-w-0 flex flex-col gap-1">
-                {/* Name */}
-                <div>
-                  <p className="font-semibold text-wood-800 text-base leading-tight truncate">
-                    {hive.identifier}
+                {/* Name + Last inspection */}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-wood-800 text-base leading-tight truncate">
+                      {hive.identifier}
+                    </p>
+                    {hive.apiaryName && (
+                      <p className="text-xs text-honey-600 font-medium truncate">{hive.apiaryName}</p>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-wood-400 shrink-0 flex items-center gap-1 mt-1">
+                    <ClipboardCheck size={10} className="shrink-0" />
+                    {hive.lastInspection
+                      ? relativeDate(hive.lastInspection.performedAt)
+                      : t.hive.card.noVisit}
                   </p>
-                  {hive.apiaryName && (
-                    <p className="text-xs text-honey-600 font-medium truncate">{hive.apiaryName}</p>
-                  )}
                 </div>
 
-                {/* Melari count */}
-                <div>
-                  <p className="text-xs text-wood-400 mb-0.5">{t.hive.card.melari}</p>
+                {/* Melari — icon + control on same row */}
+                <div className="flex items-center gap-1">
+                  <Droplets size={14} className="text-wood-400 shrink-0" />
                   <SegmentedControl
                     options={MELARI_OPTIONS}
                     value={String(hive.melariCount)}
@@ -245,25 +253,11 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
                 >
                   {t.hive.card.inspect}
                 </Link>
-
-                {/* Last inspection */}
-                <p className="text-[10px] text-wood-400 italic text-right">
-                  {hive.lastInspection
-                    ? relativeDate(hive.lastInspection.performedAt)
-                    : t.hive.card.noVisit}
-                </p>
               </div>
             </div>
           ) : (
             <div className="flex flex-col gap-1">
-              {/* Last inspection */}
-              <p className="text-[10px] text-wood-400 italic text-left">
-                {hive.lastInspection
-                  ? relativeDate(hive.lastInspection.performedAt)
-                  : t.hive.card.noVisit}
-              </p>
-
-              {/* Row 1: Name + Melari */}
+              {/* Row 1: Name + Last inspection */}
               <div className="flex items-center justify-between gap-2">
                 <div className="min-w-0">
                   <p className="font-semibold text-wood-800 text-base leading-tight truncate">
@@ -273,26 +267,35 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
                     <p className="text-xs text-honey-600 font-medium truncate">{hive.apiaryName}</p>
                   )}
                 </div>
-                <div className="shrink-0">
-                  <SegmentedControl
-                    options={MELARI_OPTIONS}
-                    value={String(hive.melariCount)}
-                    onChange={(v) => {
-                      const count = Number(v)
-                      if (count > hive.melariCount && melariBlock) {
-                        setPendingMelariCount(count)
-                        setShowMelariWarning(true)
-                      } else {
-                        updateMelari({ hiveId: hive.id, count })
-                      }
-                    }}
-                    ariaLabel="Numero melari"
-                    compact
-                  />
-                </div>
+                <p className="text-[10px] text-wood-400 shrink-0 flex items-center gap-1">
+                  <ClipboardCheck size={10} className="shrink-0" />
+                  {hive.lastInspection
+                    ? relativeDate(hive.lastInspection.performedAt)
+                    : t.hive.card.noVisit}
+                </p>
               </div>
 
-              {/* Row 2: Togglers + Inspect */}
+              {/* Row 2: Melari icon + control */}
+              <div className="flex items-center gap-1">
+                <Droplets size={14} className="text-wood-400 shrink-0" />
+                <SegmentedControl
+                  options={MELARI_OPTIONS}
+                  value={String(hive.melariCount)}
+                  onChange={(v) => {
+                    const count = Number(v)
+                    if (count > hive.melariCount && melariBlock) {
+                      setPendingMelariCount(count)
+                      setShowMelariWarning(true)
+                    } else {
+                      updateMelari({ hiveId: hive.id, count })
+                    }
+                  }}
+                  ariaLabel="Numero melari"
+                  compact
+                />
+              </div>
+
+              {/* Row 3: Togglers + Inspect */}
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1.5">
                   <button

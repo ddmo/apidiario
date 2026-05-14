@@ -1,10 +1,12 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Plus, Trees, Share2, Trash2, Pencil } from 'lucide-react'
+import { Trees, Share2, Trash2, Pencil, AlertTriangle, CloudRain, Syringe, FlaskRound, X, Flower2 } from 'lucide-react'
 import { useState } from 'react'
+import { useApiaryCards } from '@/features/home/hooks/use-apiary-cards'
+import { useTodaysAlerts } from '@/features/home/hooks/use-home-alerts'
+import { useRecentActivityByOthers } from '@/features/home/hooks/use-recent-activity'
 import { useApiaries, useDeleteApiary } from '@/features/apiaries/hooks/use-apiaries'
 import { ApiaryListItem } from '@/features/apiaries/components/apiary-list-item'
 import { EmptyState } from '@/components/ui/empty-state'
-import { Fab } from '@/components/ui/fab'
 import { SwipeableRow } from '@/components/ui/swipeable-row'
 import { ShareSheet } from '@/features/apiaries/components/share-sheet'
 import { useToast } from '@/hooks/use-toast'
@@ -14,14 +16,34 @@ export const Route = createFileRoute('/_auth/')({
   component: HomePage,
 })
 
+function formatTimeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime()
+  const mins = Math.floor(diff / 60_000)
+  if (mins < 60) return `${mins}min fa`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours}h fa`
+  const days = Math.floor(hours / 24)
+  if (days === 0) return 'oggi'
+  if (days === 1) return 'ieri'
+  return `${days} g fa`
+}
+
+function AlertIcon({ type }: { type: string }) {
+  if (type === 'active_treatment') return <FlaskRound size={16} className="shrink-0 mt-0.5 text-[#854F0B]" />
+  if (type === 'bad_weather') return <CloudRain size={16} className="shrink-0 mt-0.5 text-wood-500" />
+  if (type === 'active_bloom') return <Flower2 size={16} className="shrink-0 mt-0.5 text-honey-600" />
+  return <AlertTriangle size={16} className="shrink-0 mt-0.5 text-[#A32D2D]" />
+}
+
 function SkeletonCard() {
   return (
-    <div className="bg-cream-100 border border-cream-200 rounded-lg p-3 flex items-center gap-3 shadow-xs animate-pulse">
-      <div className="size-16 shrink-0 rounded-md bg-cream-200" />
-      <div className="flex-1 flex flex-col gap-2">
-        <div className="h-4 bg-cream-200 rounded w-2/3" />
-        <div className="h-3 bg-cream-200 rounded w-1/2" />
+    <div className="rounded-lg px-3.5 py-3 bg-cream-100 border border-cream-200 animate-pulse shadow-xs"
+      style={{ borderLeft: '3px solid #BA7517' }}>
+      <div className="flex items-center gap-2">
+        <div className="h-4 bg-cream-200 rounded w-2/5" />
+        <div className="h-3 bg-cream-200 rounded w-1/6 ml-auto" />
       </div>
+      <div className="h-3 bg-cream-200 rounded w-1/4 mt-1.5" />
     </div>
   )
 }
@@ -29,72 +51,180 @@ function SkeletonCard() {
 function HomePage() {
   const navigate = useNavigate()
   const { showToast } = useToast()
+
   const { data: apiaries, isLoading, isError } = useApiaries()
   const { mutate: deleteApiary } = useDeleteApiary()
 
-  const totalHives = apiaries?.reduce((sum, a) => sum + a.hiveCount, 0) ?? 0
+  const { alerts, isLoading: alertsLoading } = useTodaysAlerts()
+  const { data: activities, isLoading: activityLoading } = useRecentActivityByOthers()
+  const { data: cards } = useApiaryCards()
 
   const [shareTarget, setShareTarget] = useState<{ id: string; name: string } | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
 
+  // Dismissed alerts — persisted in localStorage
+  const [dismissed, setDismissed] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem('dismissedAlerts')
+      return new Set(stored ? JSON.parse(stored) : [])
+    } catch { return new Set() }
+  })
+
+  function dismissAlert(id: string) {
+    setDismissed(prev => {
+      const next = new Set(prev)
+      next.add(id)
+      localStorage.setItem('dismissedAlerts', JSON.stringify([...next]))
+      return next
+    })
+  }
+
+  const activeAlerts = alerts.filter(a => !dismissed.has(a.id))
+
+  // Group activities by inspector name for section heading
+  const activityGroups = activities?.reduce<Record<string, typeof activities>>((acc, item) => {
+    if (!acc[item.inspectorName]) acc[item.inspectorName] = []
+    acc[item.inspectorName]!.push(item)
+    return acc
+  }, {})
+
   return (
     <div className="flex flex-col h-full bg-cream-50">
-      {/* Header */}
+      {/* Top bar */}
       <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-4 h-14 flex items-center">
-        <h1 className="text-2xl font-bold text-wood-800 tracking-tight flex-1">
-          {t.apiaries.title}
+        <h1 className="font-display text-lg font-semibold text-wood-800 tracking-tight">
+          Apidiario
         </h1>
       </header>
 
       <div className="flex-1 overflow-y-auto">
-        {/* Loading */}
-        {isLoading && (
-          <div className="px-4 pt-4">
-            <div className="flex flex-col gap-2.5">
+        {/* ── Oggi (alert section) ── */}
+        {!alertsLoading && activeAlerts.length > 0 && (
+          <section className="px-4 pt-4">
+            <p className="text-[11px] text-wood-500 mb-2 px-0.5">Oggi</p>
+            <div className="flex flex-col gap-2">
+              {(() => {
+                const bloomAlerts = activeAlerts.filter((a) => a.type === 'active_bloom') as Extract<typeof activeAlerts[number], { type: 'active_bloom' }>[]
+                const otherAlerts = activeAlerts.filter((a) => a.type !== 'active_bloom')
+
+                return (
+                  <>
+                    {otherAlerts.map((alert) => {
+                      const isTreatment = alert.type === 'active_treatment'
+                      const isWeather = alert.type === 'bad_weather'
+
+                      if (isWeather) {
+                        return (
+                          <div key={alert.id} className="w-full rounded-lg px-3 py-2.5 flex items-start gap-2 bg-cream-100 border border-cream-200">
+                            <AlertIcon type={alert.type} />
+                            <span className="text-xs text-wood-700 leading-snug">{alert.message}</span>
+                          </div>
+                        )
+                      }
+
+                      const isTreatmentBg = isTreatment ? '#FAEEDA' : '#FCEBEB'
+
+                      return (
+                        <button
+                          key={alert.id}
+                          type="button"
+                          onClick={() => void navigate({ to: '/apiaries/$apiaryId', params: { apiaryId: alert.apiaryId } })}
+                          className="w-full rounded-lg px-3 py-2.5 flex items-start gap-2.5 text-left transition-colors"
+                          style={{ backgroundColor: isTreatmentBg }}
+                        >
+                          <AlertIcon type={alert.type} />
+                          <div className="flex-1 min-w-0">
+                            {isTreatment ? (
+                              <>
+                                <p className="text-xs font-medium text-[#412402] leading-tight">
+                                  {alert.message.split(' —')[0]}
+                                </p>
+                                <p className="text-[10px] text-[#633806] mt-0.5">
+                                  {alert.message.includes('—') ? alert.message.split('—')[1]?.trim() : ''}
+                                </p>
+                              </>
+                            ) : (
+                              <p className="text-xs font-medium text-[#501313] leading-tight">{alert.message}</p>
+                            )}
+                          </div>
+                          <span
+                            onClick={(e) => { e.stopPropagation(); dismissAlert(alert.id) }}
+                            className="shrink-0 size-6 flex items-center justify-center rounded-full hover:bg-black/10 transition-colors cursor-pointer"
+                            aria-label="Nascondi avviso"
+                          >
+                            <X size={14} className={isTreatment ? 'text-[#633806]' : 'text-[#791F1F]'} />
+                          </span>
+                        </button>
+                      )
+                    })}
+
+                    {bloomAlerts.length > 0 && (
+                      <div className="w-full rounded-lg px-3.5 py-3 bg-[#F1F6E8] border border-[#DCE8C5]">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Flower2 size={16} className="shrink-0 text-honey-600" />
+                          <span className="text-xs font-semibold text-[#3D5A1F]">
+                            Fioriture in arrivo
+                          </span>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          {bloomAlerts.map((alert) => (
+                            <button
+                              key={alert.id}
+                              type="button"
+                              onClick={() => void navigate({ to: '/apiaries/$apiaryId', params: { apiaryId: alert.apiaryId } })}
+                              className="w-full text-left text-xs text-[#3D5A1F]/80 leading-relaxed hover:text-[#3D5A1F] transition-colors"
+                            >
+                              {alert.message}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )
+              })()}
+            </div>
+          </section>
+        )}
+
+        {/* ── I tuoi apiari ── */}
+        <section className="px-4 pt-5">
+          <p className="text-[11px] text-wood-500 mb-2 px-0.5">I tuoi apiari</p>
+
+          {isLoading && (
+            <div className="flex flex-col gap-2">
               <SkeletonCard />
               <SkeletonCard />
               <SkeletonCard />
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Error */}
-        {isError && (
-          <div className="flex items-center justify-center px-4 py-20">
-            <p className="text-sm text-danger-500">{t.common.error}</p>
-          </div>
-        )}
-
-        {/* Empty state */}
-        {!isLoading && !isError && apiaries?.length === 0 && (
-          <div className="flex items-center justify-center py-20">
-            <EmptyState
-              icon={<Trees size={64} strokeWidth={1.5} />}
-              title={t.apiaries.empty.title}
-              description={t.apiaries.empty.description}
-              action={{
-                label: t.apiaries.empty.cta,
-                onClick: () => void navigate({ to: '/apiaries/new' }),
-              }}
-            />
-          </div>
-        )}
-
-        {/* Populated list */}
-        {!isLoading && !isError && apiaries && apiaries.length > 0 && (
-          <>
-            {/* Summary bar */}
-            <div className="px-4 pt-4 pb-2 flex items-baseline justify-between">
-              <p className="text-sm text-wood-500">
-                <span className="font-semibold text-wood-700" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                  {t.apiaries.summary(apiaries.length, totalHives)}
-                </span>
-              </p>
+          {isError && (
+            <div className="flex items-center justify-center py-10">
+              <p className="text-sm text-danger-500">{t.common.error}</p>
             </div>
+          )}
 
-            <div className="px-4 pb-24">
-              <div className="flex flex-col gap-2.5">
-                {apiaries.map((apiary) => (
+          {!isLoading && !isError && apiaries?.length === 0 && (
+            <div className="py-10">
+              <EmptyState
+                icon={<Trees size={48} strokeWidth={1.5} />}
+                title={t.apiaries.empty.title}
+                description={t.apiaries.empty.description}
+                action={{
+                  label: t.apiaries.empty.cta,
+                  onClick: () => void navigate({ to: '/apiaries/new' }),
+                }}
+              />
+            </div>
+          )}
+
+          {!isLoading && !isError && apiaries && apiaries.length > 0 && (
+            <div className="flex flex-col gap-2 pb-4">
+              {apiaries.map((apiary) => {
+                const cardData = cards?.find((c) => c.id === apiary.id)
+
+                return (
                   <SwipeableRow
                     key={apiary.id}
                     revealWidth={240}
@@ -129,22 +259,74 @@ function HomePage() {
                   >
                     <ApiaryListItem
                       apiary={apiary}
+                      lastInspectionAt={cardData?.lastInspectionAt}
+                      hasActiveTreatment={cardData?.hasActiveTreatment ?? false}
+                      accessLevel={cardData?.accessLevel}
+                      weather={cardData?.weather}
+                      photoUrl={cardData?.photoUrl}
                       onClick={() => void navigate({ to: '/apiaries/$apiaryId', params: { apiaryId: apiary.id } })}
                     />
                   </SwipeableRow>
-                ))}
-              </div>
-
+                )
+              })}
             </div>
-          </>
-        )}
-      </div>
+          )}
+        </section>
 
-      <Fab
-        icon={<Plus size={24} strokeWidth={2} aria-hidden="true" />}
-        label={t.apiaries.createCta}
-        onClick={() => void navigate({ to: '/apiaries/new' })}
-      />
+        {/* ── Attività recente da altri ── */}
+        {!activityLoading && activityGroups && Object.keys(activityGroups).length > 0 && (
+          <section className="px-4 pb-4">
+            {Object.entries(activityGroups).map(([inspectorName, items]) => (
+              <div key={inspectorName} className="mb-3 last:mb-0">
+                <p className="text-[11px] text-wood-500 mb-2 px-0.5">Da {inspectorName}</p>
+                <div className="rounded-lg border border-cream-200 bg-cream-100 overflow-hidden">
+                  {items.map((item, i) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => void navigate({
+                        to: '/hives/$hiveId/inspections/$inspectionId',
+                        params: { hiveId: item.hiveId, inspectionId: item.id },
+                      })}
+                      className={`w-full px-3.5 py-2.5 text-left hover:bg-cream-200/50 transition-colors ${
+                        i < items.length - 1 ? 'border-b border-cream-200' : ''
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-semibold text-wood-700">
+                          {item.hiveIdentifier} · {item.apiaryName}
+                        </span>
+                        <span className="text-[10px] text-wood-400 shrink-0">
+                          {formatTimeAgo(item.inspectedAt)}
+                        </span>
+                      </div>
+                      {item.tags.length > 0 && (
+                        <div className="flex gap-1.5 mt-1.5 flex-wrap">
+                          {item.tags.map((tag, ti) => (
+                            <span
+                              key={ti}
+                              className={`text-[9px] px-1.5 py-0.5 rounded-full leading-none font-medium ${
+                                tag.type === 'melari'
+                                  ? 'bg-[#FAEEDA] text-[#633806]'
+                                  : 'bg-cream-200 text-wood-500'
+                              }`}
+                            >
+                              {tag.label}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </section>
+        )}
+
+        {/* Bottom spacer */}
+        <div className="h-20" />
+      </div>
 
       <ShareSheet
         open={shareTarget !== null}
@@ -154,7 +336,6 @@ function HomePage() {
         onShared={() => setShareTarget(null)}
       />
 
-      {/* Delete apiary confirmation */}
       {deleteTarget && (
         <>
           <div
