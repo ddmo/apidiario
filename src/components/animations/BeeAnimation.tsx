@@ -10,10 +10,14 @@ const FLOWERS = [
   { x: 360, y: 138 },
 ] as const;
 
+function easeOutCubic(t: number): number {
+  return 1 - Math.pow(1 - t, 3);
+}
+
 export function BeeAnimation({ className }: BeeAnimationProps): JSX.Element {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const timeoutRef = useRef<number | undefined>(undefined);
-  const animationRef = useRef<Animation | null>(null);
+  const rafRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -44,32 +48,42 @@ export function BeeAnimation({ className }: BeeAnimationProps): JSX.Element {
       } while (nextIdx === currentIdx && FLOWERS.length > 1);
       currentIdx = nextIdx;
 
-      const t = FLOWERS[nextIdx]!;
-      const newDir: 1 | -1 = t.x >= curX ? 1 : -1;
-      const midX = (curX + t.x) / 2;
-      const peakY = Math.min(curY, t.y) - 55;
+      const target = FLOWERS[nextIdx]!;
+      const newDir: 1 | -1 = target.x >= curX ? 1 : -1;
+      const midX = (curX + target.x) / 2;
+      const peakY = Math.min(curY, target.y) - 55;
       const duration = 950 + Math.random() * 500;
+      const startMs = performance.now();
+      const fromX = curX;
+      const fromY = curY;
 
-      animationRef.current = bee.animate(
-        [
-          { transform: `translate(${curX}px, ${curY}px) scaleX(${newDir})` },
-          { transform: `translate(${midX}px, ${peakY}px) scaleX(${newDir})`, offset: 0.5 },
-          { transform: `translate(${t.x}px, ${t.y}px) scaleX(${newDir})` },
-        ],
-        { duration, easing: 'cubic-bezier(.4,.05,.6,.95)', fill: 'forwards' }
-      );
+      const frame = (now: number): void => {
+        const elapsed = now - startMs;
+        const p = Math.min(elapsed / duration, 1);
+        const e = easeOutCubic(p);
 
-      curX = t.x;
-      curY = t.y;
+        const x = (1 - e) * (1 - e) * fromX + 2 * (1 - e) * e * midX + e * e * target.x;
+        const y = (1 - e) * (1 - e) * fromY + 2 * (1 - e) * e * peakY + e * e * target.y;
 
-      timeoutRef.current = window.setTimeout(hop, duration + 700 + Math.random() * 1500);
+        bee.style.transform = `translate(${x}px, ${y}px) scaleX(${newDir})`;
+
+        if (p < 1) {
+          rafRef.current = requestAnimationFrame(frame);
+        } else {
+          curX = target.x;
+          curY = target.y;
+          timeoutRef.current = window.setTimeout(hop, 700 + Math.random() * 1500);
+        }
+      };
+
+      rafRef.current = requestAnimationFrame(frame);
     };
 
     timeoutRef.current = window.setTimeout(hop, 700);
 
     return () => {
       if (timeoutRef.current !== undefined) window.clearTimeout(timeoutRef.current);
-      if (animationRef.current) animationRef.current.cancel();
+      if (rafRef.current !== undefined) cancelAnimationFrame(rafRef.current);
     };
   }, []);
 
@@ -79,8 +93,6 @@ export function BeeAnimation({ className }: BeeAnimationProps): JSX.Element {
         ref={svgRef}
         viewBox="0 0 400 260"
         width="100%"
-        height="100%"
-        preserveAspectRatio="xMidYMid meet"
         style={{ display: 'block' }}
         role="img"
       >
