@@ -31,12 +31,6 @@ export function BeeAnimation({ className }: BeeAnimationProps): JSX.Element {
     const bee = svg.querySelector<SVGGElement>('#ad-bee');
     if (!bee) return;
 
-    if (reduced) {
-      const f = FLOWERS[Math.floor(Math.random() * FLOWERS.length)]!;
-      bee.setAttribute('transform', `translate(${f.x}, ${f.y})`);
-      return;
-    }
-
     let currentIdx = -1;
     let curX = 200;
     let curY = 60;
