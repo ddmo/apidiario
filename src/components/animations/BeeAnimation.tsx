@@ -33,7 +33,7 @@ export function BeeAnimation({ className }: BeeAnimationProps): JSX.Element {
 
     if (reduced) {
       const f = FLOWERS[Math.floor(Math.random() * FLOWERS.length)]!;
-      bee.style.transform = `translate(${f.x}px, ${f.y}px)`;
+      bee.setAttribute('transform', `translate(${f.x}, ${f.y})`);
       return;
     }
 
@@ -65,7 +65,7 @@ export function BeeAnimation({ className }: BeeAnimationProps): JSX.Element {
         const x = (1 - e) * (1 - e) * fromX + 2 * (1 - e) * e * midX + e * e * target.x;
         const y = (1 - e) * (1 - e) * fromY + 2 * (1 - e) * e * peakY + e * e * target.y;
 
-        bee.style.transform = `translate(${x}px, ${y}px) scaleX(${newDir})`;
+        bee.setAttribute('transform', `translate(${x}, ${y}) scale(${newDir}, 1)`);
 
         if (p < 1) {
           rafRef.current = requestAnimationFrame(frame);
@@ -93,7 +93,7 @@ export function BeeAnimation({ className }: BeeAnimationProps): JSX.Element {
         ref={svgRef}
         viewBox="0 0 400 260"
         width="100%"
-        style={{ display: 'block' }}
+        style={{ display: 'block', aspectRatio: '400/260' }}
         role="img"
       >
         <title>Animazione decorativa</title>
@@ -235,7 +235,7 @@ export function BeeAnimation({ className }: BeeAnimationProps): JSX.Element {
         </g>
 
         {/* Ape */}
-        <g id="ad-bee" style={{ transform: 'translate(200px, 60px)' }}>
+        <g id="ad-bee" transform="translate(200, 60)">
           <g className="ad-bee-wings">
             <ellipse cx="-3" cy="-12" rx="10" ry="14" fill="#FAF6ED" opacity="0.55" stroke="#C9B896" strokeWidth="0.5" transform="rotate(-30 -3 -3)" />
             <ellipse cx="-2" cy="-12" rx="6" ry="10" fill="#FAF6ED" opacity="0.75" transform="rotate(-22 -2 -3)" />
