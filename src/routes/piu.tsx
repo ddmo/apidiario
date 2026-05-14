@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
 import { getPushStatus, subscribeToPush, unsubscribeFromPush } from '@/lib/push-notifications'
-import { ArrowLeft, Shield, LogOut, Sun, Moon, Monitor, Flower2, Activity, BarChart3, Bell, BellOff, Trees, Wheat } from 'lucide-react'
+import { ArrowLeft, Shield, LogOut, Sun, Moon, Monitor, User, Flower2, Activity, BarChart3, Bell, BellOff, Trees, Wheat } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { setThemeMode, getThemeMode, type ThemeMode } from '@/lib/theme'
 import { t } from '@/i18n/it'
@@ -97,7 +97,10 @@ function PiuPage() {
 
         <div className="flex flex-col gap-2">
           {/* User info — minimal */}
-          <p className="text-sm text-wood-400 mb-2">{displayName}</p>
+          <div className="flex items-center gap-2 mb-2">
+            <User size={16} className="text-wood-400 shrink-0" />
+            <p className="text-sm text-wood-400">{displayName}</p>
+          </div>
 
           <Link
             to="/apiaries/new"
