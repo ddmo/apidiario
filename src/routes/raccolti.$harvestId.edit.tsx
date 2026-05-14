@@ -92,29 +92,29 @@ function EditRaccoltoPage() {
   }
 
   return (
-    <main className="min-h-dvh px-4 py-6">
-      <div className="mb-6 flex items-center justify-between">
+    <main className="min-h-dvh flex flex-col bg-cream-50">
+      <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2">
         <button
           type="button"
           onClick={() => navigate({ to: '/raccolti' })}
-          className="inline-flex items-center gap-1 text-sm text-wood-500 hover:text-wood-700"
+          className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
         >
-          <ArrowLeft size={16} />
-          Raccolti
+          <ArrowLeft size={22} strokeWidth={1.75} />
         </button>
+        <h1 className="text-base font-semibold text-wood-800 tracking-tight flex-1 px-1">
+          Modifica raccolto
+        </h1>
         <button
           type="button"
           onClick={() => setShowDeleteConfirm(true)}
-          className="text-sm text-danger-500 hover:text-danger-500/80 transition-colors"
+          className="size-11 flex items-center justify-center text-danger-500 hover:bg-danger-100 rounded-md transition-colors"
         >
-          Elimina
+          <span className="text-sm font-medium">Elimina</span>
         </button>
-      </div>
+      </header>
 
-      <div className="max-w-lg mx-auto">
-        <h1 className="font-display text-2xl font-medium text-wood-800 mb-6">
-          Modifica raccolto
-        </h1>
+      <div className="flex-1 px-4 py-6 overflow-y-auto">
+        <div className="max-w-lg mx-auto">
 
         <div className="flex flex-col gap-5">
           {/* Apiario */}
@@ -223,6 +223,7 @@ function EditRaccoltoPage() {
           <Save size={16} />
           {saving ? 'Salvataggio…' : 'Salva modifiche'}
         </button>
+      </div>
       </div>
 
       {/* Apiary picker */}
