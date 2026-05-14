@@ -80,20 +80,20 @@ function PiuPage() {
     : 'Nessun dato'
 
   return (
-    <main className="min-h-dvh px-4 py-6">
-      <div className="mb-6">
+    <main className="min-h-dvh flex flex-col bg-cream-50">
+      <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2">
         <Link
           to="/"
-          className="inline-flex items-center gap-1 text-sm text-wood-500 hover:text-wood-700"
+          className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
         >
-          <ArrowLeft size={16} />
-          Indietro
+          <ArrowLeft size={22} strokeWidth={1.75} />
         </Link>
-      </div>
-      <div className="max-w-lg mx-auto">
-        <h1 className="font-display text-2xl font-medium text-wood-800 mb-6">
+        <h1 className="font-display text-2xl font-medium text-wood-800 tracking-tight flex-1 px-1">
           {t.nav.altro}
         </h1>
+      </header>
+      <div className="flex-1 px-4 py-6 overflow-y-auto">
+        <div className="max-w-lg mx-auto">
 
         <div className="flex flex-col gap-2">
           {/* User info — minimal */}
@@ -227,6 +227,7 @@ function PiuPage() {
         <div className="mt-3 text-center">
           <p className="text-[11px] text-wood-300">Ultimo aggiornamento dati: {lastUpdateLabel}</p>
         </div>
+      </div>
       </div>
     </main>
   )

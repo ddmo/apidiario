@@ -49,7 +49,7 @@ function ApiaryDetailPage() {
         >
           <ArrowLeft size={22} strokeWidth={1.75} />
         </button>
-        <h1 className="text-2xl font-bold text-wood-800 tracking-tight truncate flex-1 px-1">
+        <h1 className="font-display text-2xl font-medium text-wood-800 tracking-tight truncate flex-1 px-1">
           {apiary?.name ?? '…'}
         </h1>
         <span className="flex items-center gap-0.5">

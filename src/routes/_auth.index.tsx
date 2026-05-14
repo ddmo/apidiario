@@ -92,7 +92,7 @@ function HomePage() {
     <div className="flex flex-col h-full bg-cream-50">
       {/* Top bar */}
       <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-4 h-14 flex items-center">
-        <h1 className="font-display text-lg font-semibold text-wood-800 tracking-tight">
+        <h1 className="font-display text-2xl font-medium text-wood-800 tracking-tight">
           Apidiario
         </h1>
       </header>

@@ -50,7 +50,7 @@ function InspectionListPage() {
           <p className="text-xs text-wood-400 leading-none mb-0.5">
             {t.inspection.list.title}
           </p>
-          <h1 className="text-2xl font-bold text-wood-800 tracking-tight truncate leading-tight">
+          <h1 className="font-display text-2xl font-medium text-wood-800 tracking-tight truncate leading-tight">
             {hive?.identifier ?? '…'}
           </h1>
         </div>
