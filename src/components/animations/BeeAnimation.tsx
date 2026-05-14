@@ -28,7 +28,7 @@ export function BeeAnimation({ className }: BeeAnimationProps): JSX.Element {
     if (!bee) return;
 
     if (reduced) {
-      const f = FLOWERS[Math.floor(Math.random() * FLOWERS.length)];
+      const f = FLOWERS[Math.floor(Math.random() * FLOWERS.length)]!;
       bee.style.transform = `translate(${f.x}px, ${f.y}px)`;
       return;
     }
@@ -44,7 +44,7 @@ export function BeeAnimation({ className }: BeeAnimationProps): JSX.Element {
       } while (nextIdx === currentIdx && FLOWERS.length > 1);
       currentIdx = nextIdx;
 
-      const t = FLOWERS[nextIdx];
+      const t = FLOWERS[nextIdx]!;
       const newDir: 1 | -1 = t.x >= curX ? 1 : -1;
       const midX = (curX + t.x) / 2;
       const peakY = Math.min(curY, t.y) - 55;
