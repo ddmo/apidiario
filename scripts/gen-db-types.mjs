@@ -5,10 +5,13 @@
 import { execSync } from 'child_process'
 import { writeFileSync } from 'fs'
 
-const types = execSync('npx supabase gen types typescript --local --schema public', {
+const raw = execSync('npx supabase gen types typescript --local --schema public', {
   encoding: 'utf8',
   stdio: ['inherit', 'pipe', 'pipe'],
 })
 
-writeFileSync('src/types/database.ts', types, 'utf8')
+// Strip CLI noise (init messages, upgrade notices, plugin hints) — keep only TS
+const types = raw.replace(/^.*(Initialising|A new version of Supabase CLI|<claude-code-hint).*\n?/gm, '').trim()
+
+writeFileSync('src/types/database.ts', types + '\n', 'utf8')
 console.log('✓ src/types/database.ts generato')
