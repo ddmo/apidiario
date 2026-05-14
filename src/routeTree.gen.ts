@@ -17,15 +17,18 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthIndexRouteImport } from './routes/_auth.index'
 import { Route as TrattamentiNewRouteImport } from './routes/trattamenti.new'
+import { Route as RaccoltiNewRouteImport } from './routes/raccolti.new'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ApiariesNewRouteImport } from './routes/apiaries.new'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminAttivitaRouteImport } from './routes/admin.attivita'
 import { Route as AuthTrattamentiRouteImport } from './routes/_auth.trattamenti'
+import { Route as AuthRaccoltiRouteImport } from './routes/_auth.raccolti'
 import { Route as AuthHomeRouteImport } from './routes/_auth.home'
 import { Route as AuthCalendarioRouteImport } from './routes/_auth.calendario'
 import { Route as AuthArnieRouteImport } from './routes/_auth.arnie'
 import { Route as TrattamentiTreatmentIdEditRouteImport } from './routes/trattamenti.$treatmentId.edit'
+import { Route as RaccoltiHarvestIdEditRouteImport } from './routes/raccolti.$harvestId.edit'
 import { Route as InspectionsHiveIdNewRouteImport } from './routes/inspections.$hiveId.new'
 import { Route as HivesHiveIdEditRouteImport } from './routes/hives.$hiveId.edit'
 import { Route as ApiariesApiaryIdSuggerimentiRouteImport } from './routes/apiaries.$apiaryId.suggerimenti'
@@ -75,6 +78,11 @@ const TrattamentiNewRoute = TrattamentiNewRouteImport.update({
   path: '/trattamenti/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RaccoltiNewRoute = RaccoltiNewRouteImport.update({
+  id: '/raccolti/new',
+  path: '/raccolti/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
@@ -100,6 +108,11 @@ const AuthTrattamentiRoute = AuthTrattamentiRouteImport.update({
   path: '/trattamenti',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthRaccoltiRoute = AuthRaccoltiRouteImport.update({
+  id: '/raccolti',
+  path: '/raccolti',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthHomeRoute = AuthHomeRouteImport.update({
   id: '/home',
   path: '/home',
@@ -121,6 +134,11 @@ const TrattamentiTreatmentIdEditRoute =
     path: '/trattamenti/$treatmentId/edit',
     getParentRoute: () => rootRouteImport,
   } as any)
+const RaccoltiHarvestIdEditRoute = RaccoltiHarvestIdEditRouteImport.update({
+  id: '/raccolti/$harvestId/edit',
+  path: '/raccolti/$harvestId/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InspectionsHiveIdNewRoute = InspectionsHiveIdNewRouteImport.update({
   id: '/inspections/$hiveId/new',
   path: '/inspections/$hiveId/new',
@@ -181,11 +199,13 @@ export interface FileRoutesByFullPath {
   '/arnie': typeof AuthArnieRoute
   '/calendario': typeof AuthCalendarioRoute
   '/home': typeof AuthHomeRoute
+  '/raccolti': typeof AuthRaccoltiRoute
   '/trattamenti': typeof AuthTrattamentiRoute
   '/admin/attivita': typeof AdminAttivitaRoute
   '/admin/users': typeof AdminUsersRoute
   '/apiaries/new': typeof ApiariesNewRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/raccolti/new': typeof RaccoltiNewRoute
   '/trattamenti/new': typeof TrattamentiNewRoute
   '/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
   '/apiaries/$apiaryId/edit': typeof ApiariesApiaryIdEditRoute
@@ -193,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/apiaries/$apiaryId/suggerimenti': typeof ApiariesApiaryIdSuggerimentiRoute
   '/hives/$hiveId/edit': typeof HivesHiveIdEditRoute
   '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
+  '/raccolti/$harvestId/edit': typeof RaccoltiHarvestIdEditRoute
   '/trattamenti/$treatmentId/edit': typeof TrattamentiTreatmentIdEditRoute
   '/hives/$hiveId/inspections': typeof AuthHivesHiveIdInspectionsRoute
   '/apiaries/$apiaryId/hives/new': typeof ApiariesApiaryIdHivesNewRoute
@@ -207,11 +228,13 @@ export interface FileRoutesByTo {
   '/arnie': typeof AuthArnieRoute
   '/calendario': typeof AuthCalendarioRoute
   '/home': typeof AuthHomeRoute
+  '/raccolti': typeof AuthRaccoltiRoute
   '/trattamenti': typeof AuthTrattamentiRoute
   '/admin/attivita': typeof AdminAttivitaRoute
   '/admin/users': typeof AdminUsersRoute
   '/apiaries/new': typeof ApiariesNewRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/raccolti/new': typeof RaccoltiNewRoute
   '/trattamenti/new': typeof TrattamentiNewRoute
   '/': typeof AuthIndexRoute
   '/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
@@ -220,6 +243,7 @@ export interface FileRoutesByTo {
   '/apiaries/$apiaryId/suggerimenti': typeof ApiariesApiaryIdSuggerimentiRoute
   '/hives/$hiveId/edit': typeof HivesHiveIdEditRoute
   '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
+  '/raccolti/$harvestId/edit': typeof RaccoltiHarvestIdEditRoute
   '/trattamenti/$treatmentId/edit': typeof TrattamentiTreatmentIdEditRoute
   '/hives/$hiveId/inspections': typeof AuthHivesHiveIdInspectionsRoute
   '/apiaries/$apiaryId/hives/new': typeof ApiariesApiaryIdHivesNewRoute
@@ -236,11 +260,13 @@ export interface FileRoutesById {
   '/_auth/arnie': typeof AuthArnieRoute
   '/_auth/calendario': typeof AuthCalendarioRoute
   '/_auth/home': typeof AuthHomeRoute
+  '/_auth/raccolti': typeof AuthRaccoltiRoute
   '/_auth/trattamenti': typeof AuthTrattamentiRoute
   '/admin/attivita': typeof AdminAttivitaRoute
   '/admin/users': typeof AdminUsersRoute
   '/apiaries/new': typeof ApiariesNewRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/raccolti/new': typeof RaccoltiNewRoute
   '/trattamenti/new': typeof TrattamentiNewRoute
   '/_auth/': typeof AuthIndexRoute
   '/_auth/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
@@ -249,6 +275,7 @@ export interface FileRoutesById {
   '/apiaries/$apiaryId/suggerimenti': typeof ApiariesApiaryIdSuggerimentiRoute
   '/hives/$hiveId/edit': typeof HivesHiveIdEditRoute
   '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
+  '/raccolti/$harvestId/edit': typeof RaccoltiHarvestIdEditRoute
   '/trattamenti/$treatmentId/edit': typeof TrattamentiTreatmentIdEditRoute
   '/_auth/hives/$hiveId/inspections': typeof AuthHivesHiveIdInspectionsRoute
   '/apiaries/$apiaryId/hives/new': typeof ApiariesApiaryIdHivesNewRoute
@@ -266,11 +293,13 @@ export interface FileRouteTypes {
     | '/arnie'
     | '/calendario'
     | '/home'
+    | '/raccolti'
     | '/trattamenti'
     | '/admin/attivita'
     | '/admin/users'
     | '/apiaries/new'
     | '/auth/callback'
+    | '/raccolti/new'
     | '/trattamenti/new'
     | '/apiaries/$apiaryId'
     | '/apiaries/$apiaryId/edit'
@@ -278,6 +307,7 @@ export interface FileRouteTypes {
     | '/apiaries/$apiaryId/suggerimenti'
     | '/hives/$hiveId/edit'
     | '/inspections/$hiveId/new'
+    | '/raccolti/$harvestId/edit'
     | '/trattamenti/$treatmentId/edit'
     | '/hives/$hiveId/inspections'
     | '/apiaries/$apiaryId/hives/new'
@@ -292,11 +322,13 @@ export interface FileRouteTypes {
     | '/arnie'
     | '/calendario'
     | '/home'
+    | '/raccolti'
     | '/trattamenti'
     | '/admin/attivita'
     | '/admin/users'
     | '/apiaries/new'
     | '/auth/callback'
+    | '/raccolti/new'
     | '/trattamenti/new'
     | '/'
     | '/apiaries/$apiaryId'
@@ -305,6 +337,7 @@ export interface FileRouteTypes {
     | '/apiaries/$apiaryId/suggerimenti'
     | '/hives/$hiveId/edit'
     | '/inspections/$hiveId/new'
+    | '/raccolti/$harvestId/edit'
     | '/trattamenti/$treatmentId/edit'
     | '/hives/$hiveId/inspections'
     | '/apiaries/$apiaryId/hives/new'
@@ -320,11 +353,13 @@ export interface FileRouteTypes {
     | '/_auth/arnie'
     | '/_auth/calendario'
     | '/_auth/home'
+    | '/_auth/raccolti'
     | '/_auth/trattamenti'
     | '/admin/attivita'
     | '/admin/users'
     | '/apiaries/new'
     | '/auth/callback'
+    | '/raccolti/new'
     | '/trattamenti/new'
     | '/_auth/'
     | '/_auth/apiaries/$apiaryId'
@@ -333,6 +368,7 @@ export interface FileRouteTypes {
     | '/apiaries/$apiaryId/suggerimenti'
     | '/hives/$hiveId/edit'
     | '/inspections/$hiveId/new'
+    | '/raccolti/$harvestId/edit'
     | '/trattamenti/$treatmentId/edit'
     | '/_auth/hives/$hiveId/inspections'
     | '/apiaries/$apiaryId/hives/new'
@@ -350,12 +386,14 @@ export interface RootRouteChildren {
   AdminUsersRoute: typeof AdminUsersRoute
   ApiariesNewRoute: typeof ApiariesNewRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  RaccoltiNewRoute: typeof RaccoltiNewRoute
   TrattamentiNewRoute: typeof TrattamentiNewRoute
   ApiariesApiaryIdEditRoute: typeof ApiariesApiaryIdEditRoute
   ApiariesApiaryIdMeteoRoute: typeof ApiariesApiaryIdMeteoRoute
   ApiariesApiaryIdSuggerimentiRoute: typeof ApiariesApiaryIdSuggerimentiRoute
   HivesHiveIdEditRoute: typeof HivesHiveIdEditRoute
   InspectionsHiveIdNewRoute: typeof InspectionsHiveIdNewRoute
+  RaccoltiHarvestIdEditRoute: typeof RaccoltiHarvestIdEditRoute
   TrattamentiTreatmentIdEditRoute: typeof TrattamentiTreatmentIdEditRoute
   ApiariesApiaryIdHivesNewRoute: typeof ApiariesApiaryIdHivesNewRoute
   HivesHiveIdInspectionsInspectionIdRoute: typeof HivesHiveIdInspectionsInspectionIdRoute
@@ -419,6 +457,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TrattamentiNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/raccolti/new': {
+      id: '/raccolti/new'
+      path: '/raccolti/new'
+      fullPath: '/raccolti/new'
+      preLoaderRoute: typeof RaccoltiNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/callback': {
       id: '/auth/callback'
       path: '/auth/callback'
@@ -454,6 +499,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthTrattamentiRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/raccolti': {
+      id: '/_auth/raccolti'
+      path: '/raccolti'
+      fullPath: '/raccolti'
+      preLoaderRoute: typeof AuthRaccoltiRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/home': {
       id: '/_auth/home'
       path: '/home'
@@ -480,6 +532,13 @@ declare module '@tanstack/react-router' {
       path: '/trattamenti/$treatmentId/edit'
       fullPath: '/trattamenti/$treatmentId/edit'
       preLoaderRoute: typeof TrattamentiTreatmentIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/raccolti/$harvestId/edit': {
+      id: '/raccolti/$harvestId/edit'
+      path: '/raccolti/$harvestId/edit'
+      fullPath: '/raccolti/$harvestId/edit'
+      preLoaderRoute: typeof RaccoltiHarvestIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/inspections/$hiveId/new': {
@@ -552,6 +611,7 @@ interface AuthRouteChildren {
   AuthArnieRoute: typeof AuthArnieRoute
   AuthCalendarioRoute: typeof AuthCalendarioRoute
   AuthHomeRoute: typeof AuthHomeRoute
+  AuthRaccoltiRoute: typeof AuthRaccoltiRoute
   AuthTrattamentiRoute: typeof AuthTrattamentiRoute
   AuthIndexRoute: typeof AuthIndexRoute
   AuthApiariesApiaryIdRoute: typeof AuthApiariesApiaryIdRoute
@@ -562,6 +622,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthArnieRoute: AuthArnieRoute,
   AuthCalendarioRoute: AuthCalendarioRoute,
   AuthHomeRoute: AuthHomeRoute,
+  AuthRaccoltiRoute: AuthRaccoltiRoute,
   AuthTrattamentiRoute: AuthTrattamentiRoute,
   AuthIndexRoute: AuthIndexRoute,
   AuthApiariesApiaryIdRoute: AuthApiariesApiaryIdRoute,
@@ -581,12 +642,14 @@ const rootRouteChildren: RootRouteChildren = {
   AdminUsersRoute: AdminUsersRoute,
   ApiariesNewRoute: ApiariesNewRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  RaccoltiNewRoute: RaccoltiNewRoute,
   TrattamentiNewRoute: TrattamentiNewRoute,
   ApiariesApiaryIdEditRoute: ApiariesApiaryIdEditRoute,
   ApiariesApiaryIdMeteoRoute: ApiariesApiaryIdMeteoRoute,
   ApiariesApiaryIdSuggerimentiRoute: ApiariesApiaryIdSuggerimentiRoute,
   HivesHiveIdEditRoute: HivesHiveIdEditRoute,
   InspectionsHiveIdNewRoute: InspectionsHiveIdNewRoute,
+  RaccoltiHarvestIdEditRoute: RaccoltiHarvestIdEditRoute,
   TrattamentiTreatmentIdEditRoute: TrattamentiTreatmentIdEditRoute,
   ApiariesApiaryIdHivesNewRoute: ApiariesApiaryIdHivesNewRoute,
   HivesHiveIdInspectionsInspectionIdRoute:
