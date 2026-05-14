@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { supabase } from '@/lib/supabase'
 import { LoginForm } from '@/features/auth/login-form'
+import { BeeAnimation } from '@/components/animations/BeeAnimation'
 
 export const Route = createFileRoute('/login')({
   beforeLoad: async () => {
@@ -28,7 +29,9 @@ function LoginPage() {
         </h1>
         <p className="text-sm text-wood-500">Gestisci i tuoi apiari, ovunque tu sia.</p>
       </div>
-      <div className="flex-1 min-h-4" />
+      <div className="flex-1 flex items-center justify-center px-6 min-h-[180px]">
+        <BeeAnimation className="w-full max-w-sm" />
+      </div>
       <div className="w-full max-w-sm">
         <LoginForm />
       </div>

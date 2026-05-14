@@ -123,3 +123,47 @@
     }
   }
 }
+
+/* ── Animazione login ──────────────────────────────────── */
+.ad-bee-wings {
+  transform-origin: 50% 100%;
+  transform-box: fill-box;
+  animation: ad-wingflap 0.06s infinite alternate ease-in-out;
+}
+
+.ad-sway {
+  transform-origin: 50% 100%;
+  transform-box: fill-box;
+  animation: ad-sway 4s ease-in-out infinite;
+}
+.ad-s2 { animation-duration: 4.5s; animation-delay: -1s; }
+.ad-s3 { animation-duration: 5s;   animation-delay: -2s; }
+.ad-s4 { animation-duration: 4.3s; animation-delay: -0.5s; }
+.ad-s5 { animation-duration: 4.8s; animation-delay: -1.6s; }
+
+@keyframes ad-wingflap {
+  from { transform: scaleY(1);   opacity: 0.85; }
+  to   { transform: scaleY(0.4); opacity: 0.5;  }
+}
+
+@keyframes ad-sway {
+  0%, 100% { transform: rotate(-2deg); }
+  50%      { transform: rotate(2deg);  }
+}
+
+/* Reduced motion: override via media query e data-attribute */
+@media (prefers-reduced-motion: reduce) {
+  .ad-bee-wings,
+  .ad-sway,
+  .ad-pollen circle {
+    animation: none !important;
+  }
+}
+
+[data-reduced="true"] .ad-bee-wings,
+[data-reduced="true"] .ad-sway {
+  animation: none;
+}
+[data-reduced="true"] .ad-pollen animate {
+  display: none;
+}
