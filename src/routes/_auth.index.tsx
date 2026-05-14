@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Trees, Share2, Trash2, Pencil, AlertTriangle, CloudRain, Syringe, FlaskRound, X, Flower2 } from 'lucide-react'
+import { Trees, Share2, Trash2, Pencil, AlertTriangle, CloudRain, FlaskRound, X, Flower2 } from 'lucide-react'
 import { useState } from 'react'
 import { useApiaryCards } from '@/features/home/hooks/use-apiary-cards'
 import { useTodaysAlerts } from '@/features/home/hooks/use-home-alerts'
-import { useRecentActivityByOthers } from '@/features/home/hooks/use-recent-activity'
+import { useRecentActivityByOthers, type ActivityItem } from '@/features/home/hooks/use-recent-activity'
 import { useApiaries, useDeleteApiary } from '@/features/apiaries/hooks/use-apiaries'
 import { ApiaryListItem } from '@/features/apiaries/components/apiary-list-item'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -82,7 +82,7 @@ function HomePage() {
   const activeAlerts = alerts.filter(a => !dismissed.has(a.id))
 
   // Group activities by inspector name for section heading
-  const activityGroups = activities?.reduce<Record<string, typeof activities>>((acc, item) => {
+  const activityGroups = activities?.reduce<Record<string, ActivityItem[]>>((acc, item) => {
     if (!acc[item.inspectorName]) acc[item.inspectorName] = []
     acc[item.inspectorName]!.push(item)
     return acc

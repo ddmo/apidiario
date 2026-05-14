@@ -203,6 +203,14 @@ export function useTodaysAlerts() {
         .select('id, common_name_it, gdd_bloom_start, gdd_bloom_peak, gdd_bloom_end, honey_relevance')
 
       if (!species?.length) return []
+      const typedSpecies = species as unknown as {
+        id: string
+        common_name_it: string
+        gdd_bloom_start: number
+        gdd_bloom_peak: number
+        gdd_bloom_end: number
+        honey_relevance: number
+      }[]
 
       // Batch weather fetch from Open-Meteo historical API
       const lats = withCoords.map((a) => a.latitude).join(',')
@@ -235,14 +243,7 @@ export function useTodaysAlerts() {
           tmax: tmaxArr[idx] ?? 0,
         }))
 
-        for (const s of species as {
-          id: string
-          common_name_it: string
-          gdd_bloom_start: number
-          gdd_bloom_peak: number
-          gdd_bloom_end: number
-          honey_relevance: number
-        }[]) {
+        for (const s of typedSpecies) {
           const prediction = predictBloom(weather, s, today)
           if (prediction.bloom_start?.date) {
             const daysUntil = Math.ceil(
