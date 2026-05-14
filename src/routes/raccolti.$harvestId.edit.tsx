@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useState, useCallback } from 'react'
-import { ArrowLeft, Save, FlaskConical, Wheat, X } from 'lucide-react'
+import { ArrowLeft, Save, Droplet, Trees, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useHarvest, useUpdateHarvest, useDeleteHarvest } from '@/features/harvests/hooks/use-harvests'
 import { HONEY_TYPES } from '@/features/harvests/honey-types'
@@ -125,7 +125,7 @@ function EditRaccoltoPage() {
               onClick={() => setShowApiaryPicker(true)}
               className="flex items-center gap-2 rounded-lg border border-cream-200 bg-cream-50 px-4 py-2.5 text-left text-sm text-wood-800 hover:bg-cream-100 transition-colors"
             >
-              <Wheat size={16} className="text-wood-400 shrink-0" />
+              <Trees size={16} className="text-wood-400 shrink-0" />
               <span className={selectedApiary ? '' : 'text-wood-400'}>
                 {selectedApiary ? selectedApiary.name : 'Seleziona apiario…'}
               </span>
@@ -151,7 +151,7 @@ function EditRaccoltoPage() {
               onClick={() => setShowHoneyPicker(true)}
               className="flex items-center gap-2 rounded-lg border border-cream-200 bg-cream-50 px-4 py-2.5 text-left text-sm text-wood-800 hover:bg-cream-100 transition-colors"
             >
-              <FlaskConical size={16} className="text-wood-400 shrink-0" />
+              <Droplet size={16} className="text-wood-400 shrink-0" />
               <span className={honeyType ? '' : 'text-wood-400'}>
                 {honeyType || 'Seleziona tipo…'}
               </span>
@@ -248,7 +248,7 @@ function EditRaccoltoPage() {
                       : 'hover:bg-cream-100 text-wood-600'
                   }`}
                 >
-                  <Wheat size={16} className="text-wood-400 shrink-0" />
+                  <Trees size={16} className="text-wood-400 shrink-0" />
                   <span className="font-medium">{a.name}</span>
                 </button>
               ))}
@@ -280,7 +280,7 @@ function EditRaccoltoPage() {
                       : 'hover:bg-cream-100 text-wood-600'
                   }`}
                 >
-                  <FlaskConical size={16} className="text-wood-400 shrink-0" />
+                  <Droplet size={16} className="text-wood-400 shrink-0" />
                   <span className="font-medium">{type}</span>
                 </button>
               ))}

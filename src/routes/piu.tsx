@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
 import { getPushStatus, subscribeToPush, unsubscribeFromPush } from '@/lib/push-notifications'
-import { ArrowLeft, Shield, LogOut, Sun, Moon, Monitor, User, Flower2, Activity, BarChart3, Bell, BellOff, Trees, Wheat } from 'lucide-react'
+import { ArrowLeft, Shield, LogOut, Sun, Moon, Monitor, Flower2, Activity, BarChart3, Bell, BellOff, Trees, Wheat } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { setThemeMode, getThemeMode, type ThemeMode } from '@/lib/theme'
 import { t } from '@/i18n/it'
@@ -96,16 +96,9 @@ function PiuPage() {
         </h1>
 
         <div className="flex flex-col gap-2">
-          {/* User info */}
-          <div className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3">
-            <User size={20} className="text-wood-500 shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-wood-800">{displayName}</p>
-              {profile?.display_name && session?.user?.email && session.user.email !== profile.display_name && (
-                <p className="text-xs text-wood-400">{session.user.email}</p>
-              )}
-            </div>
-          </div>
+          {/* User info — minimal */}
+          <p className="text-sm text-wood-400 mb-2">{displayName}</p>
+
           <Link
             to="/apiaries/new"
             className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3 text-wood-800 hover:bg-cream-200 transition-colors"
@@ -122,19 +115,19 @@ function PiuPage() {
           </Link>
 
           <Link
-            to="/statistiche"
-            className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3 text-wood-800 hover:bg-cream-200 transition-colors"
-          >
-            <BarChart3 size={20} className="text-honey-600 shrink-0" />
-            <span className="text-sm font-medium">Statistiche</span>
-          </Link>
-
-          <Link
             to="/raccolti"
             className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3 text-wood-800 hover:bg-cream-200 transition-colors"
           >
             <Wheat size={20} className="text-honey-600 shrink-0" />
             <span className="text-sm font-medium">Raccolti</span>
+          </Link>
+
+          <Link
+            to="/statistiche"
+            className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3 text-wood-800 hover:bg-cream-200 transition-colors"
+          >
+            <BarChart3 size={20} className="text-honey-600 shrink-0" />
+            <span className="text-sm font-medium">Statistiche</span>
           </Link>
 
           {isAdmin && (

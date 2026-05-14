@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { ArrowLeft, Plus, Wheat } from 'lucide-react'
+import { Plus, Wheat } from 'lucide-react'
 import { useHarvests } from '@/features/harvests/hooks/use-harvests'
 import type { HarvestListItem } from '@/features/harvests/types'
 
@@ -35,29 +35,25 @@ function RaccoltiPage() {
 
   return (
     <main className="min-h-dvh px-4 py-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="max-w-lg mx-auto">
+        <div className="flex items-center justify-between mb-6">
           <Link
             to="/piu"
             className="inline-flex items-center gap-1 text-sm text-wood-500 hover:text-wood-700"
           >
-            <ArrowLeft size={16} />
+            <Plus size={14} className="rotate-45" />
             Più
           </Link>
+          <h1 className="font-display text-2xl font-medium text-wood-800">
+            Raccolti
+          </h1>
+          <Link
+            to="/raccolti/new"
+            className="inline-flex items-center justify-center size-9 rounded-full bg-honey-500 text-cream-50 hover:bg-honey-600 transition-colors"
+          >
+            <Plus size={18} />
+          </Link>
         </div>
-        <Link
-          to="/raccolti/new"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-honey-500 px-3 py-2 text-sm font-medium text-cream-50 hover:bg-honey-600 transition-colors"
-        >
-          <Plus size={16} />
-          Nuovo raccolto
-        </Link>
-      </div>
-
-      <div className="max-w-lg mx-auto">
-        <h1 className="font-display text-2xl font-medium text-wood-800 mb-6">
-          Raccolti
-        </h1>
 
         {isLoading && (
           <p className="text-sm text-wood-400">Caricamento raccolti…</p>
