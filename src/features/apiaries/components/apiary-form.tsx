@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { ArrowLeft, MapPin, Map } from 'lucide-react'
+import { ArrowLeft, MapPin, Map, Flower2 } from 'lucide-react'
 import imageCompression from 'browser-image-compression'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,6 +8,8 @@ import { LocationPreview } from '@/components/ui/location-preview'
 import { MapPickerSheet } from '@/components/ui/map-picker-sheet'
 import { useCreateApiary, useUpdateApiary, type ApiaryDetail } from '../hooks/use-apiaries'
 import { useGeolocation } from '../hooks/use-geolocation'
+import { useApiarySpecies, useSetApiarySpecies } from '../hooks/use-apiary-species'
+import { usePhenologySpecies } from '@/features/phenology/hooks/use-phenology'
 import { useToast } from '@/hooks/use-toast'
 import { t } from '@/i18n/it'
 
@@ -49,6 +51,17 @@ export function ApiaryForm({ userId, onSuccess, onCancel, initialData }: ApiaryF
   const [isDirty, setIsDirty] = useState(false)
   const [showUnsaved, setShowUnsaved] = useState(false)
   const [showMapPicker, setShowMapPicker] = useState(false)
+  const [selectedSpecies, setSelectedSpecies] = useState<Set<string>>(new Set())
+  const { data: speciesCatalog } = usePhenologySpecies()
+  const { mutate: setApiarySpecies } = useSetApiarySpecies()
+  const { data: existingSpecies } = useApiarySpecies(initialData?.id ?? '')
+
+  // Sync existing species on edit load
+  useEffect(() => {
+    if (existingSpecies && existingSpecies.size > 0) {
+      setSelectedSpecies(new Set(existingSpecies))
+    }
+  }, [existingSpecies])
 
   const markDirty = () => setIsDirty(true)
 
@@ -151,6 +164,8 @@ export function ApiaryForm({ userId, onSuccess, onCancel, initialData }: ApiaryF
           onError: () => showToast(t.apiary.new.errorSave, 'error'),
         },
       )
+      // Save species indipendentemente — non annidata nei callback
+      setApiarySpecies({ apiaryId: initialData.id, speciesIds: [...selectedSpecies] })
     } else {
       createApiary(
         {
@@ -172,6 +187,10 @@ export function ApiaryForm({ userId, onSuccess, onCancel, initialData }: ApiaryF
               showToast(t.apiary.new.saved, 'success')
             }
             onSuccess()
+            // Save species dopo la creazione (serve result.id)
+            if (selectedSpecies.size > 0) {
+              setApiarySpecies({ apiaryId: result.id, speciesIds: [...selectedSpecies] })
+            }
           },
           onError: () => showToast(t.apiary.new.errorSave, 'error'),
         },
@@ -365,6 +384,44 @@ export function ApiaryForm({ userId, onSuccess, onCancel, initialData }: ApiaryF
                 autoComplete="street-address"
               />
             </div>
+          </section>
+
+          {/* Specie di fiori presenti */}
+          <section>
+            <div className="text-sm font-medium text-wood-700 mb-2 flex items-center gap-1.5">
+              <Flower2 size={16} className="text-honey-600" />
+              Specie presenti
+            </div>
+            {speciesCatalog && speciesCatalog.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {speciesCatalog.map((s) => {
+                  const selected = selectedSpecies.has(s.id)
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => {
+                        const next = new Set(selectedSpecies)
+                        if (next.has(s.id)) next.delete(s.id)
+                        else next.add(s.id)
+                        setSelectedSpecies(next)
+                        markDirty()
+                      }}
+                      className={`px-2.5 py-1 rounded-full text-xs font-medium leading-none transition-colors ${
+                        selected
+                          ? 'bg-honey-500 text-cream-50'
+                          : 'bg-cream-100 text-wood-600 border border-cream-200 hover:bg-cream-200'
+                      }`}
+                      aria-pressed={selected}
+                    >
+                      {s.common_name_it}
+                    </button>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="text-xs text-wood-400">Caricamento specie in corso...</p>
+            )}
           </section>
 
           {/* Note */}

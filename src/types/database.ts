@@ -1,3 +1,4 @@
+Initialising login role...
 export type Json =
   | string
   | number
@@ -12,33 +13,46 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
+      activity_log: {
+        Row: {
+          action: string
+          created_at: string
+          description: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          description: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          description?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       apiaries: {
         Row: {
           address: string | null
@@ -138,6 +152,39 @@ export type Database = {
           },
         ]
       }
+      apiary_species: {
+        Row: {
+          apiary_id: string
+          created_at: string
+          species_id: string
+        }
+        Insert: {
+          apiary_id: string
+          created_at?: string
+          species_id: string
+        }
+        Update: {
+          apiary_id?: string
+          created_at?: string
+          species_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "apiary_species_apiary_id_fkey"
+            columns: ["apiary_id"]
+            isOneToOne: false
+            referencedRelation: "apiaries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "apiary_species_species_id_fkey"
+            columns: ["species_id"]
+            isOneToOne: false
+            referencedRelation: "phenology_species"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_admins: {
         Row: {
           created_at: string
@@ -155,6 +202,60 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      bloom_observations: {
+        Row: {
+          apiary_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          observed_end_date: string | null
+          observed_start_date: string | null
+          species_id: string
+          updated_at: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          apiary_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          observed_end_date?: string | null
+          observed_start_date?: string | null
+          species_id: string
+          updated_at?: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          apiary_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          observed_end_date?: string | null
+          observed_start_date?: string | null
+          species_id?: string
+          updated_at?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bloom_observations_apiary_id_fkey"
+            columns: ["apiary_id"]
+            isOneToOne: false
+            referencedRelation: "apiaries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bloom_observations_species_id_fkey"
+            columns: ["species_id"]
+            isOneToOne: false
+            referencedRelation: "phenology_species"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       harvests: {
         Row: {
@@ -281,38 +382,6 @@ export type Database = {
           },
         ]
       }
-      inspection_voice_notes: {
-        Row: {
-          created_at: string
-          duration_seconds: number
-          id: string
-          inspection_id: string
-          storage_path: string
-        }
-        Insert: {
-          created_at?: string
-          duration_seconds: number
-          id?: string
-          inspection_id: string
-          storage_path: string
-        }
-        Update: {
-          created_at?: string
-          duration_seconds?: number
-          id?: string
-          inspection_id?: string
-          storage_path?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "inspection_voice_notes_inspection_id_fkey"
-            columns: ["inspection_id"]
-            isOneToOne: false
-            referencedRelation: "inspections"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       inspection_media: {
         Row: {
           created_at: string
@@ -338,6 +407,38 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "inspection_media_inspection_id_fkey"
+            columns: ["inspection_id"]
+            isOneToOne: false
+            referencedRelation: "inspections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inspection_voice_notes: {
+        Row: {
+          created_at: string
+          duration_seconds: number
+          id: string
+          inspection_id: string
+          storage_path: string
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds: number
+          id?: string
+          inspection_id: string
+          storage_path: string
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number
+          id?: string
+          inspection_id?: string
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inspection_voice_notes_inspection_id_fkey"
             columns: ["inspection_id"]
             isOneToOne: false
             referencedRelation: "inspections"
@@ -593,6 +694,30 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          created_at: string
+          endpoint: string
+          id: string
+          keys: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          endpoint: string
+          id?: string
+          keys: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          endpoint?: string
+          id?: string
+          keys?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       queens: {
         Row: {
           birth_year: number | null
@@ -806,98 +931,6 @@ export type Database = {
           },
         ]
       }
-      activity_log: {
-        Row: {
-          id: string
-          user_id: string
-          action: string
-          entity_type: string
-          entity_id: string | null
-          description: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          action: string
-          entity_type: string
-          entity_id?: string | null
-          description: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          action?: string
-          entity_type?: string
-          entity_id?: string | null
-          description?: string
-          created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "activity_log_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      bloom_observations: {
-        Row: {
-          id: string
-          apiary_id: string
-          species_id: string
-          year: number
-          observed_start_date: string | null
-          observed_end_date: string | null
-          notes: string | null
-          user_id: string
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          apiary_id: string
-          species_id: string
-          year: number
-          observed_start_date?: string | null
-          observed_end_date?: string | null
-          notes?: string | null
-          user_id: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          apiary_id?: string
-          species_id?: string
-          year?: number
-          observed_start_date?: string | null
-          observed_end_date?: string | null
-          notes?: string | null
-          user_id?: string
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bloom_observations_apiary_id_fkey"
-            columns: ["apiary_id"]
-            isOneToOne: false
-            referencedRelation: "apiaries"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bloom_observations_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       [_ in never]: never
@@ -917,8 +950,19 @@ export type Database = {
         }
         Returns: undefined
       }
+      get_storage_usage: {
+        Args: { bucket_name: string }
+        Returns: {
+          total_files: number
+          total_size: number
+        }[]
+      }
       is_app_admin: { Args: never; Returns: boolean }
       storage_can_delete_apiary_media: {
+        Args: { object_name: string }
+        Returns: boolean
+      }
+      storage_can_delete_inspection_media: {
         Args: { object_name: string }
         Returns: boolean
       }
@@ -926,7 +970,15 @@ export type Database = {
         Args: { object_name: string }
         Returns: boolean
       }
+      storage_can_read_inspection_media: {
+        Args: { object_name: string }
+        Returns: boolean
+      }
       storage_can_write_apiary_media: {
+        Args: { object_name: string }
+        Returns: boolean
+      }
+      storage_can_write_inspection_media: {
         Args: { object_name: string }
         Returns: boolean
       }
@@ -1112,9 +1164,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       access_role: ["reader", "editor"],
@@ -1175,3 +1224,6 @@ export const Constants = {
     },
   },
 } as const
+<claude-code-hint v="1" type="plugin" value="supabase@claude-plugins-official" />
+A new version of Supabase CLI is available: v2.98.2 (currently installed v2.98.0)
+We recommend updating regularly for new features and bug fixes: https://supabase.com/docs/guides/cli/getting-started#updating-the-supabase-cli

@@ -212,6 +212,18 @@ export function useTodaysAlerts() {
         honey_relevance: number
       }[]
 
+      // Species per apiary — filter alerts to only configured species
+      const { data: apiarySpecies } = await supabase
+        .from('apiary_species')
+        .select('apiary_id, species_id')
+        .in('apiary_id', withCoords.map((a) => a.id))
+      const speciesByApiary = new Map<string, Set<string>>()
+      for (const row of apiarySpecies ?? []) {
+        const set = speciesByApiary.get(row.apiary_id) ?? new Set()
+        set.add(row.species_id)
+        speciesByApiary.set(row.apiary_id, set)
+      }
+
       // Batch weather fetch from Open-Meteo historical API
       const lats = withCoords.map((a) => a.latitude).join(',')
       const lngs = withCoords.map((a) => a.longitude).join(',')
@@ -231,6 +243,7 @@ export function useTodaysAlerts() {
       const result: AlertUnion[] = []
       for (let i = 0; i < Math.min(weatherArr.length, withCoords.length); i++) {
         const apiary = withCoords[i]!
+        const allowedSpecies = speciesByApiary.get(apiary.id)
         const entry = weatherArr[i]
         const times: string[] = entry?.daily?.time ?? []
         const tmaxArr: number[] = entry?.daily?.temperature_2m_max ?? []
@@ -244,6 +257,9 @@ export function useTodaysAlerts() {
         }))
 
         for (const s of typedSpecies) {
+          // If user configured species for this apiary, skip unselected ones
+          if (allowedSpecies && allowedSpecies.size > 0 && !allowedSpecies.has(s.id)) continue
+
           const prediction = predictBloom(weather, s, today)
           if (prediction.bloom_start?.date) {
             const daysUntil = Math.ceil(
