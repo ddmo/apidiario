@@ -69,17 +69,12 @@ export function SwipeableRow({ children, revealContent, revealWidth = 84 }: Swip
 
   return (
     <div className="relative overflow-hidden rounded-xl">
-      {/* Reveal panel */}
-      <div
-        className="absolute inset-y-0 right-0 flex items-stretch"
-        style={{ width: revealWidth }}
-      >
-        {revealContent}
-      </div>
-
-      {/* Swipeable content */}
+      {/* Grid wrapper: content + reveal panel in equal-height columns */}
       <div
         style={{
+          display: 'grid',
+          gridTemplateColumns: `1fr ${revealWidth}px`,
+          width: `calc(100% + ${revealWidth}px)`,
           transform: `translateX(${offsetX}px)`,
           transition: animate ? 'transform 0.2s ease' : 'none',
         }}
@@ -89,7 +84,22 @@ export function SwipeableRow({ children, revealContent, revealWidth = 84 }: Swip
         onClick={handleClick}
         onTransitionEnd={() => setAnimate(false)}
       >
-        {children}
+        <div className="flex">
+          {children}
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            position: 'relative',
+            zIndex: -1,
+            width: `calc(100% + 12px)`,
+            marginLeft: -12,
+            overflow: 'hidden',
+            borderRadius: '0 12px 12px 0',
+          }}
+        >
+          {revealContent}
+        </div>
       </div>
 
       {/* Overlay while revealed */}
