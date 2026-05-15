@@ -15,6 +15,7 @@ function ctx(overrides: Partial<SuggestionContext> = {}): SuggestionContext {
 const INSP = {
   id: 'i1', hive_id: 'h1', performed_by: 'u1',
   performed_at: '2026-05-01T10:00:00Z', created_at: '2026-05-01T10:00:00Z', updated_at: '2026-05-01T10:00:00Z',
+  batch_id: null,
   queen_seen: 'non_vista' as const,
   brood_eggs: false, brood_larvae: false, brood_capped: false,
   population: 'media' as const,

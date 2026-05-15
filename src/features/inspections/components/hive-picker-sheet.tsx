@@ -85,7 +85,7 @@ export function HivePickerSheet({ open, onClose }: HivePickerSheetProps) {
     if (ids.length === 0) return
     handleClose()
     if (ids.length === 1) {
-      navigate({ to: '/inspections/$hiveId/new', params: { hiveId: ids[0] } })
+      navigate({ to: '/inspections/$hiveId/new', params: { hiveId: ids[0]! } })
     } else {
       const first = hives?.find((h) => h.id === ids[0])
       if (!first) return

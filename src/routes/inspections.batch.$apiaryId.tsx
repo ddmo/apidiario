@@ -475,7 +475,6 @@ function ReviewStep({
   customizedCount,
   onEditHive,
   onNoteHive,
-  onRemoveNote,
   isSaving,
   onSave,
   onGoToBase,
