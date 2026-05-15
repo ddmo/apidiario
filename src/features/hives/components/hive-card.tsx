@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { ClipboardList, Trash2, Pencil, DoorOpen, Grid3x3, Flower, Droplets, ClipboardCheck } from 'lucide-react'
 import { HiveSchematic } from './hive-schematic'
 import { SegmentedControl } from '@/components/ui/segmented-control'
@@ -33,6 +33,7 @@ interface HiveCardProps {
 }
 
 export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps & { showSchematic?: boolean }) {
+  const navigate = useNavigate()
   const { mutate: toggle } = useToggleHiveAccessory()
   const { mutate: updateMelari } = useUpdateMelariCount()
   const { data: melariBlock } = useActiveMelariBlock(hive.id, hive.apiaryId)
@@ -246,13 +247,13 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
                 </div>
 
                 {/* Inspect button */}
-                <Link
-                  to="/inspections/$hiveId/new"
-                  params={{ hiveId: hive.id }}
+                <button
+                  type="button"
+                  onClick={() => navigate({ to: '/inspections/$hiveId/new', params: { hiveId: hive.id } })}
                   className="inline-flex items-center justify-center h-8 px-4 bg-honey-400 text-wood-900 rounded-lg text-sm font-semibold w-full"
                 >
                   {t.hive.card.inspect}
-                </Link>
+                </button>
               </div>
             </div>
           ) : (
@@ -341,13 +342,13 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
                     <Flower size={16} strokeWidth={1.75} />
                   </button>
                 </div>
-                <Link
-                  to="/inspections/$hiveId/new"
-                  params={{ hiveId: hive.id }}
+                <button
+                  type="button"
+                  onClick={() => navigate({ to: '/inspections/$hiveId/new', params: { hiveId: hive.id } })}
                   className="inline-flex items-center justify-center h-8 px-4 bg-honey-400 text-wood-900 rounded-lg text-sm font-semibold ml-auto"
                 >
                   {t.hive.card.inspect}
-                </Link>
+                </button>
               </div>
             </div>
           )}
@@ -402,6 +403,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
           </div>
         </>
       )}
+
     </div>
   )
 }

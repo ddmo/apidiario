@@ -1,5 +1,6 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { uuid } from '@/lib/utils'
 import { queryClient } from '@/lib/query-client'
 import { logActivity } from '@/lib/activity-log'
 import type { TablesInsert } from '@/types/database'
@@ -156,7 +157,7 @@ type CreateTreatmentInput = {
 export function useCreateTreatment() {
   return useMutation<string, Error, CreateTreatmentInput>({
     mutationFn: async (input) => {
-      const id = crypto.randomUUID()
+      const id = uuid()
       const payload: TablesInsert<'treatments'> = {
         id,
         apiary_id: input.apiaryId,

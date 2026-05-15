@@ -43,6 +43,7 @@ interface StandardBodyProps {
   onMediaFilesSelected: (files: File[]) => void
   onRemoveMedia: (id: string) => void
   onRemovePendingMedia: (id: string) => void
+  disableVoiceAndMedia?: boolean
 }
 
 interface MediaItem {
@@ -57,7 +58,7 @@ interface PendingMediaItem {
   file: File
 }
 
-export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes, isRecording, canRecord, onStartRecording, onStopRecording, onPickAudioFile, onDeleteVoiceNote, inspectionMedia, pendingMedia, mediaUploading, onMediaFilesSelected, onRemoveMedia, onRemovePendingMedia }: StandardBodyProps) {
+export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes, isRecording, canRecord, onStartRecording, onStopRecording, onPickAudioFile, onDeleteVoiceNote, inspectionMedia, pendingMedia, mediaUploading, onMediaFilesSelected, onRemoveMedia, onRemovePendingMedia, disableVoiceAndMedia }: StandardBodyProps) {
   const [noteOpen, setNoteOpen] = useState(false)
   const d = (key: string) => dirtyFields.has(key)
 
@@ -217,17 +218,19 @@ export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes
         />
       </section>
 
-      <section>
-        <SectionLabel>Foto / video</SectionLabel>
-        <InspectionMediaPicker
-          media={inspectionMedia}
-          pendingMedia={pendingMedia}
-          uploading={mediaUploading}
-          onFilesSelected={onMediaFilesSelected}
-          onRemove={onRemoveMedia}
-          onRemovePending={onRemovePendingMedia}
-        />
-      </section>
+      {!disableVoiceAndMedia && (
+        <section>
+          <SectionLabel>Foto / video</SectionLabel>
+          <InspectionMediaPicker
+            media={inspectionMedia}
+            pendingMedia={pendingMedia}
+            uploading={mediaUploading}
+            onFilesSelected={onMediaFilesSelected}
+            onRemove={onRemoveMedia}
+            onRemovePending={onRemovePendingMedia}
+          />
+        </section>
+      )}
 
       <section>
         <SectionLabel>Note</SectionLabel>
@@ -244,6 +247,7 @@ export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes
           onStopRecording={onStopRecording}
           onPickAudioFile={onPickAudioFile}
           onDeleteVoiceNote={onDeleteVoiceNote}
+          disableVoiceAndMedia={disableVoiceAndMedia}
         />
       </section>
 

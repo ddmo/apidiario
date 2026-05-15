@@ -1,12 +1,11 @@
-import { test, expect, login } from './helpers'
+import { test, expect } from './helpers'
 
 test.describe('hive CRUD', () => {
   let apiaryId: string
 
   test.beforeAll(async ({ browser }) => {
-    const ctx = await browser.newContext()
+    const ctx = await browser.newContext({ storageState: 'e2e/.auth.json' })
     const page = await ctx.newPage()
-    await login(page)
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
@@ -20,8 +19,6 @@ test.describe('hive CRUD', () => {
 
   test('creazione nuova arnia da pagina apiario', async ({ page }) => {
     test.skip(!apiaryId, 'Nessun apiario')
-    await login(page)
-
     await page.goto(`/apiaries/${apiaryId}/hives/new`)
     await page.waitForLoadState('networkidle')
 
@@ -45,8 +42,6 @@ test.describe('hive CRUD', () => {
 
   test('pagina elenco ispezioni carica', async ({ page }) => {
     test.skip(!apiaryId, 'Nessun apiario')
-    await login(page)
-
     await page.goto(`/apiaries/${apiaryId}`)
     await page.waitForLoadState('networkidle')
 

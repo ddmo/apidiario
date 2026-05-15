@@ -461,6 +461,7 @@ export type Database = {
           pathologies: Database["public"]["Enums"]["pathology"][] | null
           performed_at: string
           performed_by: string
+          batch_id: string | null
           pollen_frame_count: number | null
           pollen_importation: boolean | null
           population: Database["public"]["Enums"]["population_strength"] | null
@@ -489,6 +490,7 @@ export type Database = {
           pathologies?: Database["public"]["Enums"]["pathology"][] | null
           performed_at?: string
           performed_by: string
+          batch_id?: string | null
           pollen_frame_count?: number | null
           pollen_importation?: boolean | null
           population?: Database["public"]["Enums"]["population_strength"] | null
@@ -517,6 +519,7 @@ export type Database = {
           pathologies?: Database["public"]["Enums"]["pathology"][] | null
           performed_at?: string
           performed_by?: string
+          batch_id?: string | null
           pollen_frame_count?: number | null
           pollen_importation?: boolean | null
           population?: Database["public"]["Enums"]["population_strength"] | null

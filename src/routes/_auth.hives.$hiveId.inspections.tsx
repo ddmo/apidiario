@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useInspectionsByHive, useDeleteInspection } from '@/features/inspections/hooks/use-inspections'
 import { PATHOLOGY_LABELS } from '@/features/inspections/constants'
 import { EmptyState } from '@/components/ui/empty-state'
-import { SwipeableRow } from '@/components/ui/swipeable-row'
+import { SwipeableReveal } from '@/components/ui/swipeable-reveal'
 import { ClipboardList } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { t } from '@/i18n/it'
@@ -102,7 +102,7 @@ function InspectionListPage() {
 
               return (
                 <li key={insp.id}>
-                  <SwipeableRow
+                  <SwipeableReveal
                     revealWidth={84}
                     revealContent={
                       <button
@@ -167,7 +167,7 @@ function InspectionListPage() {
                         <ArrowRight />
                       </div>
                     </Link>
-                  </SwipeableRow>
+                  </SwipeableReveal>
                 </li>
               )
             })}

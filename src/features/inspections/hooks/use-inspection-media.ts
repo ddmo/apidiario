@@ -1,19 +1,10 @@
 import { useState, useCallback, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useToast } from '@/hooks/use-toast'
+import { uuid } from '@/lib/utils'
 import type { Tables } from '@/types/database'
 
 type MediaRow = Tables<'inspection_media'> & { signedUrl?: string }
-
-function uuid(): string {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID()
-  }
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0
-    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
-  })
-}
 
 export interface PendingMediaItem {
   id: string
@@ -104,7 +95,7 @@ export function useInspectionMedia(inspectionId: string | null) {
     console.log('[mediaUpload] handleMediaFiles start', files.length, 'files', files.map(f => ({ name: f.name, type: f.type, size: f.size })))
 
     const pending: PendingMediaItem[] = Array.from(files).map((file) => ({
-      id: crypto.randomUUID(),
+      id: uuid(),
       previewUrl: URL.createObjectURL(file),
       file,
     }))

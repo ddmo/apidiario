@@ -1,14 +1,12 @@
-import { test, expect, login } from './helpers'
+import { test, expect } from './helpers'
 
 test.describe('navigation consistency', () => {
   let apiaryId: string
 
   test.beforeAll(async ({ browser }) => {
     // Grab apiary ID once — fresh context, then discard
-    const ctx = await browser.newContext()
+    const ctx = await browser.newContext({ storageState: 'e2e/.auth.json' })
     const page = await ctx.newPage()
-    await login(page)
-
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
@@ -24,14 +22,13 @@ test.describe('navigation consistency', () => {
 
   test('apiario -> ispeziona -> back torna apiario', async ({ page }) => {
     test.skip(!apiaryId, 'Nessun apiario')
-    await login(page)
 
     await page.goto(`/apiaries/${apiaryId}`)
     await page.waitForLoadState('networkidle')
 
-    const ispezionaLink = page.getByRole('link', { name: /ispeziona/i }).first()
-    await expect(ispezionaLink).toBeVisible({ timeout: 10000 })
-    await ispezionaLink.click()
+    const ispezionaBtn = page.getByRole('button', { name: /ispeziona/i }).first()
+    await expect(ispezionaBtn).toBeVisible({ timeout: 10000 })
+    await ispezionaBtn.click()
     await expect(page).toHaveURL(/\/inspections\/.+/, { timeout: 5000 })
 
     const backBtn = page.getByLabel('Indietro')
@@ -42,7 +39,6 @@ test.describe('navigation consistency', () => {
 
   test('lista apiari -> apiario -> back torna lista', async ({ page }) => {
     test.skip(!apiaryId, 'Nessun apiario')
-    await login(page)
 
     await page.goto('/')
     await page.waitForLoadState('networkidle')
@@ -60,7 +56,6 @@ test.describe('navigation consistency', () => {
 
   test('apiario -> lista ispezioni -> back torna apiario', async ({ page }) => {
     test.skip(!apiaryId, 'Nessun apiario')
-    await login(page)
 
     await page.goto(`/apiaries/${apiaryId}`)
     await page.waitForLoadState('networkidle')

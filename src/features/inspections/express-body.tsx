@@ -23,9 +23,10 @@ interface ExpressBodyProps {
   onStopRecording: () => void
   onPickAudioFile: () => void
   onDeleteVoiceNote: (id: string) => void
+  disableVoiceAndMedia?: boolean
 }
 
-export function ExpressBody({ state, dirtyFields, onUpdate, voiceNotes, isRecording, canRecord, onStartRecording, onStopRecording, onPickAudioFile, onDeleteVoiceNote }: ExpressBodyProps) {
+export function ExpressBody({ state, dirtyFields, onUpdate, voiceNotes, isRecording, canRecord, onStartRecording, onStopRecording, onPickAudioFile, onDeleteVoiceNote, disableVoiceAndMedia }: ExpressBodyProps) {
   const [noteOpen, setNoteOpen] = useState(false)
   const d = (key: string) => dirtyFields.has(key)
 
@@ -88,6 +89,7 @@ export function ExpressBody({ state, dirtyFields, onUpdate, voiceNotes, isRecord
           onStopRecording={onStopRecording}
           onPickAudioFile={onPickAudioFile}
           onDeleteVoiceNote={onDeleteVoiceNote}
+          disableVoiceAndMedia={disableVoiceAndMedia}
         />
       </section>
 

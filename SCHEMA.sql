@@ -3627,6 +3627,7 @@ CREATE TABLE public.inspections (
     hive_id uuid NOT NULL,
     performed_at timestamp with time zone DEFAULT now() NOT NULL,
     performed_by uuid NOT NULL,
+    batch_id uuid,
     weather_summary text,
     temperature_c numeric(4,1),
     queen_seen public.queen_seen_state DEFAULT 'non_cercata'::public.queen_seen_state NOT NULL,
@@ -5276,6 +5277,13 @@ CREATE INDEX idx_inspections_hive_at ON public.inspections USING btree (hive_id,
 --
 
 CREATE INDEX idx_inspections_perf_by ON public.inspections USING btree (performed_by);
+
+
+--
+-- Name: idx_inspections_batch_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_inspections_batch_id ON public.inspections USING btree (batch_id) WHERE (batch_id IS NOT NULL);
 
 
 --

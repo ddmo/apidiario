@@ -2,6 +2,7 @@ import { useQuery, useMutation } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
 import { queryClient } from '@/lib/query-client'
+import { uuid } from '@/lib/utils'
 import { logActivity } from '@/lib/activity-log'
 import type { Tables, TablesInsert } from '@/types/database'
 
@@ -144,7 +145,7 @@ export function useCreateApiary() {
       // Step 1: INSERT — UUID pre-generated client-side to avoid ?select=id
       // which triggers a RETURNING SELECT hitting a RLS recursion issue in
       // user_can_read_apiary on the newly-inserted row.
-      const id = crypto.randomUUID()
+      const id = uuid()
 
       const payload: TablesInsert<'apiaries'> = {
         id,

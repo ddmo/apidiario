@@ -1,12 +1,12 @@
 import { useState, useRef, type ReactNode, type MouseEvent } from 'react'
 
-interface SwipeableRowProps {
+interface SwipeableRevealProps {
   children: ReactNode
   revealContent: ReactNode
   revealWidth?: number
 }
 
-export function SwipeableRow({ children, revealContent, revealWidth = 84 }: SwipeableRowProps) {
+export function SwipeableReveal({ children, revealContent, revealWidth = 84 }: SwipeableRevealProps) {
   const startRef = useRef<{ x: number; y: number } | null>(null)
   const trackingRef = useRef(false)
   const swipedRef = useRef(false)
@@ -69,12 +69,18 @@ export function SwipeableRow({ children, revealContent, revealWidth = 84 }: Swip
 
   return (
     <div className="relative overflow-hidden rounded-xl">
-      {/* Grid: content + panel at equal heights */}
+      {/* Reveal panel — absolute at right */}
       <div
+        className="absolute inset-y-0 right-0 flex items-stretch"
+        style={{ width: revealWidth }}
+      >
+        {revealContent}
+      </div>
+
+      {/* Swipeable content */}
+      <div
+        className="relative"
         style={{
-          display: 'grid',
-          gridTemplateColumns: `1fr ${revealWidth}px`,
-          width: `calc(100% + ${revealWidth}px)`,
           transform: `translateX(${offsetX}px)`,
           transition: animate ? 'transform 0.2s ease' : 'none',
         }}
@@ -84,21 +90,7 @@ export function SwipeableRow({ children, revealContent, revealWidth = 84 }: Swip
         onClick={handleClick}
         onTransitionEnd={() => setAnimate(false)}
       >
-        <div className="flex">
-          {children}
-        </div>
-        <div
-          className="flex"
-          style={{
-            position: 'relative',
-            zIndex: -1,
-            overflow: 'hidden',
-            borderRadius: '0 12px 12px 0',
-            boxShadow: '-12px 0 0 0 var(--color-honey-500)',
-          }}
-        >
-          {revealContent}
-        </div>
+        {children}
       </div>
 
       {/* Overlay while revealed */}

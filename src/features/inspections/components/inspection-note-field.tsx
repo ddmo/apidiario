@@ -16,6 +16,7 @@ interface InspectionNoteFieldProps {
   onStopRecording: () => void
   onPickAudioFile: () => void
   onDeleteVoiceNote: (id: string) => void
+  disableVoiceAndMedia?: boolean
 }
 
 export function InspectionNoteField({
@@ -31,6 +32,7 @@ export function InspectionNoteField({
   onStopRecording,
   onPickAudioFile,
   onDeleteVoiceNote,
+  disableVoiceAndMedia,
 }: InspectionNoteFieldProps) {
   if (!expanded) {
     return (
@@ -47,12 +49,14 @@ export function InspectionNoteField({
             !value && 'text-wood-400',
           )}
         >
-          {value || voiceNotes.length > 0
-            ? `${voiceNotes.length} nota${voiceNotes.length > 1 ? 'e' : ''} vocale${voiceNotes.length > 1 ? 'i' : ''}`
-            : 'Aggiungi nota o detta…'}
+          {value
+            ? value
+            : voiceNotes.length > 0 && !disableVoiceAndMedia
+              ? `${voiceNotes.length} nota${voiceNotes.length > 1 ? 'e' : ''} vocale`
+              : 'Aggiungi nota o detta…'}
         </span>
-        {canRecord && <Mic size={20} className="text-wood-400 shrink-0" />}
-        {!canRecord && voiceNotes.length > 0 && <Mic size={20} className="text-wood-400 shrink-0" />}
+        {!disableVoiceAndMedia && canRecord && <Mic size={20} className="text-wood-400 shrink-0" />}
+        {!disableVoiceAndMedia && !canRecord && voiceNotes.length > 0 && <Mic size={20} className="text-wood-400 shrink-0" />}
       </button>
     )
   }
@@ -67,38 +71,40 @@ export function InspectionNoteField({
         placeholder="Aggiungi nota o detta…"
         className="w-full bg-transparent px-4 py-3 text-base text-wood-700 placeholder:text-wood-400 focus:outline-none resize-none"
       />
-      <div className="flex items-center justify-between border-t border-cream-200 px-2 py-1.5">
-        {canRecord ? (
-          <button
-            type="button"
-            aria-label={isRecording ? 'Ferma registrazione' : 'Inserisci nota vocale'}
-            onClick={isRecording ? onStopRecording : onStartRecording}
-            className={cn(
-              'size-9 flex items-center justify-center rounded transition-colors',
-              isRecording
-                ? 'text-danger-500 bg-danger-50 animate-pulse'
-                : 'text-wood-500 hover:text-wood-700',
-            )}
-          >
-            {isRecording ? <MicOff size={18} /> : <Mic size={18} />}
-          </button>
-        ) : (
-          <button
-            type="button"
-            aria-label="Allega audio"
-            onClick={onPickAudioFile}
-            className="size-9 flex items-center justify-center rounded text-wood-500 hover:text-wood-700 transition-colors"
-          >
-            <Mic size={18} />
-          </button>
-        )}
-        <span className="text-xs text-wood-400 pr-2">
-          {isRecording ? 'Registrazione…' : `${value.length} caratteri`}
-        </span>
-      </div>
+      {!disableVoiceAndMedia && (
+        <div className="flex items-center justify-between border-t border-cream-200 px-2 py-1.5">
+          {canRecord ? (
+            <button
+              type="button"
+              aria-label={isRecording ? 'Ferma registrazione' : 'Inserisci nota vocale'}
+              onClick={isRecording ? onStopRecording : onStartRecording}
+              className={cn(
+                'size-9 flex items-center justify-center rounded transition-colors',
+                isRecording
+                  ? 'text-danger-500 bg-danger-50 animate-pulse'
+                  : 'text-wood-500 hover:text-wood-700',
+              )}
+            >
+              {isRecording ? <MicOff size={18} /> : <Mic size={18} />}
+            </button>
+          ) : (
+            <button
+              type="button"
+              aria-label="Allega audio"
+              onClick={onPickAudioFile}
+              className="size-9 flex items-center justify-center rounded text-wood-500 hover:text-wood-700 transition-colors"
+            >
+              <Mic size={18} />
+            </button>
+          )}
+          <span className="text-xs text-wood-400 pr-2">
+            {isRecording ? 'Registrazione…' : `${value.length} caratteri`}
+          </span>
+        </div>
+      )}
 
       {/* Voice note players */}
-      {voiceNotes.length > 0 && (
+      {!disableVoiceAndMedia && voiceNotes.length > 0 && (
         <div className="border-t border-cream-200 px-3 py-2 flex flex-col gap-2">
           {voiceNotes.map((vn) => (
             <VoiceNotePlayer

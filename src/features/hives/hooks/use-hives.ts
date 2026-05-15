@@ -1,5 +1,6 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { uuid } from '@/lib/utils'
 import { queryClient } from '@/lib/query-client'
 import { logActivity } from '@/lib/activity-log'
 import type { Database } from '@/types/database'
@@ -123,7 +124,7 @@ export function useCreateHive() {
       nidoFrameCount,
       notes,
     }) => {
-      const id = crypto.randomUUID()
+      const id = uuid()
 
       const { error } = await supabase.rpc('create_hive_with_queen', {
         p_id: id,

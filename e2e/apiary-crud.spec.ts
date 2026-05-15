@@ -1,12 +1,11 @@
-import { test, expect, login } from './helpers'
+import { test, expect } from './helpers'
 
 test.describe('apiary CRUD', () => {
   let apiaryId: string
 
   test.beforeAll(async ({ browser }) => {
-    const ctx = await browser.newContext()
+    const ctx = await browser.newContext({ storageState: 'e2e/.auth.json' })
     const page = await ctx.newPage()
-    await login(page)
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
@@ -19,7 +18,6 @@ test.describe('apiary CRUD', () => {
   })
 
   test('creazione nuovo apiario', async ({ page }) => {
-    await login(page)
     await page.goto('/apiaries/new')
     await page.waitForLoadState('networkidle')
 
@@ -37,7 +35,6 @@ test.describe('apiary CRUD', () => {
   })
 
   test('campi obbligatori — nome richiesto', async ({ page }) => {
-    await login(page)
     await page.goto('/apiaries/new')
     await page.waitForLoadState('networkidle')
 
@@ -51,8 +48,6 @@ test.describe('apiary CRUD', () => {
 
   test('modifica nome apiario esistente', async ({ page }) => {
     test.skip(!apiaryId, 'Nessun apiario')
-    await login(page)
-
     await page.goto(`/apiaries/${apiaryId}/edit`)
     await page.waitForLoadState('networkidle')
 

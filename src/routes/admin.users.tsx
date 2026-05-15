@@ -2,7 +2,7 @@ import { createFileRoute, redirect, Link } from '@tanstack/react-router'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { SwipeableRow } from '@/components/ui/swipeable-row'
+import { SwipeableReveal } from '@/components/ui/swipeable-reveal'
 import { useEffect, useState } from 'react'
 import { t } from '@/i18n/it'
 import { ArrowLeft, Trash2, BadgeCheck, Clock } from 'lucide-react'
@@ -214,7 +214,7 @@ function AdminUsersPage() {
 
         <div className="flex flex-col gap-2">
           {users.map((user) => (
-            <SwipeableRow
+            <SwipeableReveal
               key={user.id}
               revealWidth={84}
               revealContent={
@@ -279,7 +279,7 @@ function AdminUsersPage() {
                   </button>
                 )}
               </div>
-            </SwipeableRow>
+            </SwipeableReveal>
           ))}
         </div>
       </section>
