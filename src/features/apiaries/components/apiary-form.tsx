@@ -227,7 +227,7 @@ export function ApiaryForm({ userId, onSuccess, onCancel, initialData }: ApiaryF
           <ArrowLeft size={22} strokeWidth={1.75} />
         </button>
         <div className="flex-1 min-w-0 px-1">
-          <h1 className="text-base font-semibold text-wood-800 truncate tracking-tight">
+          <h1 className="font-display text-2xl font-medium text-wood-800 truncate tracking-tight">
             {isEdit ? 'Modifica apiario' : t.apiary.new.title}
           </h1>
         </div>

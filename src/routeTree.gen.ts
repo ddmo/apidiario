@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StatisticheRouteImport } from './routes/statistiche'
 import { Route as SetPasswordRouteImport } from './routes/set-password'
 import { Route as PrevisioniRouteImport } from './routes/previsioni'
-import { Route as PiuRouteImport } from './routes/piu'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthIndexRouteImport } from './routes/_auth.index'
@@ -24,6 +23,7 @@ import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminAttivitaRouteImport } from './routes/admin.attivita'
 import { Route as AuthTrattamentiRouteImport } from './routes/_auth.trattamenti'
 import { Route as AuthRaccoltiRouteImport } from './routes/_auth.raccolti'
+import { Route as AuthPiuRouteImport } from './routes/_auth.piu'
 import { Route as AuthHomeRouteImport } from './routes/_auth.home'
 import { Route as AuthCalendarioRouteImport } from './routes/_auth.calendario'
 import { Route as AuthArnieRouteImport } from './routes/_auth.arnie'
@@ -53,11 +53,6 @@ const SetPasswordRoute = SetPasswordRouteImport.update({
 const PrevisioniRoute = PrevisioniRouteImport.update({
   id: '/previsioni',
   path: '/previsioni',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PiuRoute = PiuRouteImport.update({
-  id: '/piu',
-  path: '/piu',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -112,6 +107,11 @@ const AuthTrattamentiRoute = AuthTrattamentiRouteImport.update({
 const AuthRaccoltiRoute = AuthRaccoltiRouteImport.update({
   id: '/raccolti',
   path: '/raccolti',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthPiuRoute = AuthPiuRouteImport.update({
+  id: '/piu',
+  path: '/piu',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthHomeRoute = AuthHomeRouteImport.update({
@@ -199,13 +199,13 @@ const AuthHivesHiveIdInspectionsRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AuthIndexRoute
   '/login': typeof LoginRoute
-  '/piu': typeof PiuRoute
   '/previsioni': typeof PrevisioniRoute
   '/set-password': typeof SetPasswordRoute
   '/statistiche': typeof StatisticheRoute
   '/arnie': typeof AuthArnieRoute
   '/calendario': typeof AuthCalendarioRoute
   '/home': typeof AuthHomeRoute
+  '/piu': typeof AuthPiuRoute
   '/raccolti': typeof AuthRaccoltiRoute
   '/trattamenti': typeof AuthTrattamentiRoute
   '/admin/attivita': typeof AdminAttivitaRoute
@@ -229,13 +229,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
-  '/piu': typeof PiuRoute
   '/previsioni': typeof PrevisioniRoute
   '/set-password': typeof SetPasswordRoute
   '/statistiche': typeof StatisticheRoute
   '/arnie': typeof AuthArnieRoute
   '/calendario': typeof AuthCalendarioRoute
   '/home': typeof AuthHomeRoute
+  '/piu': typeof AuthPiuRoute
   '/raccolti': typeof AuthRaccoltiRoute
   '/trattamenti': typeof AuthTrattamentiRoute
   '/admin/attivita': typeof AdminAttivitaRoute
@@ -262,13 +262,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteWithChildren
   '/login': typeof LoginRoute
-  '/piu': typeof PiuRoute
   '/previsioni': typeof PrevisioniRoute
   '/set-password': typeof SetPasswordRoute
   '/statistiche': typeof StatisticheRoute
   '/_auth/arnie': typeof AuthArnieRoute
   '/_auth/calendario': typeof AuthCalendarioRoute
   '/_auth/home': typeof AuthHomeRoute
+  '/_auth/piu': typeof AuthPiuRoute
   '/_auth/raccolti': typeof AuthRaccoltiRoute
   '/_auth/trattamenti': typeof AuthTrattamentiRoute
   '/admin/attivita': typeof AdminAttivitaRoute
@@ -296,13 +296,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
-    | '/piu'
     | '/previsioni'
     | '/set-password'
     | '/statistiche'
     | '/arnie'
     | '/calendario'
     | '/home'
+    | '/piu'
     | '/raccolti'
     | '/trattamenti'
     | '/admin/attivita'
@@ -326,13 +326,13 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
-    | '/piu'
     | '/previsioni'
     | '/set-password'
     | '/statistiche'
     | '/arnie'
     | '/calendario'
     | '/home'
+    | '/piu'
     | '/raccolti'
     | '/trattamenti'
     | '/admin/attivita'
@@ -358,13 +358,13 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_auth'
     | '/login'
-    | '/piu'
     | '/previsioni'
     | '/set-password'
     | '/statistiche'
     | '/_auth/arnie'
     | '/_auth/calendario'
     | '/_auth/home'
+    | '/_auth/piu'
     | '/_auth/raccolti'
     | '/_auth/trattamenti'
     | '/admin/attivita'
@@ -391,7 +391,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   LoginRoute: typeof LoginRoute
-  PiuRoute: typeof PiuRoute
   PrevisioniRoute: typeof PrevisioniRoute
   SetPasswordRoute: typeof SetPasswordRoute
   StatisticheRoute: typeof StatisticheRoute
@@ -434,13 +433,6 @@ declare module '@tanstack/react-router' {
       path: '/previsioni'
       fullPath: '/previsioni'
       preLoaderRoute: typeof PrevisioniRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/piu': {
-      id: '/piu'
-      path: '/piu'
-      fullPath: '/piu'
-      preLoaderRoute: typeof PiuRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -518,6 +510,13 @@ declare module '@tanstack/react-router' {
       path: '/raccolti'
       fullPath: '/raccolti'
       preLoaderRoute: typeof AuthRaccoltiRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/piu': {
+      id: '/_auth/piu'
+      path: '/piu'
+      fullPath: '/piu'
+      preLoaderRoute: typeof AuthPiuRouteImport
       parentRoute: typeof AuthRoute
     }
     '/_auth/home': {
@@ -632,6 +631,7 @@ interface AuthRouteChildren {
   AuthArnieRoute: typeof AuthArnieRoute
   AuthCalendarioRoute: typeof AuthCalendarioRoute
   AuthHomeRoute: typeof AuthHomeRoute
+  AuthPiuRoute: typeof AuthPiuRoute
   AuthRaccoltiRoute: typeof AuthRaccoltiRoute
   AuthTrattamentiRoute: typeof AuthTrattamentiRoute
   AuthIndexRoute: typeof AuthIndexRoute
@@ -643,6 +643,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthArnieRoute: AuthArnieRoute,
   AuthCalendarioRoute: AuthCalendarioRoute,
   AuthHomeRoute: AuthHomeRoute,
+  AuthPiuRoute: AuthPiuRoute,
   AuthRaccoltiRoute: AuthRaccoltiRoute,
   AuthTrattamentiRoute: AuthTrattamentiRoute,
   AuthIndexRoute: AuthIndexRoute,
@@ -655,7 +656,6 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   LoginRoute: LoginRoute,
-  PiuRoute: PiuRoute,
   PrevisioniRoute: PrevisioniRoute,
   SetPasswordRoute: SetPasswordRoute,
   StatisticheRoute: StatisticheRoute,

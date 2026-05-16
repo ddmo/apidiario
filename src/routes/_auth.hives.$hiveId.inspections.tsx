@@ -37,7 +37,7 @@ function InspectionListPage() {
 
   return (
     <div className="flex flex-col h-full bg-cream-50">
-      <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2">
+      <header className="shrink-0 bg-cream-50 border-b border-cream-200 pl-1 pr-2 h-14 flex items-center gap-1">
         <button
           type="button"
           aria-label="Indietro"
@@ -46,6 +46,7 @@ function InspectionListPage() {
         >
           <ArrowLeft size={22} strokeWidth={1.75} />
         </button>
+        <img src="/icons/icon-no-bg.svg" alt="" className="h-14 w-14 shrink-0" />
         <div className="flex-1 min-w-0 px-1">
           <p className="text-xs text-wood-400 leading-none mb-0.5">
             {t.inspection.list.title}

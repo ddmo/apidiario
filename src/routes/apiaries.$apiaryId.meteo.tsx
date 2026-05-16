@@ -143,7 +143,7 @@ function MeteoPage() {
           >
             <ArrowLeft size={22} strokeWidth={1.75} />
           </button>
-          <h1 className="text-base font-semibold text-wood-800 flex-1 px-1">Meteo</h1>
+          <h1 className="font-display text-2xl font-medium text-wood-800 flex-1 px-1">Meteo</h1>
         </header>
         <div className="flex-1 flex items-center justify-center text-sm text-wood-400">Caricamento…</div>
       </main>
@@ -166,7 +166,7 @@ function MeteoPage() {
         >
           <ArrowLeft size={22} strokeWidth={1.75} />
         </button>
-        <h1 className="text-base font-semibold text-wood-800 tracking-tight flex-1 px-1">
+        <h1 className="font-display text-2xl font-medium text-wood-800 tracking-tight flex-1 px-1">
           Meteo {apiary.name}
         </h1>
       </header>

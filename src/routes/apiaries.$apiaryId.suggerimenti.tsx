@@ -33,7 +33,7 @@ function SuggerimentiPage() {
         >
           <ArrowLeft size={22} strokeWidth={1.75} />
         </button>
-        <h1 className="text-base font-semibold text-wood-800 tracking-tight flex-1 px-1">
+        <h1 className="font-display text-2xl font-medium text-wood-800 tracking-tight flex-1 px-1">
           Suggerimenti {apiary?.name ?? '…'}
         </h1>
       </header>

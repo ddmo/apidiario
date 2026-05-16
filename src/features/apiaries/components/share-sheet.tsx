@@ -82,9 +82,19 @@ export function ShareSheet({ open, apiaryId, apiaryName, onClose, onShared }: Sh
         <div className="flex justify-center pt-2.5 pb-1 shrink-0">
           <span className="block w-9 h-1 rounded-full bg-cream-200" aria-hidden="true" />
         </div>
-        <div className="px-5 pt-3 shrink-0">
-          <h2 className="text-lg font-semibold text-wood-800">Condividi apiario</h2>
-          <p className="text-sm text-wood-500 mt-0.5">{apiaryName}</p>
+        <div className="px-5 pt-3 shrink-0 flex items-start justify-between gap-2">
+          <div>
+            <h2 className="text-lg font-semibold text-wood-800">Condividi apiario</h2>
+            <p className="text-sm text-wood-500 mt-0.5">{apiaryName}</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleClose}
+            aria-label="Chiudi"
+            className="size-8 flex items-center justify-center rounded-md text-wood-400 hover:text-wood-600 hover:bg-cream-100 transition-colors shrink-0 mt-0.5"
+          >
+            <X size={20} strokeWidth={2} />
+          </button>
         </div>
 
         <div className="overflow-y-auto px-4 pt-5 flex flex-col gap-4 [padding-bottom:calc(1rem+env(safe-area-inset-bottom))]">

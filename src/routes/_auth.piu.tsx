@@ -1,20 +1,14 @@
-import { createFileRoute, redirect, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
 import { getPushStatus, subscribeToPush, unsubscribeFromPush } from '@/lib/push-notifications'
-import { ArrowLeft, Shield, LogOut, Sun, Moon, Monitor, User, Flower2, Activity, BarChart3, Bell, BellOff, Trees, Wheat } from 'lucide-react'
+import { Shield, LogOut, Sun, Moon, Monitor, User, Flower2, Activity, BarChart3, Bell, BellOff, Trees, Wheat } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { setThemeMode, getThemeMode, type ThemeMode } from '@/lib/theme'
 import { t } from '@/i18n/it'
 
-export const Route = createFileRoute('/piu')({
-  beforeLoad: async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) {
-      throw redirect({ to: '/login' })
-    }
-  },
+export const Route = createFileRoute('/_auth/piu')({
   component: PiuPage,
 })
 
@@ -80,14 +74,9 @@ function PiuPage() {
     : 'Nessun dato'
 
   return (
-    <main className="min-h-dvh flex flex-col bg-cream-50">
-      <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2">
-        <Link
-          to="/"
-          className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
-        >
-          <ArrowLeft size={22} strokeWidth={1.75} />
-        </Link>
+    <div className="flex flex-col h-full bg-cream-50">
+      <header className="shrink-0 bg-cream-50 border-b border-cream-200 pl-1 pr-2 h-14 flex items-center gap-1">
+        <img src="/icons/icon-no-bg.svg" alt="" className="h-14 w-14 shrink-0" />
         <h1 className="font-display text-2xl font-medium text-wood-800 tracking-tight flex-1 px-1">
           {t.nav.altro}
         </h1>
@@ -229,6 +218,6 @@ function PiuPage() {
         </div>
       </div>
       </div>
-    </main>
+    </div>
   )
 }

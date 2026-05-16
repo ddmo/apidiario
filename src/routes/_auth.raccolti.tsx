@@ -37,13 +37,14 @@ function RaccoltiPage() {
 
   return (
     <main className="min-h-dvh flex flex-col bg-cream-50">
-      <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2">
+      <header className="shrink-0 bg-cream-50 border-b border-cream-200 pl-1 pr-2 h-14 flex items-center gap-1">
         <Link
           to="/piu"
           className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
         >
           <ArrowLeft size={22} strokeWidth={1.75} />
         </Link>
+        <img src="/icons/icon-no-bg.svg" alt="" className="h-14 w-14 shrink-0" />
         <h1 className="font-display text-2xl font-medium text-wood-800 tracking-tight flex-1 px-1">
           Raccolti
         </h1>

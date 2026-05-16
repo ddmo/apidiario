@@ -40,7 +40,7 @@ function ApiaryDetailPage() {
 
   return (
     <div className="flex flex-col h-full bg-cream-50">
-      <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-1">
+      <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2">
         <button
           type="button"
           aria-label="Indietro"

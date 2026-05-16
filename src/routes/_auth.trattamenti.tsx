@@ -20,7 +20,8 @@ function TrattamentiPage() {
 
   return (
     <div className="flex flex-col h-full bg-cream-50">
-      <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-4 h-14 flex items-center">
+      <header className="shrink-0 bg-cream-50 border-b border-cream-200 pl-1 pr-2 h-14 flex items-center gap-1">
+        <img src="/icons/icon-no-bg.svg" alt="" className="h-14 w-14 shrink-0" />
         <h1 className="font-display text-2xl font-medium text-wood-800 tracking-tight flex-1">Trattamenti</h1>
       </header>
 

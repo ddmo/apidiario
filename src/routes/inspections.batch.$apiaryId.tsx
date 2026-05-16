@@ -162,7 +162,7 @@ function BatchInspectionPage() {
     <div className="fixed inset-0 bg-cream-50 text-wood-700 flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-cream-50/95 backdrop-blur-sm border-b border-cream-200">
-        <div className="flex items-center gap-3 h-14 px-2">
+        <div className="flex items-center gap-2 h-14 px-2">
           <button
             type="button"
             aria-label="Indietro"
