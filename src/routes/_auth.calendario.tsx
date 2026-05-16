@@ -43,7 +43,7 @@ function useTreatmentEvents(year: number, month: number) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('treatments')
-        .select('id, apiary_id, product_name, start_date, end_date, blocks_melari, performed_by, apiaries!inner(name), profiles!inner(display_name)')
+        .select('id, apiary_id, product_name, start_date, end_date, blocks_melari, performed_by, apiaries!inner(name), profiles(display_name)')
         .or(`and(start_date.gte.${start},start_date.lt.${end}),and(end_date.gte.${start},end_date.lt.${end})`)
         .order('start_date', { ascending: true })
       if (error) throw error
@@ -74,7 +74,7 @@ function useInspectionEvents(year: number, month: number) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('inspections')
-        .select('id, performed_at, hive_id, performed_by, hives!inner(identifier, apiary_id, apiaries!inner(name)), profiles!inner(display_name)')
+        .select('id, performed_at, hive_id, performed_by, hives!inner(identifier, apiary_id, apiaries!inner(name)), profiles(display_name)')
         .gte('performed_at', start)
         .lt('performed_at', end)
         .order('performed_at', { ascending: true })

@@ -105,7 +105,7 @@ export function useTreatment(id: string) {
     queryFn: async (): Promise<TreatmentDetail> => {
       const { data, error } = await supabase
         .from('treatments')
-        .select('*, apiaries!inner(name), profiles!inner(display_name), treatment_hives(hive_id, hives!inner(identifier))')
+        .select('*, apiaries!inner(name), profiles(display_name), treatment_hives(hive_id, hives!inner(identifier))')
         .eq('id', id)
         .single()
 

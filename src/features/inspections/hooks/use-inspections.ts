@@ -26,7 +26,7 @@ export function useInspectionsByHive(hiveId: string) {
       const { data, error } = await supabase
         .from('inspections')
         .select(
-          'id, performed_at, queen_seen, population, notes, brood_frame_count, pathologies, behavior, performed_by, profiles!inner(display_name)',
+          'id, performed_at, queen_seen, population, notes, brood_frame_count, pathologies, behavior, performed_by, profiles(display_name)',
         )
         .eq('hive_id', hiveId)
         .order('performed_at', { ascending: false })

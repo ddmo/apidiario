@@ -34,7 +34,7 @@ export function useRecentActivityByOthers() {
           id, hive_id, performed_at, performed_by,
           queen_seen, population, honey_frame_count,
           hives!inner(identifier, apiary_id, apiaries!inner(name)),
-          profiles!inner(display_name)
+          profiles(display_name)
         `)
         .gte('performed_at', sevenDaysAgo.toISOString())
         .neq('performed_by', session?.user?.id ?? '')

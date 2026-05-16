@@ -1,10 +1,13 @@
-import { useState, useRef, type ReactNode, type MouseEvent } from 'react'
+import { useState, useRef, useEffect, type ReactNode, type MouseEvent } from 'react'
 
 interface SwipeableRowProps {
   children: ReactNode
   revealContent: ReactNode
   revealWidth?: number
 }
+
+// Module-level registry — when a row opens, all others close
+const closeRegistry = new Set<() => void>()
 
 export function SwipeableRow({ children, revealContent, revealWidth = 84 }: SwipeableRowProps) {
   const startRef = useRef<{ x: number; y: number } | null>(null)
@@ -13,12 +16,21 @@ export function SwipeableRow({ children, revealContent, revealWidth = 84 }: Swip
   const [offsetX, setOffsetX] = useState(0)
   const [revealed, setRevealed] = useState(false)
   const [animate, setAnimate] = useState(false)
+  const closeRef = useRef<() => void>(() => {})
 
   function snapTo(px: number) {
     setAnimate(true)
     setOffsetX(px)
     setRevealed(px < 0)
   }
+
+  // Register close function; when this row opens, close all others first
+  useEffect(() => {
+    const fn = () => snapTo(0)
+    closeRef.current = fn
+    closeRegistry.add(fn)
+    return () => { closeRegistry.delete(fn) }
+  }, [])
 
   function handleTouchStart(e: React.TouchEvent) {
     const t0 = e.touches[0]
@@ -51,8 +63,14 @@ export function SwipeableRow({ children, revealContent, revealWidth = 84 }: Swip
     startRef.current = null
     if (revealed) {
       snapTo(offsetX > -(revealWidth * 2 / 3) ? 0 : -revealWidth)
+    } else if (offsetX < -(revealWidth / 3)) {
+      // Before opening, close all other rows
+      for (const fn of closeRegistry) {
+        if (fn !== closeRef.current) fn()
+      }
+      snapTo(-revealWidth)
     } else {
-      snapTo(offsetX < -(revealWidth / 3) ? -revealWidth : 0)
+      snapTo(0)
     }
   }
 

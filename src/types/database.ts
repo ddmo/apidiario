@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       activity_log: {
@@ -109,21 +134,21 @@ export type Database = {
         Row: {
           apiary_id: string
           granted_at: string
-          granted_by: string
+          granted_by: string | null
           role: Database["public"]["Enums"]["access_role"]
           user_id: string
         }
         Insert: {
           apiary_id: string
           granted_at?: string
-          granted_by: string
+          granted_by?: string | null
           role: Database["public"]["Enums"]["access_role"]
           user_id: string
         }
         Update: {
           apiary_id?: string
           granted_at?: string
-          granted_by?: string
+          granted_by?: string | null
           role?: Database["public"]["Enums"]["access_role"]
           user_id?: string
         }
@@ -266,7 +291,7 @@ export type Database = {
           humidity_pct: number | null
           id: string
           notes: string | null
-          recorded_by: string
+          recorded_by: string | null
           total_kg: number
           updated_at: string
         }
@@ -279,7 +304,7 @@ export type Database = {
           humidity_pct?: number | null
           id?: string
           notes?: string | null
-          recorded_by: string
+          recorded_by?: string | null
           total_kg: number
           updated_at?: string
         }
@@ -292,7 +317,7 @@ export type Database = {
           humidity_pct?: number | null
           id?: string
           notes?: string | null
-          recorded_by?: string
+          recorded_by?: string | null
           total_kg?: number
           updated_at?: string
         }
@@ -447,6 +472,7 @@ export type Database = {
       }
       inspections: {
         Row: {
+          batch_id: string | null
           behavior: Database["public"]["Enums"]["behavior_type"] | null
           brood_capped: boolean | null
           brood_eggs: boolean | null
@@ -460,8 +486,7 @@ export type Database = {
           notes: string | null
           pathologies: Database["public"]["Enums"]["pathology"][] | null
           performed_at: string
-          performed_by: string
-          batch_id: string | null
+          performed_by: string | null
           pollen_frame_count: number | null
           pollen_importation: boolean | null
           population: Database["public"]["Enums"]["population_strength"] | null
@@ -476,6 +501,7 @@ export type Database = {
           weather_summary: string | null
         }
         Insert: {
+          batch_id?: string | null
           behavior?: Database["public"]["Enums"]["behavior_type"] | null
           brood_capped?: boolean | null
           brood_eggs?: boolean | null
@@ -489,8 +515,7 @@ export type Database = {
           notes?: string | null
           pathologies?: Database["public"]["Enums"]["pathology"][] | null
           performed_at?: string
-          performed_by: string
-          batch_id?: string | null
+          performed_by?: string | null
           pollen_frame_count?: number | null
           pollen_importation?: boolean | null
           population?: Database["public"]["Enums"]["population_strength"] | null
@@ -505,6 +530,7 @@ export type Database = {
           weather_summary?: string | null
         }
         Update: {
+          batch_id?: string | null
           behavior?: Database["public"]["Enums"]["behavior_type"] | null
           brood_capped?: boolean | null
           brood_eggs?: boolean | null
@@ -518,8 +544,7 @@ export type Database = {
           notes?: string | null
           pathologies?: Database["public"]["Enums"]["pathology"][] | null
           performed_at?: string
-          performed_by?: string
-          batch_id?: string | null
+          performed_by?: string | null
           pollen_frame_count?: number | null
           pollen_importation?: boolean | null
           population?: Database["public"]["Enums"]["population_strength"] | null
@@ -564,7 +589,7 @@ export type Database = {
           size_bytes: number | null
           storage_path: string
           thumbnail_path: string | null
-          uploaded_by: string
+          uploaded_by: string | null
           width: number | null
         }
         Insert: {
@@ -580,7 +605,7 @@ export type Database = {
           size_bytes?: number | null
           storage_path: string
           thumbnail_path?: string | null
-          uploaded_by: string
+          uploaded_by?: string | null
           width?: number | null
         }
         Update: {
@@ -596,7 +621,7 @@ export type Database = {
           size_bytes?: number | null
           storage_path?: string
           thumbnail_path?: string | null
-          uploaded_by?: string
+          uploaded_by?: string | null
           width?: number | null
         }
         Relationships: [
@@ -881,7 +906,7 @@ export type Database = {
           end_date: string | null
           id: string
           notes: string | null
-          performed_by: string
+          performed_by: string | null
           product_name: string
           start_date: string
           updated_at: string
@@ -896,7 +921,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           notes?: string | null
-          performed_by: string
+          performed_by?: string | null
           product_name: string
           start_date: string
           updated_at?: string
@@ -911,7 +936,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           notes?: string | null
-          performed_by?: string
+          performed_by?: string | null
           product_name?: string
           start_date?: string
           updated_at?: string
@@ -1166,6 +1191,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       access_role: ["reader", "editor"],

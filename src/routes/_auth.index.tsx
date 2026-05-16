@@ -61,6 +61,7 @@ function HomePage() {
 
   const [shareTarget, setShareTarget] = useState<{ id: string; name: string } | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
+  const [swipeResetKey, setSwipeResetKey] = useState(0)
 
   // Dismissed alerts — persisted in localStorage
   const [dismissed, setDismissed] = useState<Set<string>>(() => {
@@ -226,7 +227,7 @@ function HomePage() {
 
                 return (
                   <SwipeableRow
-                    key={apiary.id}
+                    key={`${apiary.id}-${swipeResetKey}`}
                     revealWidth={240}
                     revealContent={
                       <div className="flex-1 flex items-stretch">
@@ -332,8 +333,7 @@ function HomePage() {
         open={shareTarget !== null}
         apiaryId={shareTarget?.id ?? ''}
         apiaryName={shareTarget?.name ?? ''}
-        onClose={() => setShareTarget(null)}
-        onShared={() => setShareTarget(null)}
+        onClose={() => { setShareTarget(null); setSwipeResetKey(v => v + 1) }}
       />
 
       {deleteTarget && (

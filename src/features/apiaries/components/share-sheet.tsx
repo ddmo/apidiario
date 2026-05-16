@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { queryClient } from '@/lib/query-client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { SegmentedControl } from '@/components/ui/segmented-control'
@@ -11,10 +12,9 @@ interface ShareSheetProps {
   apiaryId: string
   apiaryName: string
   onClose: () => void
-  onShared: () => void
 }
 
-export function ShareSheet({ open, apiaryId, apiaryName, onClose, onShared }: ShareSheetProps) {
+export function ShareSheet({ open, apiaryId, apiaryName, onClose }: ShareSheetProps) {
   const { data: shares = [], isLoading: sharesLoading } = useApiaryShares(open ? apiaryId : '')
   const { mutate: revokeAccess, isPending: revoking } = useRevokeApiaryAccess()
 
@@ -44,14 +44,21 @@ export function ShareSheet({ open, apiaryId, apiaryName, onClose, onShared }: Sh
     })
 
     if (error) {
+      let errorMsg = 'Errore durante la condivisione'
+      try {
+        const body = await (error as any).context?.json()
+        errorMsg = body?.error ?? error.message
+      } catch {
+        errorMsg = error.message ?? errorMsg
+      }
       setStatus('error')
-      setErrorMsg(error.message || 'Errore durante la condivisione')
+      setErrorMsg(errorMsg)
       return
     }
 
     setStatus('success')
     setEmail('')
-    onShared()
+    void queryClient.invalidateQueries({ queryKey: ['apiaryShares', apiaryId] })
   }
 
   function handleRevoke(userId: string) {

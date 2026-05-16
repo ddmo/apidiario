@@ -313,7 +313,7 @@ export function useApiaryShares(apiaryId: string) {
     queryFn: async (): Promise<ApiaryShare[]> => {
       const { data, error } = await supabase
         .from('apiary_access')
-        .select('user_id, role, granted_at, profiles!inner(display_name)')
+        .select('user_id, role, granted_at, profiles!apiary_access_user_id_fkey(display_name)')
         .eq('apiary_id', apiaryId)
 
       if (error) throw error
