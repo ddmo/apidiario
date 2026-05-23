@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider } from '@tanstack/react-router'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
-import { queryClient, persister } from '@/lib/query-client'
+import { supabase } from '@/lib/supabase'
+import { queryClient, persister, clearPersistedCache, getCachedUserId, setCachedUserId } from '@/lib/query-client'
 import { router } from '@/router'
 import { applyTheme } from '@/lib/theme'
 import '@/app.css'
@@ -43,10 +44,38 @@ if ('serviceWorker' in navigator) {
 const rootEl = document.getElementById('root')
 if (!rootEl) throw new Error('Root element #root non trovato in index.html')
 
-ReactDOM.createRoot(rootEl).render(
-  <React.StrictMode>
+function App() {
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      const cachedUserId = await getCachedUserId()
+
+      if (cachedUserId && session && cachedUserId !== session.user.id) {
+        // Utente cambiato: svuota cache persistita prima che React Query la carichi
+        queryClient.clear()
+        await clearPersistedCache()
+      }
+
+      if (session) {
+        await setCachedUserId(session.user.id)
+      }
+
+      setReady(true)
+    })
+  }, [])
+
+  if (!ready) return null
+
+  return (
     <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
       <RouterProvider router={router} />
     </PersistQueryClientProvider>
+  )
+}
+
+ReactDOM.createRoot(rootEl).render(
+  <React.StrictMode>
+    <App />
   </React.StrictMode>,
 )

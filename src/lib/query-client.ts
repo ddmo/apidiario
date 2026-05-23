@@ -39,6 +39,17 @@ export async function clearPersistedCache() {
   await db.cache.clear()
 }
 
+const CACHED_USER_KEY = 'apidiario-cached-user'
+
+export async function getCachedUserId(): Promise<string | null> {
+  const row = await db.cache.get(CACHED_USER_KEY)
+  return row?.value ?? null
+}
+
+export async function setCachedUserId(userId: string): Promise<void> {
+  await db.cache.put({ key: CACHED_USER_KEY, value: userId })
+}
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
