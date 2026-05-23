@@ -35,6 +35,13 @@ export const persister = createAsyncStoragePersister({
   storage: asyncStorage,
 })
 
+export async function clearPersistedCache() {
+  const keys = await db.cache.keys()
+  if (keys.length > 0) {
+    await db.cache.clear()
+  }
+}
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
