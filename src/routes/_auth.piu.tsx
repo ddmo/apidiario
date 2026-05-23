@@ -208,13 +208,13 @@ function PiuPage() {
           </button>
         </div>
 
-        <p className="mt-8 text-center text-xs text-wood-400 select-all">
+        <p className="mt-8 text-center text-xs text-wood-600 select-all">
           v{__APP_VERSION__}
         </p>
 
         {/* Last data update — lighter style at bottom */}
         <div className="mt-3 text-center">
-          <p className="text-[11px] text-wood-300">Ultimo aggiornamento dati: {lastUpdateLabel}</p>
+          <p className="text-[11px] text-wood-600">Ultimo aggiornamento dati: {lastUpdateLabel}</p>
         </div>
       </div>
       </div>
