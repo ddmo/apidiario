@@ -81,7 +81,7 @@ function PiuPage() {
           {t.nav.altro}
         </h1>
       </header>
-      <div className="flex-1 px-4 py-6 overflow-y-auto">
+      <div className="flex-1 px-4 pt-6 pb-20 overflow-y-auto">
         <div className="max-w-lg mx-auto">
 
         <div className="flex flex-col gap-2">
