@@ -137,7 +137,8 @@ export function useApiaryCards() {
             `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lngs}&current=temperature_2m,weather_code&forecast_days=1`,
           )
           if (res.ok) {
-            const json: { current?: { temperature_2m?: number; weather_code?: number } }[] = await res.json()
+            const raw: unknown = await res.json()
+            const json = (Array.isArray(raw) ? raw : [raw]) as { current?: { temperature_2m?: number; weather_code?: number } }[]
             for (let i = 0; i < Math.min(json.length, withCoords.length); i++) {
               const entry = json[i]
               const temp = entry?.current?.temperature_2m

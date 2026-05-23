@@ -224,11 +224,11 @@ export function useTodaysAlerts() {
         speciesByApiary.set(row.apiary_id, set)
       }
 
-      // Batch weather fetch from Open-Meteo historical API
+      // Batch weather fetch from Open-Meteo archive API
       const lats = withCoords.map((a) => a.latitude).join(',')
       const lngs = withCoords.map((a) => a.longitude).join(',')
       const weatherUrl =
-        `https://historical-forecast-api.open-meteo.com/v1/forecast?` +
+        `https://archive-api.open-meteo.com/v1/archive?` +
         `latitude=${lats}&longitude=${lngs}&` +
         `start_date=${year}-01-01&end_date=${endDate}&` +
         `daily=temperature_2m_max,temperature_2m_min&timezone=Europe/Rome`
