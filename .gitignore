@@ -47,6 +47,9 @@ supabase/functions/
 # E2E auth (file generato localmente)
 e2e/.auth.json
 
+# Claude Code (config locale)
+.claude/
+
 # Impeccable live mode
 .impeccable/
 
