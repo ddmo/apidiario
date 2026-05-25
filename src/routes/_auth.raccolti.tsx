@@ -79,7 +79,7 @@ function RaccoltiPage() {
               <div key={year} className="mb-8">
                 <div className="flex items-baseline justify-between mb-3">
                   <h2 className="text-lg font-medium text-wood-700">{year}</h2>
-                  <span className="text-sm font-medium text-wood-400">{formatKg(total)}</span>
+                  <span className="text-sm font-medium text-wood-400 tabular-nums">{formatKg(total)}</span>
                 </div>
                 <div className="flex flex-col gap-2">
                   {items.map((h) => (
@@ -98,7 +98,7 @@ function RaccoltiPage() {
                           {h.batch_code && <> · lotto {h.batch_code}</>}
                         </p>
                       </div>
-                      <span className="text-sm font-semibold text-wood-700 shrink-0 ml-3">
+                      <span className="text-sm font-semibold text-wood-700 shrink-0 ml-3 tabular-nums">
                         {formatKg(h.total_kg)}
                       </span>
                     </Link>

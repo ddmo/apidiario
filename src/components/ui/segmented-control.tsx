@@ -27,7 +27,7 @@ export function SegmentedControl({ options, value, onChange, ariaLabel, dirty = 
             aria-checked={active}
             onClick={() => onChange(opt.value)}
             className={cn(
-              'flex-1 rounded transition-colors duration-150',
+              'flex-1 rounded transition-colors duration-150 active:scale-[0.97]',
               compact ? 'h-7 text-xs px-2 font-medium' : 'h-10 px-3 text-sm font-medium',
               active && dirty && 'bg-cream-50 shadow-xs text-wood-800',
               active && !dirty && 'bg-cream-50/60 text-wood-700 border border-dashed border-honey-500/60',

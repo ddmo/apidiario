@@ -82,7 +82,7 @@ export function SwipeableReveal({ children, revealContent, revealWidth = 84 }: S
         className="relative"
         style={{
           transform: `translateX(${offsetX}px)`,
-          transition: animate ? 'transform 0.2s ease' : 'none',
+          transition: animate ? 'transform 0.2s var(--ease-swipe)' : 'none',
         }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}

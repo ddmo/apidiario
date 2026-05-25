@@ -22,7 +22,7 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
       <div className="text-wood-300 mb-4">{icon}</div>
       <h2 className="text-xl font-semibold text-wood-700 mb-1.5">{title}</h2>
       {description && (
-        <p className="text-sm text-wood-500 max-w-[260px] leading-relaxed mb-6">{description}</p>
+        <p className="text-sm sm:text-base text-wood-500 max-w-[260px] leading-relaxed mb-6">{description}</p>
       )}
       {action && (
         <Button

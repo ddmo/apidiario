@@ -18,7 +18,7 @@ export function SuggestionItem({ suggestion }: SuggestionItemProps) {
           <h4 className="text-sm font-medium text-wood-800 leading-snug">
             {suggestion.title}
           </h4>
-          <p className="text-[13px] text-wood-500 leading-relaxed mt-0.5">
+          <p className="text-sm sm:text-base text-wood-500 leading-relaxed mt-0.5">
             {suggestion.description}
           </p>
         </div>
@@ -32,7 +32,7 @@ export function SuggestionItem({ suggestion }: SuggestionItemProps) {
         </button>
       </div>
       {showReason && (
-        <p className="mt-1.5 text-[11px] text-wood-400 leading-relaxed pl-[calc(theme(spacing[2])+theme(spacing[2.5])+var(--badge-width,56px))]">
+        <p className="mt-1.5 text-xs text-wood-400 leading-relaxed pl-[calc(theme(spacing[2])+theme(spacing[2.5])+var(--badge-width,56px))]">
           {suggestion.reason}
         </p>
       )}

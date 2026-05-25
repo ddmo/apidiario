@@ -49,9 +49,9 @@ function TrattamentiPage() {
                       <Link
                         to="/trattamenti/$treatmentId/edit"
                         params={{ treatmentId: tr.id }}
-                        className="flex-1 flex flex-col items-center justify-center gap-1 bg-honey-500 text-white"
+                        className="flex-1 flex flex-col items-center justify-center gap-1 bg-wood-500 text-white"
                       >
-                        <span className="text-[11px] font-semibold leading-none">Modifica</span>
+                        <span className="text-xs font-semibold leading-none">Modifica</span>
                       </Link>
                       <button
                         type="button"
@@ -63,7 +63,7 @@ function TrattamentiPage() {
                         }}
                         className="flex-1 flex flex-col items-center justify-center gap-1 bg-danger-500 text-white"
                       >
-                        <span className="text-[11px] font-semibold leading-none">Elimina</span>
+                        <span className="text-xs font-semibold leading-none">Elimina</span>
                       </button>
                     </div>
                   }

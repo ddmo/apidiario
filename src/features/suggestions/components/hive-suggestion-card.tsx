@@ -45,7 +45,7 @@ export function HiveSuggestionCard({ data }: HiveSuggestionCardProps) {
           <h3 className="text-[15px] font-semibold text-wood-800">
             Arnia {hive.identifier}
           </h3>
-          <span className="text-[11px] text-wood-500">
+          <span className="text-xs text-wood-500">
             {typeLabels[hive.hive_type] ?? hive.hive_type}
             {' · '}
             {raceLabels[hive.bee_race] ?? hive.bee_race}

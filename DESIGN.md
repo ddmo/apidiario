@@ -157,10 +157,12 @@ La palette si ispira ai colori del legno d'apiario e del miele. Toni caldi e ter
 ### Hierarchy
 - **Display-1** (Fraunces 500, 24px/1.2): Titolo pagina "Apidiario" nell'header home. Mai nel corpo UI.
 - **Title** (Inter 600, 15px/1.3): Nome apiario nelle liste, titoli sezione.
-- **Body** (Inter 400, 14px/1.5): Testo principale, label form, righe lista. Max 75ch.
-- **Body Small** (Inter 500, 13px/1.4): Testo secondario, note, performer name.
-- **Label** (Inter 600, 10px/1, tracking 0.05em, uppercase): Micro-label, chip, badge, etichette sezione ALL-CAPS.
-- **Mono** (JetBrains Mono 400, 12px): Coordinate, codice, valori tecnici.
+- **Body** (Inter 400, 14px/1.5): Testo principale, label form, righe lista. Su desktop `sm:text-base` (16px) per leggibilità. Max 75ch.
+- **Caption** (Inter 400, 12px/1.4): Testo secondario, performer name, helper text, azioni swipeable.
+- **Label** (Inter 600, 10px/1, tracking 0.05em, uppercase): Micro-label, chip, badge, etichette sezione.
+- **Mono** (JetBrains Mono 400, 12px): Coordinate, codice, valori tecnici, dati numerici.
+
+**Nota:** La scala utilizza `tabular-nums` per tutti i display numerici (consistenza allineamento cifre).
 
 ### Named Rules
 **The Fraunces Purity Rule.** Fraunces e usato solo ed esclusivamente nel wordmark dell'app. Mai per titoli, corpo testo, pulsanti o qualsiasi altro elemento UI.

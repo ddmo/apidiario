@@ -94,7 +94,7 @@ export function SwipeableRow({ children, revealContent, revealWidth = 84 }: Swip
           gridTemplateColumns: `1fr ${revealWidth}px`,
           width: `calc(100% + ${revealWidth}px)`,
           transform: `translateX(${offsetX}px)`,
-          transition: animate ? 'transform 0.2s ease' : 'none',
+          transition: animate ? 'transform 0.2s var(--ease-swipe)' : 'none',
         }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}

@@ -407,7 +407,7 @@ function PrevisioniPage() {
             role="dialog"
             aria-modal="true"
             aria-label="Registra osservazione fioritura"
-            className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg max-h-[80dvh] flex flex-col"
+            className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg max-h-[80dvh] flex flex-col animate-slide-up"
           >
             <div className="flex justify-center pt-2.5 pb-1 shrink-0">
               <span className="block w-9 h-1 rounded-full bg-cream-200" aria-hidden="true" />
@@ -497,7 +497,7 @@ function PrevisioniPage() {
             role="dialog"
             aria-modal="true"
             aria-label="Come funzionano le previsioni"
-            className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg max-h-[80dvh] flex flex-col"
+            className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg max-h-[80dvh] flex flex-col animate-slide-up"
           >
             <div className="flex justify-center pt-2.5 pb-1 shrink-0">
               <span className="block w-9 h-1 rounded-full bg-cream-200" aria-hidden="true" />

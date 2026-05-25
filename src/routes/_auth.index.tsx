@@ -120,7 +120,7 @@ function HomePage() {
         {/* ── Oggi (alert section) ── */}
         {!alertsLoading && activeAlerts.length > 0 && (
           <section className="px-4 pt-4">
-            <p className="text-[11px] text-wood-500 mb-2 px-0.5">Oggi</p>
+            <p className="text-xs text-wood-500 mb-2 px-0.5">Oggi</p>
             <div className="flex flex-col gap-2">
               {(() => {
                 const bloomAlerts = activeAlerts.filter((a) => a.type === 'active_bloom') as Extract<typeof activeAlerts[number], { type: 'active_bloom' }>[]
@@ -208,7 +208,7 @@ function HomePage() {
 
         {/* ── I tuoi apiari ── */}
         <section className="px-4 pt-5">
-          <p className="text-[11px] text-wood-500 mb-2 px-0.5">I tuoi apiari</p>
+          <p className="text-xs text-wood-500 mb-2 px-0.5">I tuoi apiari</p>
 
           {isLoading && (
             <div className="flex flex-col gap-2">
@@ -271,15 +271,15 @@ function HomePage() {
                           className="flex-1 flex flex-col items-center justify-center gap-1 bg-honey-500 text-white"
                         >
                           <Share2 size={18} strokeWidth={1.75} />
-                          <span className="text-[11px] font-semibold leading-none">Condividi</span>
+                          <span className="text-xs font-semibold leading-none">Condividi</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => void navigate({ to: '/apiaries/$apiaryId/edit', params: { apiaryId: apiary.id } })}
-                          className="flex-1 flex flex-col items-center justify-center gap-1 bg-honey-500 text-white"
+                          className="flex-1 flex flex-col items-center justify-center gap-1 bg-wood-500 text-white"
                         >
                           <Pencil size={18} strokeWidth={1.75} />
-                          <span className="text-[11px] font-semibold leading-none">Modifica</span>
+                          <span className="text-xs font-semibold leading-none">Modifica</span>
                         </button>
                         <button
                           type="button"
@@ -287,7 +287,7 @@ function HomePage() {
                           className="flex-1 flex flex-col items-center justify-center gap-1 bg-danger-500 text-white"
                         >
                           <Trash2 size={18} strokeWidth={1.75} />
-                          <span className="text-[11px] font-semibold leading-none">Elimina</span>
+                          <span className="text-xs font-semibold leading-none">Elimina</span>
                         </button>
                       </div>
                     }
@@ -305,7 +305,7 @@ function HomePage() {
           <section className="px-4 pb-4">
             {Object.entries(activityGroups).map(([inspectorName, items]) => (
               <div key={inspectorName} className="mb-3 last:mb-0">
-                <p className="text-[11px] text-wood-500 mb-2 px-0.5">Da {inspectorName}</p>
+                <p className="text-xs text-wood-500 mb-2 px-0.5">Da {inspectorName}</p>
                 <div className="flex flex-col gap-1">
                   {items.map((item) => (
                     <SwipeableRow
@@ -399,7 +399,7 @@ function HomePage() {
             role="dialog"
             aria-modal="true"
             aria-label="Elimina apiario"
-            className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg"
+            className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg animate-slide-up"
           >
             <div className="flex justify-center pt-2.5 pb-1">
               <span className="block w-9 h-1 rounded-full bg-cream-200" aria-hidden="true" />

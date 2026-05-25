@@ -614,7 +614,7 @@ function PerHiveEditSheet({
         role="dialog"
         aria-modal="true"
         aria-label={`Personalizza arnia ${hive?.identifier ?? ''}`}
-        className="fixed inset-x-0 bottom-0 z-50 bg-cream-50 rounded-t-xl max-h-[80dvh] flex flex-col"
+        className="fixed inset-x-0 bottom-0 z-50 bg-cream-50 rounded-t-xl max-h-[80dvh] flex flex-col animate-slide-up"
         style={{ boxShadow: '0 -12px 32px rgba(60, 40, 20, 0.18)' }}
       >
         {/* Drag handle */}
@@ -732,7 +732,7 @@ function PerHiveNoteSheet({
         role="dialog"
         aria-modal="true"
         aria-label={`Nota per arnia ${hive?.identifier ?? ''}`}
-        className="fixed inset-x-0 bottom-0 z-50 bg-cream-50 rounded-t-xl flex flex-col"
+        className="fixed inset-x-0 bottom-0 z-50 bg-cream-50 rounded-t-xl flex flex-col animate-slide-up"
         style={{ boxShadow: '0 -12px 32px rgba(60, 40, 20, 0.18)' }}
       >
         <div className="flex justify-center pt-2.5 pb-1 shrink-0">

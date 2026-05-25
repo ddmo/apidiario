@@ -84,7 +84,7 @@ export function ShareSheet({ open, apiaryId, apiaryName, onClose }: ShareSheetPr
         role="dialog"
         aria-modal="true"
         aria-label="Condividi apiario"
-        className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg max-h-[80dvh] flex flex-col"
+        className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg max-h-[80dvh] flex flex-col animate-slide-up"
       >
         <div className="flex justify-center pt-2.5 pb-1 shrink-0">
           <span className="block w-9 h-1 rounded-full bg-cream-200" aria-hidden="true" />
@@ -121,7 +121,7 @@ export function ShareSheet({ open, apiaryId, apiaryName, onClose }: ShareSheetPr
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-wood-800 truncate">{s.displayName}</p>
                     <span
-                      className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium mt-0.5 ${
+                      className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium mt-0.5 ${
                         s.role === 'editor'
                           ? 'bg-honey-100 text-honey-700'
                           : 'bg-wood-100 text-wood-600'

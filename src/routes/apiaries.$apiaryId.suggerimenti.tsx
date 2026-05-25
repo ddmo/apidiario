@@ -58,7 +58,7 @@ function SuggerimentiPage() {
           ))}
 
           {!isLoading && result && result.length > 0 && result.every((hs) => hs.suggestions.length === 0) && (
-            <p className="text-center text-[13px] text-wood-400 py-4">
+            <p className="text-center text-sm text-wood-400 py-4">
               Non ci sono suggerimenti attivi per le arnie di questo apiario.
             </p>
           )}

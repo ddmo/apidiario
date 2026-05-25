@@ -42,7 +42,7 @@ function DayRow({ day, isToday, allTmin, range }: { day: ForecastDay; isToday: b
     : new Date(day.date).toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric' })
 
   return (
-    <div className="grid items-center gap-2.5 py-2.5 px-4 text-[13px] border-b border-cream-200/60 last:border-b-0" style={{ gridTemplateColumns: '56px 24px 30px 1fr 34px 64px' }}>
+    <div className="grid items-center gap-2.5 py-2.5 px-4 text-xs border-b border-cream-200/60 last:border-b-0" style={{ gridTemplateColumns: '56px 24px 30px 1fr 34px 64px' }}>
       {/* Label */}
       <span className={`truncate ${isToday ? 'font-medium text-wood-800' : 'text-wood-700'}`}>
         {label}
@@ -95,7 +95,7 @@ function DayRow({ day, isToday, allTmin, range }: { day: ForecastDay; isToday: b
       </svg>
 
       {/* Precip probability */}
-      <span className={`text-[11px] text-right tabular-nums ${precipColor}`}>
+      <span className={`text-xs text-right tabular-nums ${precipColor}`}>
         {day.precip_prob}%
       </span>
 
@@ -108,7 +108,7 @@ function DayRow({ day, isToday, allTmin, range }: { day: ForecastDay; isToday: b
       </div>
 
       {/* Wind */}
-      <span className="text-[11px] text-wood-500 text-right tabular-nums flex items-center justify-end gap-0.5">
+      <span className="text-xs text-wood-500 text-right tabular-nums flex items-center justify-end gap-0.5">
         <Wind size={11} strokeWidth={1.75} className="shrink-0" />
         {day.wind_max}
       </span>
@@ -189,7 +189,7 @@ function MeteoPage() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[11px] text-wood-400 uppercase tracking-wider">Ora</p>
+                  <p className="text-xs text-wood-400 uppercase tracking-wider">Ora</p>
                   <p className="text-xl font-medium text-wood-800 mt-0.5 flex items-center gap-1.5">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={forecast.current.weather.color} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                       {forecast.current.weather.category === 'clear' && (
@@ -250,14 +250,14 @@ function MeteoPage() {
 
               {/* Beekeeping assessment */}
               <div className="border-t border-cream-200 px-4 py-3">
-                <h3 className="text-[13px] font-medium text-wood-700 mb-2.5">Valutazione apistica</h3>
+                <h3 className="text-xs font-medium text-wood-700 mb-2.5">Valutazione apistica</h3>
                 <div className="space-y-2">
                   {forecast.days.slice(0, 7).map((day) => {
                     const label = new Date(day.date).toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric' })
                     return (
                       <div key={day.date} className="grid items-start text-[12px]" style={{ gridTemplateColumns: '36px 56px 1fr', gap: '10px' }}>
                         <span className="text-wood-500 text-right">{label.split(' ')[0]}</span>
-                        <span className={`text-center px-1.5 py-0.5 rounded text-[11px] leading-none font-medium ${scoreColor(day.beekeeping.inspection_score)}`}>
+                        <span className={`text-center px-1.5 py-0.5 rounded text-xs leading-none font-medium ${scoreColor(day.beekeeping.inspection_score)}`}>
                           {scoreLabel(day.beekeeping.inspection_score)}
                         </span>
                         <span className="text-wood-500">
@@ -270,7 +270,7 @@ function MeteoPage() {
               </div>
 
               {/* Footer */}
-              <div className="px-4 py-2.5 border-t border-cream-200 text-[11px] text-wood-400 flex justify-between items-center">
+              <div className="px-4 py-2.5 border-t border-cream-200 text-xs text-wood-400 flex justify-between items-center">
                 <span>Open-Meteo · ECMWF</span>
                 <span>
                   {(() => {

@@ -113,17 +113,17 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
           className="flex-1 flex flex-col items-center justify-center gap-1 bg-honey-500 text-white"
         >
           <ClipboardList size={20} strokeWidth={1.75} />
-          <span className="text-[11px] font-semibold leading-none">
+          <span className="text-xs font-semibold leading-none">
             {t.inspection.list.title}
           </span>
         </Link>
         <Link
           to="/hives/$hiveId/edit"
           params={{ hiveId: hive.id }}
-          className="flex-1 flex flex-col items-center justify-center gap-1 bg-honey-500 text-white"
+          className="flex-1 flex flex-col items-center justify-center gap-1 bg-wood-500 text-white"
         >
           <Pencil size={18} strokeWidth={1.75} />
-          <span className="text-[11px] font-semibold leading-none">Modifica</span>
+          <span className="text-xs font-semibold leading-none">Modifica</span>
         </Link>
         {onDelete && (
           <button
@@ -132,7 +132,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
             className="flex-1 flex flex-col items-center justify-center gap-1 bg-danger-500 text-white"
           >
             <Trash2 size={18} strokeWidth={1.75} />
-            <span className="text-[11px] font-semibold leading-none">Elimina</span>
+            <span className="text-xs font-semibold leading-none">Elimina</span>
           </button>
         )}
       </div>
@@ -141,7 +141,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
       <div
         style={{
           transform: `translateX(${offsetX}px)`,
-          transition: animate ? 'transform 0.2s ease' : 'none',
+          transition: animate ? 'transform 0.2s var(--ease-swipe)' : 'none',
         }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -208,7 +208,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
                     onClick={() =>
                       toggle({ hiveId: hive.id, field: 'has_apiscampo', value: !hive.hasApiscampo })
                     }
-                    className={`size-9 flex items-center justify-center rounded-md border transition-colors ${
+                    className={`size-9 flex items-center justify-center rounded-md border transition-colors active:scale-[0.97] ${
                       hive.hasApiscampo
                         ? 'bg-wood-500 border-wood-600 text-white'
                         : 'bg-cream-50 border-cream-200 text-wood-400'
@@ -222,7 +222,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
                     onClick={() =>
                       toggle({ hiveId: hive.id, field: 'has_propolis_net', value: !hive.hasPropolisNet })
                     }
-                    className={`size-9 flex items-center justify-center rounded-md border transition-colors ${
+                    className={`size-9 flex items-center justify-center rounded-md border transition-colors active:scale-[0.97] ${
                       hive.hasPropolisNet
                         ? 'bg-success-500 border-success-500 text-white'
                         : 'bg-cream-50 border-cream-200 text-wood-400'
@@ -236,7 +236,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
                     onClick={() =>
                       toggle({ hiveId: hive.id, field: 'has_pollen_trap', value: !hive.hasPollenTrap })
                     }
-                    className={`size-9 flex items-center justify-center rounded-md border transition-colors ${
+                    className={`size-9 flex items-center justify-center rounded-md border transition-colors active:scale-[0.97] ${
                       hive.hasPollenTrap
                         ? 'bg-honey-500 border-honey-600 text-wood-900'
                         : 'bg-cream-50 border-cream-200 text-wood-400'
@@ -305,7 +305,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
                     onClick={() =>
                       toggle({ hiveId: hive.id, field: 'has_apiscampo', value: !hive.hasApiscampo })
                     }
-                    className={`size-8 flex items-center justify-center rounded-md border transition-colors ${
+                    className={`size-8 flex items-center justify-center rounded-md border transition-colors active:scale-[0.97] ${
                       hive.hasApiscampo
                         ? 'bg-wood-500 border-wood-600 text-white'
                         : 'bg-cream-50 border-cream-200 text-wood-400'
@@ -319,7 +319,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
                     onClick={() =>
                       toggle({ hiveId: hive.id, field: 'has_propolis_net', value: !hive.hasPropolisNet })
                     }
-                    className={`size-8 flex items-center justify-center rounded-md border transition-colors ${
+                    className={`size-8 flex items-center justify-center rounded-md border transition-colors active:scale-[0.97] ${
                       hive.hasPropolisNet
                         ? 'bg-success-500 border-success-500 text-white'
                         : 'bg-cream-50 border-cream-200 text-wood-400'
@@ -333,7 +333,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
                     onClick={() =>
                       toggle({ hiveId: hive.id, field: 'has_pollen_trap', value: !hive.hasPollenTrap })
                     }
-                    className={`size-8 flex items-center justify-center rounded-md border transition-colors ${
+                    className={`size-8 flex items-center justify-center rounded-md border transition-colors active:scale-[0.97] ${
                       hive.hasPollenTrap
                         ? 'bg-honey-500 border-honey-600 text-wood-900'
                         : 'bg-cream-50 border-cream-200 text-wood-400'
@@ -371,7 +371,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
       {showMelariWarning && (
         <>
           <div className="fixed inset-0 z-30 bg-wood-900/40" onClick={() => setShowMelariWarning(false)} aria-hidden="true" />
-          <div role="dialog" aria-modal="true" aria-label="Trattamento in corso" className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg">
+          <div role="dialog" aria-modal="true" aria-label="Trattamento in corso" className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg animate-slide-up">
             <div className="flex justify-center pt-2.5 pb-1">
               <span className="block w-9 h-1 rounded-full bg-cream-200" aria-hidden="true" />
             </div>
