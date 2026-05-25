@@ -1,12 +1,18 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, List, Calendar, Syringe, Search } from 'lucide-react'
+import { z } from 'zod'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
 import { t } from '@/i18n/it'
 
+const calendarioSearchSchema = z.object({
+  view: z.enum(['grid', 'list']).catch('grid').default('grid'),
+})
+
 export const Route = createFileRoute('/_auth/calendario')({
+  validateSearch: calendarioSearchSchema,
   component: CalendarioPage,
 })
 
@@ -129,10 +135,11 @@ function buildGrid(year: number, month: number) {
 
 function CalendarioPage() {
   const today = new Date()
+  const navigate = useNavigate()
+  const { view: viewMode } = Route.useSearch()
   const [year, setYear] = useState(today.getFullYear())
   const [month, setMonth] = useState(today.getMonth())
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   const { session } = useAuth()
   const userId = session?.user?.id
@@ -247,7 +254,7 @@ function CalendarioPage() {
             <button
               type="button"
               onClick={() => {
-                setViewMode(viewMode === 'grid' ? 'list' : 'grid')
+                navigate({ to: '.', search: { view: viewMode === 'grid' ? 'list' : 'grid' }, replace: true })
                 setSelectedDate(null)
               }}
               className={[
@@ -359,7 +366,7 @@ function CalendarioPage() {
                                 <p className="text-sm font-semibold text-wood-800">Ispezionata arnia {ev.hiveIdentifier}</p>
                                 <p className="text-xs text-honey-600">{ev.apiaryName}</p>
                                 {ev.performerDisplayName && showPerformer(ev.performedBy) && (
-                                  <p className="text-[11px] text-wood-400 mt-0.5">da {ev.performerDisplayName}</p>
+                                  <p className="text-xs text-wood-400 mt-0.5">da {ev.performerDisplayName}</p>
                                 )}
                               </div>
                             </div>
@@ -381,7 +388,7 @@ function CalendarioPage() {
                                 <p className="text-sm font-semibold text-wood-800">{ev.subKind === 'start' ? 'Inizio trattamento' : 'Fine trattamento'} {ev.productName}</p>
                                 <p className="text-xs text-honey-600">{ev.apiaryName}</p>
                                 {ev.performerDisplayName && showPerformer(ev.performedBy) && (
-                                  <p className="text-[11px] text-wood-400 mt-0.5">da {ev.performerDisplayName}</p>
+                                  <p className="text-xs text-wood-400 mt-0.5">da {ev.performerDisplayName}</p>
                                 )}
                               </div>
                             </div>
@@ -436,7 +443,7 @@ function CalendarioPage() {
                                     <p className="text-sm font-semibold text-wood-800">Ispezionata arnia {ev.hiveIdentifier}</p>
                                     <p className="text-xs text-wood-400">{ev.apiaryName}</p>
                                     {ev.performerDisplayName && showPerformer(ev.performedBy) && (
-                                      <p className="text-[11px] text-wood-300">da {ev.performerDisplayName}</p>
+                                      <p className="text-xs text-wood-300">da {ev.performerDisplayName}</p>
                                     )}
                                   </div>
                                 </div>
@@ -458,7 +465,7 @@ function CalendarioPage() {
                                     <p className="text-sm font-semibold text-wood-800">{ev.subKind === 'start' ? 'Inizio trattamento' : 'Fine trattamento'} {ev.productName}</p>
                                     <p className="text-xs text-wood-400">{ev.apiaryName}</p>
                                     {ev.performerDisplayName && showPerformer(ev.performedBy) && (
-                                      <p className="text-[11px] text-wood-300">da {ev.performerDisplayName}</p>
+                                      <p className="text-xs text-wood-300">da {ev.performerDisplayName}</p>
                                     )}
                                   </div>
                                 </div>

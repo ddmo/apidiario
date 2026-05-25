@@ -84,7 +84,7 @@ export function ShareSheet({ open, apiaryId, apiaryName, onClose }: ShareSheetPr
         role="dialog"
         aria-modal="true"
         aria-label="Condividi apiario"
-        className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg max-h-[80dvh] flex flex-col"
+        className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg max-h-[80dvh] flex flex-col animate-slide-up"
       >
         <div className="flex justify-center pt-2.5 pb-1 shrink-0">
           <span className="block w-9 h-1 rounded-full bg-cream-200" aria-hidden="true" />
@@ -98,7 +98,7 @@ export function ShareSheet({ open, apiaryId, apiaryName, onClose }: ShareSheetPr
             type="button"
             onClick={handleClose}
             aria-label="Chiudi"
-            className="size-8 flex items-center justify-center rounded-md text-wood-400 hover:text-wood-600 hover:bg-cream-100 transition-colors shrink-0 mt-0.5"
+            className="size-9 flex items-center justify-center rounded-md text-wood-400 hover:text-wood-600 hover:bg-cream-100 transition-colors shrink-0 mt-0.5"
           >
             <X size={20} strokeWidth={2} />
           </button>
@@ -121,7 +121,7 @@ export function ShareSheet({ open, apiaryId, apiaryName, onClose }: ShareSheetPr
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-wood-800 truncate">{s.displayName}</p>
                     <span
-                      className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium mt-0.5 ${
+                      className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium mt-0.5 ${
                         s.role === 'editor'
                           ? 'bg-honey-100 text-honey-700'
                           : 'bg-wood-100 text-wood-600'
@@ -135,7 +135,7 @@ export function ShareSheet({ open, apiaryId, apiaryName, onClose }: ShareSheetPr
                     onClick={() => handleRevoke(s.userId)}
                     disabled={revoking}
                     aria-label={`Rimuovi accesso a ${s.displayName}`}
-                    className="size-8 flex items-center justify-center rounded-md text-wood-400 hover:text-danger-500 hover:bg-cream-200 transition-colors"
+                    className="size-9 flex items-center justify-center rounded-md text-wood-400 hover:text-danger-500 hover:bg-cream-200 transition-colors"
                   >
                     <X size={16} strokeWidth={2} />
                   </button>
@@ -173,7 +173,7 @@ export function ShareSheet({ open, apiaryId, apiaryName, onClose }: ShareSheetPr
             {status === 'success' ? (
               <div className="flex flex-col gap-3">
                 <div className="bg-success-100 border border-success-100 rounded-xl px-4 py-3 text-sm text-success-500 font-medium">
-                  Accesso concesso! L'utente vedra' l'apiario nella sua home.
+                  Accesso concesso! L'utente vedrà l'apiario nella sua home.
                 </div>
                 <Button variant="primary" size="lg" onClick={handleClose} className="w-full">
                   Fatto

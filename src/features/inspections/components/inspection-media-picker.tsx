@@ -67,7 +67,7 @@ export function InspectionMediaPicker({ media, pendingMedia, uploading, onFilesS
             <button
               type="button"
               onClick={() => onRemove(item.id)}
-              className="absolute top-1 right-1 size-6 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors"
+              className="absolute top-1 right-1 size-8 flex items-center justify-center rounded-full bg-wood-900/40 text-white hover:bg-wood-900/60 transition-colors"
               aria-label="Rimuovi"
             >
               <X size={14} />
@@ -105,7 +105,7 @@ export function InspectionMediaPicker({ media, pendingMedia, uploading, onFilesS
               type="button"
               onClick={() => onRemovePending(item.id)}
               disabled={uploading}
-              className="absolute top-1 right-1 size-6 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors disabled:opacity-30"
+              className="absolute top-1 right-1 size-8 flex items-center justify-center rounded-full bg-wood-900/40 text-white hover:bg-wood-900/60 transition-colors disabled:opacity-30"
               aria-label="Rimuovi"
             >
               <X size={14} />
@@ -132,7 +132,7 @@ export function InspectionMediaPicker({ media, pendingMedia, uploading, onFilesS
       {/* Fullscreen preview */}
       {preview && (
         <div
-          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-wood-900/80 flex items-center justify-center p-4"
           onClick={() => setPreview(null)}
         >
           <button

@@ -37,7 +37,7 @@ export function Button({
       disabled={disabled ?? loading}
       className={cn(
         'inline-flex items-center justify-center gap-2 rounded-md font-medium',
-        'transition-colors duration-150 select-none',
+        'transition-colors duration-150 select-none active:scale-[0.97]',
         'focus-visible:outline-2 focus-visible:outline-honey-500 focus-visible:outline-offset-2',
         'disabled:pointer-events-none disabled:opacity-50',
         variantClasses[variant],

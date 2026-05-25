@@ -80,7 +80,7 @@ export function LocationPreview({ lat, lng, onEdit }: LocationPreviewProps) {
 
       {/* Coordinates pill */}
       <div
-        className="absolute left-2 bottom-2 flex items-center gap-1.5 bg-cream-50/90 backdrop-blur-sm rounded px-2 py-1 text-[11px] font-medium text-wood-700"
+        className="absolute left-2 bottom-2 flex items-center gap-1.5 bg-cream-50/90 backdrop-blur-sm rounded px-2 py-1 text-xs font-medium text-wood-700"
         style={{ fontVariantNumeric: 'tabular-nums' }}
       >
         <Compass size={12} strokeWidth={1.75} aria-hidden="true" />

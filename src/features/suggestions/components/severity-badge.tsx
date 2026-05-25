@@ -17,7 +17,7 @@ export function SeverityBadge({ severity, className }: SeverityBadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium leading-none shrink-0',
+        'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium leading-none shrink-0',
         classes,
         className,
       )}

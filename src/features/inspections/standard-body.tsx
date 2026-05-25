@@ -92,7 +92,7 @@ export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes
           <span className="text-sm font-medium">
             {state.hasBrood ? 'Covata presente' : 'Covata assente'}
           </span>
-          <span className={`h-6 w-10 rounded-full p-0.5 transition-colors ${state.hasBrood ? 'bg-honey-500' : 'bg-cream-200'}`}>
+          <span className={`h-6 w-10 rounded-full p-0.5 transition-colors duration-150 ${state.hasBrood ? 'bg-honey-500' : 'bg-cream-200'}`}>
             <span className={`block size-5 rounded-full bg-cream-50 transition-transform ${state.hasBrood ? 'translate-x-4' : 'translate-x-0'}`} />
           </span>
         </button>
@@ -138,7 +138,7 @@ export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes
             <Flower size={18} />
             {state.pollenIncoming ? 'Bottinatrici al lavoro' : 'Nessuna importazione'}
           </span>
-          <span className={`h-6 w-10 rounded-full p-0.5 transition-colors ${state.pollenIncoming ? 'bg-honey-500' : 'bg-cream-200'}`}>
+          <span className={`h-6 w-10 rounded-full p-0.5 transition-colors duration-150 ${state.pollenIncoming ? 'bg-honey-500' : 'bg-cream-200'}`}>
             <span className={`block size-5 rounded-full bg-cream-50 transition-transform ${state.pollenIncoming ? 'translate-x-4' : 'translate-x-0'}`} />
           </span>
         </button>

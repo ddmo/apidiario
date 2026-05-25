@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-26T00:00:00.000Z",
+  "title": "Design System: Apidiario",
+  "extensions": {
+    "colorMeta": {
+      "cream-50": { "role": "neutral", "displayName": "Panna Pagina", "canonical": "oklch(96% 0.01 80)", "tonalRamp": ["#1A130C", "#2A2014", "#3F311F", "#7A6444", "#A6916C", "#C9B896", "#E0D2B5", "#EDE3CE"] },
+      "cream-100": { "role": "neutral", "displayName": "Panna Card", "canonical": "oklch(90% 0.015 80)", "tonalRamp": [] },
+      "cream-200": { "role": "neutral", "displayName": "Panna Bordo", "canonical": "oklch(84% 0.02 80)", "tonalRamp": [] },
+      "honey-500": { "role": "primary", "displayName": "Miele Dorato", "canonical": "oklch(63% 0.12 75)", "tonalRamp": ["#76500F", "#A06D14", "#C7891A", "#E5A938", "#F0C77A"] },
+      "danger-500": { "role": "tertiary", "displayName": "Terra Rossa", "canonical": "oklch(50% 0.12 30)", "tonalRamp": [] },
+      "success-500": { "role": "tertiary", "displayName": "Salvia", "canonical": "oklch(55% 0.08 110)", "tonalRamp": [] }
+    },
+    "typographyMeta": {
+      "body": { "displayName": "Corpo", "purpose": "Testo principale UI, label form, righe lista." },
+      "display-1": { "displayName": "Wordmark", "purpose": "Solo nel logo/nome app in home." },
+      "label": { "displayName": "Micro-label", "purpose": "ALL-CAPS per etichette di sezione, badge, chip." }
+    },
+    "shadows": [
+      { "name": "xs", "value": "0 1px 2px rgba(60,40,20,0.04)", "purpose": "Sottile profondita per elementi altrimenti piatti." },
+      { "name": "sm", "value": "0 2px 8px rgba(60,40,20,0.06)", "purpose": "Card, dropdown, segmented control attivo." },
+      { "name": "lg", "value": "0 12px 32px rgba(60,40,20,0.12)", "purpose": "Sheet, modal, bottom sheet." },
+      { "name": "fab", "value": "0 4px 12px rgba(60,40,20,0.15)", "purpose": "Floating action button." }
+    ],
+    "motion": [
+      { "name": "state-transition", "value": "150ms ease", "purpose": "Transizioni di stato (hover, focus, active)." },
+      { "name": "swipe", "value": "200ms ease", "purpose": "Snap animazione swipe." },
+      { "name": "toast-enter", "value": "200ms ease-out", "purpose": "Entrata toast." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Pulsante Primario",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Azione principale. Usato per salva, conferma, crea.",
+      "html": "<button class=\"ds-btn-primary\">Salva</button>",
+      "css": ".ds-btn-primary { background: #C7891A; color: #FAF6ED; font-family: Inter, system-ui, sans-serif; font-size: 14px; font-weight: 500; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; transition: background 0.15s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; } .ds-btn-primary:hover { background: #A06D14; } .ds-btn-primary:active { background: #76500F; } .ds-btn-primary:focus-visible { outline: 2px solid #C7891A; outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.5; pointer-events: none; }"
+    },
+    {
+      "name": "Pulsante Distruttivo",
+      "kind": "button",
+      "refersTo": "button-destructive",
+      "description": "Azione distruttiva. Usato per elimina, rimuovi.",
+      "html": "<button class=\"ds-btn-destructive\">Elimina</button>",
+      "css": ".ds-btn-destructive { background: #B0492E; color: #FAF6ED; font-family: Inter, system-ui, sans-serif; font-size: 14px; font-weight: 500; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; transition: background 0.15s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; } .ds-btn-destructive:hover { background: rgba(176,73,46,0.9); } .ds-btn-destructive:focus-visible { outline: 2px solid #C7891A; outline-offset: 2px; }"
+    },
+    {
+      "name": "Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Campo testo standard. Usato in form ispezione e creazione apiario.",
+      "html": "<div><label class=\"ds-label\" for=\"demo-input\">Nome apiario</label><input id=\"demo-input\" class=\"ds-input\" type=\"text\" placeholder=\"Inserisci nome...\" /></div>",
+      "css": ".ds-label { display: block; font-family: Inter, system-ui, sans-serif; font-size: 14px; font-weight: 500; color: #3F311F; margin-bottom: 6px; } .ds-input { height: 48px; border: 1px solid #E0D2B5; border-radius: 8px; background: #FAF6ED; color: #3F311F; font-family: Inter, system-ui, sans-serif; font-size: 14px; padding: 0 16px; width: 100%; box-sizing: border-box; transition: border-color 0.15s, box-shadow 0.15s; } .ds-input::placeholder { color: #A6916C; } .ds-input:focus { border-color: #C7891A; outline: none; box-shadow: 0 0 0 2px rgba(199,137,26,0.2); } .ds-input:disabled { background: #EDE3CE; color: #C9B896; cursor: not-allowed; }"
+    },
+    {
+      "name": "Segmented Control",
+      "kind": "custom",
+      "refersTo": "segmented-control",
+      "description": "Selettore a segmenti. Usato per scegliere modalita ispezione (Express/Standard).",
+      "html": "<div class=\"ds-segmented\" role=\"radiogroup\" aria-label=\"Modalita ispezione\"><button class=\"ds-seg-option ds-seg-active\" role=\"radio\" aria-checked=\"true\">Express</button><button class=\"ds-seg-option\" role=\"radio\" aria-checked=\"false\">Standard</button></div>",
+      "css": ".ds-segmented { display: flex; align-items: center; background: #E0D2B5; padding: 4px; border-radius: 8px; gap: 0; width: 100%; } .ds-seg-option { flex: 1; border: none; border-radius: 6px; padding: 8px 12px; font-family: Inter, system-ui, sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.15s, color 0.15s, box-shadow 0.15s; background: transparent; color: #7A6444; min-height: 40px; } .ds-seg-option:hover { color: #3F311F; } .ds-seg-active { background: #FAF6ED; color: #2A2014; box-shadow: 0 1px 2px rgba(60,40,20,0.04); }"
+    },
+    {
+      "name": "Card Apiario",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Card per apiario nella home list. Usata anche per arnie.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">Apiario Monte</div><div class=\"ds-card-meta\"><span>6 arnie</span></div></div>",
+      "css": ".ds-card { background: #EDE3CE; border: 1px solid #E0D2B5; border-radius: 12px; padding: 12px; font-family: Inter, system-ui, sans-serif; } .ds-card-title { font-size: 15px; font-weight: 600; color: #2A2014; margin-bottom: 4px; } .ds-card-meta { font-size: 13px; color: #7A6444; display: flex; align-items: center; gap: 8px; }"
+    },
+    {
+      "name": "Chip Tag",
+      "kind": "custom",
+      "refersTo": "chip",
+      "description": "Tag per ispezioni: regina vista, popolazione, melari.",
+      "html": "<span class=\"ds-chip ds-chip-info\">regina vista</span><span class=\"ds-chip ds-chip-warning\" style=\"margin-left:6px\">+1 melario</span>",
+      "css": ".ds-chip { display: inline-block; font-family: Inter, system-ui, sans-serif; font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 9999px; line-height: 1; } .ds-chip-info { background: #EAEED9; color: #6E8347; } .ds-chip-warning { background: #FAEEDA; color: #633806; } .ds-chip-danger { background: #F2DBD0; color: #B0492E; }"
+    },
+    {
+      "name": "Badge Calendario",
+      "kind": "custom",
+      "refersTo": "badge",
+      "description": "Badge per data ispezione nella lista ispezioni.",
+      "html": "<div class=\"ds-cal-badge\"><span class=\"ds-cal-month\">MAG</span><span class=\"ds-cal-day\">15</span></div>",
+      "css": ".ds-cal-badge { display: flex; flex-direction: column; align-items: center; width: 48px; min-width: 48px; border-radius: 8px; border: 1px solid #E0D2B5; overflow: hidden; } .ds-cal-month { background: #E0D2B5; color: #3F311F; font-family: Inter, system-ui, sans-serif; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 0; width: 100%; text-align: center; } .ds-cal-day { background: #EDE3CE; color: #2A2014; font-family: Inter, system-ui, sans-serif; font-size: 18px; font-weight: 600; line-height: 1; padding: 6px 0; width: 100%; text-align: center; }"
+    },
+    {
+      "name": "Bottom Nav",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "Navigazione inferiore principale. Quattro voci: Home, Apiari, Ispezioni, Altro.",
+      "html": "<nav class=\"ds-bottom-nav\"><button class=\"ds-nav-item ds-nav-active\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/></svg><span>Home</span></button><button class=\"ds-nav-item\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M10 3.2L9 4 4 6.9\"/><path d=\"M20 6.9L14 3.2l-1 .8\"/><path d=\"M10 3.2v2.8\"/><path d=\"M14 4v2.8\"/><path d=\"M3 9v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9\"/><path d=\"M9 14h6\"/></svg><span>Apiari</span></button><button class=\"ds-nav-item\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6l4 2\"/></svg><span>Ispezioni</span></button><button class=\"ds-nav-item\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z\"/></svg><span>Altro</span></button></nav>",
+      "css": ".ds-bottom-nav { display: flex; align-items: stretch; justify-content: space-around; background: rgba(250,246,237,0.95); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-top: 1px solid #E0D2B5; padding: 4px 0 calc(4px + env(safe-area-inset-bottom)); } .ds-nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; border: none; background: none; cursor: pointer; padding: 4px 12px; font-family: Inter, system-ui, sans-serif; font-size: 10px; color: #A6916C; transition: color 0.15s; min-width: 56px; } .ds-nav-item:hover { color: #7A6444; } .ds-nav-active { color: #A06D14; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Il Taccuino d'Apiario",
+    "overview": "Apidiario e un'app da campo per apicoltori. Il design comunica calore, naturalezza e leggibilita sotto il sole. Come un taccuino tenuto in apiario: essenziale, funzionale, ma con la cura di chi annota a mano le condizioni delle proprie arnie. Niente blu, niente celeste, niente grigi neutri. Le ombre sono marroni, mai grigio puro. Palette ispirata a legno e miele, con un accento dorato (honey) che guida le azioni primarie.",
+    "keyCharacteristics": [
+      "Naturale, chiaro, accogliente",
+      "Palette wood/honey, niente blu o grigio puro",
+      "Touch-first: target minimo 44x44pt (WCAG)",
+      "Tipografia Inter per UI, Fraunces solo per wordmark",
+      "Safe-area per dispositivi con notch"
+    ],
+    "rules": [
+      { "name": "The No-Blue Rule", "body": "Nessun colore fuori palette. In particolare: niente azzurro, niente blu, niente grigio #808000. Le ombre usano sempre tinta marrone (rgba(60, 40, 20, ...)), mai grigio puro.", "section": "colors" },
+      { "name": "The Hex-in-CSS Rule", "body": "I colori sono definiti come custom properties CSS nel file src/app.css tramite @theme. Il tema scuro inverte la scala con contrasti verificati WCAG AA.", "section": "colors" },
+      { "name": "The Fraunces Purity Rule", "body": "Fraunces e usato solo ed esclusivamente nel wordmark dell'app. Mai per titoli, corpo testo, pulsanti o qualsiasi altro elemento UI.", "section": "typography" },
+      { "name": "The Brown Shadow Rule", "body": "Tutte le ombre usano esclusivamente tinta marrone rgba(60, 40, 20, ...). Mai ombre grigie, nere pure, o colorate.", "section": "elevation" }
+    ],
+    "dos": [
+      "Usare i token palette definiti in src/app.css. Mai colori fuori palette.",
+      "Mantenere il target touch minimo 44x44pt (WCAG).",
+      "Includere env(safe-area-inset-bottom) in tutti i contenuti fixed-bottom.",
+      "Usare il focus ring honey-500 su tutti gli elementi interattivi.",
+      "Verificare contrasti WCAG AA per tema chiaro e scuro.",
+      "Usare solo classi Tailwind; nessun #id nei selettori CSS.",
+      "Stratificare z-index: header z-10, bottom nav z-20, overlay z-30, sheet z-40, map picker z-50."
+    ],
+    "donts": [
+      "Usare side-stripe borders (border-left >1px colorato) su alert, modali o componenti interattivi. Eccezione: apiary-list-item usa stripe sinistra come accento decorativo.",
+      "Usare #000 o #fff come sfondo.",
+      "Usare gradient text (background-clip: text + gradient).",
+      "Usare emoji nella UI.",
+      "Rimuovere :focus-visible senza alternativa visibile.",
+      "Usare border-left: 3px solid come accento decorativo (side-tab pattern).",
+      "Em dashes (—).",
+      "Modali come prima scelta."
+    ]
+  }
+}

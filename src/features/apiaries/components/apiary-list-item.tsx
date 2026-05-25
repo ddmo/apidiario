@@ -86,7 +86,7 @@ export function ApiaryListItem({ apiary, onClick, lastInspectionAt, hasActiveTre
           {/* Bottom row: weather | hive count */}
           <div className="flex items-center gap-2 mt-1">
             {weather ? (
-              <span className="text-[11px] text-wood-500">
+              <span className="text-xs text-wood-500">
                 <span>{WeatherIcon({ code: weather.code })}</span>
                 {' '}{weather.label}, {weather.temp}°C
               </span>

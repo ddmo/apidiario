@@ -1,15 +1,24 @@
 import { createFileRoute, redirect, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
-import { ArrowLeft, TreePine, Hexagon, ClipboardList, Syringe, Users, HardDrive, Database, Mic } from 'lucide-react'
+import { ArrowLeft, TreePine, Hexagon, ClipboardList, Syringe, Cloud, HardDrive, Mic } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 function fmtBytes(bytes: number): string {
   if (bytes === 0) return '0 B'
-  const units = ['B', 'KB', 'MB', 'GB']
-  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1)
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), 3)
   const v = bytes / Math.pow(1024, i)
-  return `${v.toFixed(i === 0 ? 0 : 1)} ${units[i]}`
+  return `${v.toFixed(i === 0 ? 0 : 1)} ${['B', 'KB', 'MB', 'GB'][i]}`
+}
+
+function StatCard({ icon: Icon, label, value, accent }: { icon: React.ComponentType<any>; label: string; value: number | null | undefined; accent?: string }) {
+  return (
+    <div className="rounded-lg bg-cream-100 px-4 py-4 flex flex-col items-center gap-2">
+      <Icon size={22} className={`${accent ?? 'text-wood-500'} shrink-0`} />
+      <span className="text-2xl font-semibold text-wood-800 tabular-nums">{value != null ? value.toLocaleString('it-IT') : '…'}</span>
+      <span className="text-xs text-wood-500">{label}</span>
+    </div>
+  )
 }
 
 export const Route = createFileRoute('/statistiche')({
@@ -94,13 +103,6 @@ function StatistichePage() {
     enabled: isAdmin,
   })
 
-  const stats = [
-    { icon: TreePine, label: 'Apiari', value: apiaryCount, color: 'text-honey-600' },
-    { icon: Hexagon, label: 'Arnie', value: hiveCount, color: 'text-honey-600' },
-    { icon: ClipboardList, label: 'Ispezioni', value: inspectionCount, color: 'text-honey-600' },
-    { icon: Syringe, label: 'Trattamenti', value: treatmentCount, color: 'text-honey-600' },
-  ]
-
   return (
     <main className="min-h-dvh flex flex-col bg-cream-50">
       <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2">
@@ -118,72 +120,35 @@ function StatistichePage() {
         <div className="max-w-lg mx-auto">
 
         <div className="grid grid-cols-2 gap-3 mb-6">
-          {stats.map(({ icon: Icon, label, value, color }) => (
-            <div
-              key={label}
-              className="rounded-lg border border-cream-200 bg-cream-100 px-4 py-4 flex flex-col items-center gap-2"
-            >
-              <Icon size={24} className={`${color} shrink-0`} />
-              <span className="text-2xl font-semibold text-wood-800 tabular-nums">
-                {value != null ? value.toLocaleString('it-IT') : '…'}
-              </span>
-              <span className="text-xs text-wood-500">{label}</span>
-            </div>
-          ))}
+          <StatCard icon={TreePine} label="Apiari" value={apiaryCount} accent="text-honey-600" />
+          <StatCard icon={Hexagon} label="Arnie" value={hiveCount} accent="text-honey-600" />
+          <StatCard icon={ClipboardList} label="Ispezioni" value={inspectionCount} accent="text-honey-600" />
+          <StatCard icon={Syringe} label="Trattamenti" value={treatmentCount} accent="text-honey-600" />
         </div>
 
-        {/* Media & Storage */}
-        <h2 className="text-sm font-semibold text-wood-600 mb-3 uppercase tracking-wider">Media</h2>
         <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="rounded-lg border border-cream-200 bg-cream-100 px-4 py-4 flex flex-col items-center gap-2">
-            <HardDrive size={24} className="text-wood-500 shrink-0" />
-            <span className="text-2xl font-semibold text-wood-800 tabular-nums">
-              {mediaCount != null ? mediaCount.toLocaleString('it-IT') : '…'}
-            </span>
-            <span className="text-xs text-wood-500">Foto / video</span>
-          </div>
-          <div className="rounded-lg border border-cream-200 bg-cream-100 px-4 py-4 flex flex-col items-center gap-2">
-            <Mic size={24} className="text-wood-500 shrink-0" />
-            <span className="text-2xl font-semibold text-wood-800 tabular-nums">
-              {audioCount != null ? audioCount.toLocaleString('it-IT') : '…'}
-            </span>
-            <span className="text-xs text-wood-500">Note vocali</span>
-          </div>
-          <div className="col-span-2 rounded-lg border border-cream-200 bg-cream-100 px-4 py-4 flex items-center gap-4">
-            <Database size={24} className="text-wood-500 shrink-0" />
+          <StatCard icon={HardDrive} label="Foto / video" value={mediaCount} />
+          <StatCard icon={Mic} label="Note vocali" value={audioCount} />
+          <div className="col-span-2 rounded-lg bg-cream-100 px-4 py-4 flex items-center gap-4">
+            <Cloud size={22} className="text-wood-500 shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-wood-400">Spazio utilizzato (bucket)</p>
-              <p className="text-xl font-semibold text-wood-800 tabular-nums">
+              <p className="text-sm font-medium text-wood-800 tabular-nums">
                 {storageUsage != null ? fmtBytes(storageUsage.total_size) : '…'}
               </p>
-              {storageUsage != null && (
-                <p className="text-xs text-wood-400">{storageUsage.total_files.toLocaleString('it-IT')} file</p>
-              )}
+              <p className="text-xs text-wood-400 tabular-nums">
+                {storageUsage != null ? `${storageUsage.total_files.toLocaleString('it-IT')} file` : ''}
+                {' · 20 MB max per file'}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Users (admin only) */}
         {isAdmin && (
-          <>
-            <h2 className="text-sm font-semibold text-wood-600 mb-3 uppercase tracking-wider">Sistema</h2>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-lg border border-cream-200 bg-cream-100 px-4 py-4 flex flex-col items-center gap-2">
-                <Users size={24} className="text-wood-500 shrink-0" />
-                <span className="text-2xl font-semibold text-wood-800 tabular-nums">
-                  {totalUsers != null ? totalUsers.toLocaleString('it-IT') : '…'}
-                </span>
-                <span className="text-xs text-wood-500">Utenti registrati</span>
-              </div>
-            </div>
-          </>
+          <div className="grid grid-cols-2 gap-3">
+            <StatCard icon={Cloud} label="Utenti registrati" value={totalUsers} />
+          </div>
         )}
 
-        <div className="mt-6 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3">
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-wood-400">Limite upload file: 20 MB per file</span>
-          </div>
-        </div>
       </div>
       </div>
     </main>

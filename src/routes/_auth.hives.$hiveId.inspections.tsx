@@ -112,7 +112,7 @@ function InspectionListPage() {
                         className="flex-1 flex flex-col items-center justify-center gap-1 bg-danger-500 text-white"
                       >
                         <Trash2 size={18} strokeWidth={1.75} />
-                        <span className="text-[11px] font-semibold leading-none">Elimina</span>
+                        <span className="text-xs font-semibold leading-none">Elimina</span>
                       </button>
                     }
                   >

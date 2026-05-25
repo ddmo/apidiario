@@ -58,7 +58,7 @@ export function HiveSchematic({
     >
       <defs>
         <pattern id="propolis-hatch" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
-          <line x1="0" y1="4" x2="4" y2="0" stroke="#4A6E3C" strokeWidth="1" />
+          <line x1="0" y1="4" x2="4" y2="0" stroke="#6E8347" strokeWidth="1" />
         </pattern>
         <pattern id="pollen-hatch" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
           <line x1="0" y1="0" x2="4" y2="4" stroke="#76500F" strokeWidth="1" />
@@ -82,7 +82,7 @@ export function HiveSchematic({
 
       {/* Apiscampo */}
       {hasApiscampo && (
-        <rect x={MEL_X} y={apisY} width={MEL_W} height={APIS_H} fill="#5B8FA0" rx={1} />
+        <rect x={MEL_X} y={apisY} width={MEL_W} height={APIS_H} fill="#C7891A" rx={1} />
       )}
 
       {/* Nido */}
@@ -93,7 +93,7 @@ export function HiveSchematic({
         <text x={SVG_W / 2} y={nidoY + 20} textAnchor="middle" fontSize={18} fill="#E5A938">♛</text>
       )}
       {hasActiveQueen === 'non_cercata' && (
-        <text x={SVG_W / 2} y={nidoY + 20} textAnchor="middle" fontSize={14} fill="#888780" fontFamily="Inter, system-ui, sans-serif">?</text>
+        <text x={SVG_W / 2} y={nidoY + 20} textAnchor="middle" fontSize={14} fill="#A6916C" fontFamily="Inter, system-ui, sans-serif">?</text>
       )}
 
       {/* Frame count */}

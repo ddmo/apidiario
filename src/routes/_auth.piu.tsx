@@ -214,7 +214,7 @@ function PiuPage() {
 
         {/* Last data update — lighter style at bottom */}
         <div className="mt-3 text-center">
-          <p className="text-[11px] text-wood-600">Ultimo aggiornamento dati: {lastUpdateLabel}</p>
+          <p className="text-xs text-wood-600">Ultimo aggiornamento dati: {lastUpdateLabel}</p>
         </div>
       </div>
       </div>

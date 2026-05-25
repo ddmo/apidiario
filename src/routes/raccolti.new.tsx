@@ -3,6 +3,7 @@ import { useState, useCallback } from 'react'
 import { ArrowLeft, Save, Droplet, Trees, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useCreateHarvest } from '@/features/harvests/hooks/use-harvests'
+import { useToast } from '@/hooks/use-toast'
 import { HONEY_TYPES } from '@/features/harvests/honey-types'
 import { useApiaries } from '@/features/apiaries/hooks/use-apiaries'
 
@@ -16,6 +17,7 @@ export const Route = createFileRoute('/raccolti/new')({
 
 function NewRaccoltoPage() {
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const createHarvest = useCreateHarvest()
   const { data: apiaries } = useApiaries()
 
@@ -52,7 +54,7 @@ function NewRaccoltoPage() {
       })
       navigate({ to: '/raccolti' })
     } catch {
-      // error handled by useMutation
+      showToast('Salvataggio fallito', 'error')
     } finally {
       setSaving(false)
     }
@@ -157,6 +159,7 @@ function NewRaccoltoPage() {
               placeholder="es. A-001"
               value={batchCode}
               onChange={(e) => setBatchCode(e.target.value)}
+              maxLength={30}
               className="rounded-lg border border-cream-200 bg-cream-50 px-4 py-2.5 text-sm text-wood-800"
             />
           </div>
@@ -189,7 +192,7 @@ function NewRaccoltoPage() {
       {/* Apiary picker bottom sheet */}
       {showApiaryPicker && (
         <div className="fixed inset-0 z-50 flex items-end">
-          <div className="absolute inset-0 bg-black/30" onClick={() => setShowApiaryPicker(false)} />
+          <div className="absolute inset-0 bg-wood-900/30" onClick={() => setShowApiaryPicker(false)} />
           <div className="relative w-full rounded-t-xl bg-cream-50 px-4 pb-8 pt-4 max-h-[60vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-medium text-wood-700">Seleziona apiario</h3>
@@ -221,7 +224,7 @@ function NewRaccoltoPage() {
       {/* Honey type picker bottom sheet */}
       {showHoneyPicker && (
         <div className="fixed inset-0 z-50 flex items-end">
-          <div className="absolute inset-0 bg-black/30" onClick={() => setShowHoneyPicker(false)} />
+          <div className="absolute inset-0 bg-wood-900/30" onClick={() => setShowHoneyPicker(false)} />
           <div className="relative w-full rounded-t-xl bg-cream-50 px-4 pb-8 pt-4 max-h-[60vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-medium text-wood-700">Seleziona tipo miele</h3>

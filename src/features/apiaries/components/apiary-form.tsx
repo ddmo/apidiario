@@ -262,6 +262,7 @@ export function ApiaryForm({ userId, onSuccess, onCancel, initialData }: ApiaryF
               required
               autoComplete="off"
               autoCapitalize="words"
+              maxLength={100}
             />
             <Input
               id="apiary-bda"
@@ -502,7 +503,7 @@ export function ApiaryForm({ userId, onSuccess, onCancel, initialData }: ApiaryF
             role="dialog"
             aria-modal="true"
             aria-label={t.apiary.new.unsavedTitle}
-            className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg"
+            className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg animate-slide-up"
           >
             <div className="flex justify-center pt-2.5 pb-1">
               <span className="block w-9 h-1 rounded-full bg-cream-200" aria-hidden="true" />
