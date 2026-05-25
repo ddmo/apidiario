@@ -12,6 +12,7 @@ const baseTreatment: TreatmentListItem = {
   appliesToAllHives: true,
   apiaryId: 'apiary-1',
   apiaryName: 'Apiario Monte',
+  performerName: 'Mario Rossi',
   hiveCount: 0,
 }
 
