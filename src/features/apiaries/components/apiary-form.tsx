@@ -262,6 +262,7 @@ export function ApiaryForm({ userId, onSuccess, onCancel, initialData }: ApiaryF
               required
               autoComplete="off"
               autoCapitalize="words"
+              maxLength={100}
             />
             <Input
               id="apiary-bda"

@@ -110,7 +110,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
         <Link
           to="/hives/$hiveId/inspections"
           params={{ hiveId: hive.id }}
-          className="flex-1 flex flex-col items-center justify-center gap-1 bg-[#5B8FA0] text-white"
+          className="flex-1 flex flex-col items-center justify-center gap-1 bg-honey-500 text-white"
         >
           <ClipboardList size={20} strokeWidth={1.75} />
           <span className="text-[11px] font-semibold leading-none">
@@ -210,7 +210,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
                     }
                     className={`size-9 flex items-center justify-center rounded-md border transition-colors ${
                       hive.hasApiscampo
-                        ? 'bg-[#5B8FA0] border-[#4A7A8E] text-white'
+                        ? 'bg-wood-500 border-wood-600 text-white'
                         : 'bg-cream-50 border-cream-200 text-wood-400'
                     }`}
                   >
@@ -224,7 +224,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
                     }
                     className={`size-9 flex items-center justify-center rounded-md border transition-colors ${
                       hive.hasPropolisNet
-                        ? 'bg-[#4A6E3C] border-[#3A5A2E] text-white'
+                        ? 'bg-success-500 border-success-500 text-white'
                         : 'bg-cream-50 border-cream-200 text-wood-400'
                     }`}
                   >
@@ -307,7 +307,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
                     }
                     className={`size-8 flex items-center justify-center rounded-md border transition-colors ${
                       hive.hasApiscampo
-                        ? 'bg-[#5B8FA0] border-[#4A7A8E] text-white'
+                        ? 'bg-wood-500 border-wood-600 text-white'
                         : 'bg-cream-50 border-cream-200 text-wood-400'
                     }`}
                   >
@@ -321,7 +321,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
                     }
                     className={`size-8 flex items-center justify-center rounded-md border transition-colors ${
                       hive.hasPropolisNet
-                        ? 'bg-[#4A6E3C] border-[#3A5A2E] text-white'
+                        ? 'bg-success-500 border-success-500 text-white'
                         : 'bg-cream-50 border-cream-200 text-wood-400'
                     }`}
                   >

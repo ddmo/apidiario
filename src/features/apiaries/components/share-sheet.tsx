@@ -98,7 +98,7 @@ export function ShareSheet({ open, apiaryId, apiaryName, onClose }: ShareSheetPr
             type="button"
             onClick={handleClose}
             aria-label="Chiudi"
-            className="size-8 flex items-center justify-center rounded-md text-wood-400 hover:text-wood-600 hover:bg-cream-100 transition-colors shrink-0 mt-0.5"
+            className="size-9 flex items-center justify-center rounded-md text-wood-400 hover:text-wood-600 hover:bg-cream-100 transition-colors shrink-0 mt-0.5"
           >
             <X size={20} strokeWidth={2} />
           </button>
@@ -135,7 +135,7 @@ export function ShareSheet({ open, apiaryId, apiaryName, onClose }: ShareSheetPr
                     onClick={() => handleRevoke(s.userId)}
                     disabled={revoking}
                     aria-label={`Rimuovi accesso a ${s.displayName}`}
-                    className="size-8 flex items-center justify-center rounded-md text-wood-400 hover:text-danger-500 hover:bg-cream-200 transition-colors"
+                    className="size-9 flex items-center justify-center rounded-md text-wood-400 hover:text-danger-500 hover:bg-cream-200 transition-colors"
                   >
                     <X size={16} strokeWidth={2} />
                   </button>
@@ -173,7 +173,7 @@ export function ShareSheet({ open, apiaryId, apiaryName, onClose }: ShareSheetPr
             {status === 'success' ? (
               <div className="flex flex-col gap-3">
                 <div className="bg-success-100 border border-success-100 rounded-xl px-4 py-3 text-sm text-success-500 font-medium">
-                  Accesso concesso! L'utente vedra' l'apiario nella sua home.
+                  Accesso concesso! L'utente vedrà l'apiario nella sua home.
                 </div>
                 <Button variant="primary" size="lg" onClick={handleClose} className="w-full">
                   Fatto

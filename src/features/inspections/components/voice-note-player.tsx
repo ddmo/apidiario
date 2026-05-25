@@ -59,6 +59,7 @@ export function VoiceNotePlayer({ url, durationSeconds, onDelete }: VoiceNotePla
       <button
         type="button"
         onClick={toggle}
+        aria-label={playing ? 'Pausa' : 'Ascolta'}
         className="size-9 flex items-center justify-center rounded-full bg-honey-500 text-cream-50 hover:bg-honey-600 transition-colors shrink-0"
       >
         {playing ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
@@ -77,7 +78,8 @@ export function VoiceNotePlayer({ url, durationSeconds, onDelete }: VoiceNotePla
       <button
         type="button"
         onClick={onDelete}
-        className="size-8 flex items-center justify-center text-wood-400 hover:text-danger-500 rounded transition-colors shrink-0"
+        aria-label="Elimina registrazione"
+        className="size-9 flex items-center justify-center text-wood-400 hover:text-danger-500 rounded transition-colors shrink-0"
       >
         <Trash2 size={16} />
       </button>

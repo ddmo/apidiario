@@ -3,6 +3,7 @@ import { useState, useCallback } from 'react'
 import { ArrowLeft, Save, Droplet, Trees, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useHarvest, useUpdateHarvest, useDeleteHarvest } from '@/features/harvests/hooks/use-harvests'
+import { useToast } from '@/hooks/use-toast'
 import { HONEY_TYPES } from '@/features/harvests/honey-types'
 import { useApiaries } from '@/features/apiaries/hooks/use-apiaries'
 
@@ -17,6 +18,7 @@ export const Route = createFileRoute('/raccolti/$harvestId/edit')({
 function EditRaccoltoPage() {
   const { harvestId } = Route.useParams()
   const navigate = useNavigate()
+  const { showToast } = useToast()
   const { data: harvest, isLoading } = useHarvest(harvestId)
   const updateHarvest = useUpdateHarvest()
   const deleteHarvest = useDeleteHarvest()
@@ -65,11 +67,11 @@ function EditRaccoltoPage() {
       })
       navigate({ to: '/raccolti' })
     } catch {
-      // error handled by useMutation
+      showToast('Salvataggio fallito', 'error')
     } finally {
       setSaving(false)
     }
-  }, [apiaryId, date, honeyType, totalKg, humidityPct, batchCode, notes, harvestId, updateHarvest, navigate])
+  }, [apiaryId, date, honeyType, totalKg, humidityPct, batchCode, notes, harvestId, updateHarvest, navigate, showToast])
 
   const handleDelete = useCallback(async () => {
     setDeleting(true)
@@ -77,7 +79,7 @@ function EditRaccoltoPage() {
       await deleteHarvest.mutateAsync(harvestId)
       navigate({ to: '/raccolti' })
     } catch {
-      // error handled
+      showToast('Eliminazione fallita', 'error')
     } finally {
       setDeleting(false)
     }
@@ -229,7 +231,7 @@ function EditRaccoltoPage() {
       {/* Apiary picker */}
       {showApiaryPicker && (
         <div className="fixed inset-0 z-50 flex items-end">
-          <div className="absolute inset-0 bg-black/30" onClick={() => setShowApiaryPicker(false)} />
+          <div className="absolute inset-0 bg-wood-900/30" onClick={() => setShowApiaryPicker(false)} />
           <div className="relative w-full rounded-t-xl bg-cream-50 px-4 pb-8 pt-4 max-h-[60vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-medium text-wood-700">Seleziona apiario</h3>
@@ -261,7 +263,7 @@ function EditRaccoltoPage() {
       {/* Honey type picker */}
       {showHoneyPicker && (
         <div className="fixed inset-0 z-50 flex items-end">
-          <div className="absolute inset-0 bg-black/30" onClick={() => setShowHoneyPicker(false)} />
+          <div className="absolute inset-0 bg-wood-900/30" onClick={() => setShowHoneyPicker(false)} />
           <div className="relative w-full rounded-t-xl bg-cream-50 px-4 pb-8 pt-4 max-h-[60vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-medium text-wood-700">Seleziona tipo miele</h3>
@@ -293,7 +295,7 @@ function EditRaccoltoPage() {
       {/* Delete confirmation */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-end">
-          <div className="absolute inset-0 bg-black/30" onClick={() => setShowDeleteConfirm(false)} />
+          <div className="absolute inset-0 bg-wood-900/30" onClick={() => setShowDeleteConfirm(false)} />
           <div className="relative w-full rounded-t-xl bg-cream-50 px-4 pb-8 pt-4">
             <h3 className="text-sm font-medium text-wood-800 mb-2">Eliminare questo raccolto?</h3>
             <p className="text-xs text-wood-500 mb-4">

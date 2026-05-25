@@ -29,10 +29,10 @@ function formatTimeAgo(iso: string): string {
 }
 
 function AlertIcon({ type }: { type: string }) {
-  if (type === 'active_treatment') return <FlaskRound size={16} className="shrink-0 mt-0.5 text-[#854F0B]" />
+  if (type === 'active_treatment') return <FlaskRound size={16} className="shrink-0 mt-0.5 text-honey-700" />
   if (type === 'bad_weather') return <CloudRain size={16} className="shrink-0 mt-0.5 text-wood-500" />
   if (type === 'active_bloom') return <Flower2 size={16} className="shrink-0 mt-0.5 text-honey-600" />
-  return <AlertTriangle size={16} className="shrink-0 mt-0.5 text-[#A32D2D]" />
+  return <AlertTriangle size={16} className="shrink-0 mt-0.5 text-danger-500" />
 }
 
 function SkeletonCard() {
@@ -141,47 +141,47 @@ function HomePage() {
                         )
                       }
 
-                      const isTreatmentBg = isTreatment ? '#FAEEDA' : '#FCEBEB'
-
                       return (
                         <button
                           key={alert.id}
                           type="button"
                           onClick={() => void navigate({ to: '/apiaries/$apiaryId', params: { apiaryId: alert.apiaryId } })}
-                          className="w-full rounded-lg px-3 py-2.5 flex items-start gap-2.5 text-left transition-colors"
-                          style={{ backgroundColor: isTreatmentBg }}
+                          className={cn(
+                            'w-full rounded-lg px-3 py-2.5 flex items-start gap-2.5 text-left transition-colors',
+                            isTreatment ? 'bg-warning-100' : 'bg-danger-100',
+                          )}
                         >
                           <AlertIcon type={alert.type} />
                           <div className="flex-1 min-w-0">
                             {isTreatment ? (
                               <>
-                                <p className="text-xs font-medium text-[#412402] leading-tight">
+                                <p className="text-xs font-medium text-wood-800 leading-tight">
                                   {alert.message.split(' —')[0]}
                                 </p>
-                                <p className="text-[10px] text-[#633806] mt-0.5">
+                                <p className="text-[10px] text-wood-600 mt-0.5">
                                   {alert.message.includes('—') ? alert.message.split('—')[1]?.trim() : ''}
                                 </p>
                               </>
                             ) : (
-                              <p className="text-xs font-medium text-[#501313] leading-tight">{alert.message}</p>
+                              <p className="text-xs font-medium text-danger-500 leading-tight">{alert.message}</p>
                             )}
                           </div>
                           <span
                             onClick={(e) => { e.stopPropagation(); dismissAlert(alert.id) }}
-                            className="shrink-0 size-6 flex items-center justify-center rounded-full hover:bg-black/10 transition-colors cursor-pointer"
+                            className="shrink-0 size-6 flex items-center justify-center rounded-full hover:bg-wood-900/10 transition-colors cursor-pointer"
                             aria-label="Nascondi avviso"
                           >
-                            <X size={14} className={isTreatment ? 'text-[#633806]' : 'text-[#791F1F]'} />
+                            <X size={14} className={isTreatment ? 'text-wood-600' : 'text-danger-500'} />
                           </span>
                         </button>
                       )
                     })}
 
                     {bloomAlerts.length > 0 && (
-                      <div className="w-full rounded-lg px-3.5 py-3 bg-[#F1F6E8] border border-[#DCE8C5]">
+                      <div className="w-full rounded-lg px-3.5 py-3 bg-success-100 border border-success-500/20">
                         <div className="flex items-center gap-2 mb-2">
                           <Flower2 size={16} className="shrink-0 text-honey-600" />
-                          <span className="text-xs font-semibold text-[#3D5A1F]">
+                          <span className="text-xs font-semibold text-wood-800">
                             Fioriture in arrivo
                           </span>
                         </div>
@@ -191,7 +191,7 @@ function HomePage() {
                               key={alert.id}
                               type="button"
                               onClick={() => void navigate({ to: '/apiaries/$apiaryId', params: { apiaryId: alert.apiaryId } })}
-                              className="w-full text-left text-xs text-[#3D5A1F]/80 leading-relaxed hover:text-[#3D5A1F] transition-colors"
+                              className="w-full text-left text-xs text-wood-600 leading-relaxed hover:text-wood-800 transition-colors"
                             >
                               {alert.message}
                             </button>
@@ -276,7 +276,7 @@ function HomePage() {
                         <button
                           type="button"
                           onClick={() => void navigate({ to: '/apiaries/$apiaryId/edit', params: { apiaryId: apiary.id } })}
-                          className="flex-1 flex flex-col items-center justify-center gap-1 bg-[#5B8FA0] text-white"
+                          className="flex-1 flex flex-col items-center justify-center gap-1 bg-honey-500 text-white"
                         >
                           <Pencil size={18} strokeWidth={1.75} />
                           <span className="text-[11px] font-semibold leading-none">Modifica</span>
@@ -346,7 +346,7 @@ function HomePage() {
                                   key={ti}
                                   className={`text-[9px] px-1.5 py-0.5 rounded-full leading-none font-medium ${
                                     tag.type === 'melari'
-                                      ? 'bg-[#FAEEDA] text-[#633806]'
+                                      ? 'bg-warning-100 text-wood-600'
                                       : 'bg-cream-200 text-wood-500'
                                   }`}
                                 >

@@ -38,7 +38,7 @@ export function MainPhotoSlot({
         type="button"
         aria-label="Rimuovi foto"
         onClick={onRemove}
-        className="absolute top-2 left-2 size-8 rounded-full bg-cream-50/90 backdrop-blur-sm text-wood-700 hover:text-danger-500 flex items-center justify-center transition-colors"
+        className="absolute top-2 left-2 size-9 rounded-full bg-cream-50/90 backdrop-blur-sm text-wood-700 hover:text-danger-500 flex items-center justify-center transition-colors"
       >
         <X size={16} strokeWidth={1.75} />
       </button>
@@ -47,7 +47,7 @@ export function MainPhotoSlot({
         type="button"
         aria-label="Cambia foto"
         onClick={onChange}
-        className="absolute top-2 right-2 h-8 px-3 rounded-full bg-cream-50/90 backdrop-blur-sm text-wood-700 hover:text-wood-800 inline-flex items-center gap-1.5 text-xs font-medium transition-colors"
+        className="absolute top-2 right-2 h-9 px-3 rounded-full bg-cream-50/90 backdrop-blur-sm text-wood-700 hover:text-wood-800 inline-flex items-center gap-1.5 text-xs font-medium transition-colors"
       >
         <Camera size={14} strokeWidth={1.75} aria-hidden="true" />
         Cambia

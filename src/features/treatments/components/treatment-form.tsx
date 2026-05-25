@@ -192,6 +192,7 @@ export function TreatmentForm({ userId: _userId, prefillApiaryId, treatment, onS
             value={productName}
             onChange={(e) => { setProductName(e.target.value); markDirty() }}
             required
+            maxLength={100}
           />
 
           {/* Blocco melari */}

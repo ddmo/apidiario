@@ -167,6 +167,7 @@ export function HiveForm({ apiaryId, hive, onSuccess, onCancel }: HiveFormProps)
               required
               autoComplete="off"
               autoCapitalize="words"
+              maxLength={50}
             />
           </section>
 

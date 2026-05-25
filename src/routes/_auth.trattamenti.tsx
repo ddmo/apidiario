@@ -49,7 +49,7 @@ function TrattamentiPage() {
                       <Link
                         to="/trattamenti/$treatmentId/edit"
                         params={{ treatmentId: tr.id }}
-                        className="flex-1 flex flex-col items-center justify-center gap-1 bg-[#5B8FA0] text-white"
+                        className="flex-1 flex flex-col items-center justify-center gap-1 bg-honey-500 text-white"
                       >
                         <span className="text-[11px] font-semibold leading-none">Modifica</span>
                       </Link>
