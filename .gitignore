@@ -44,6 +44,12 @@ supabase/functions/
 # Cache
 .cache/
 
+# E2E auth (file generato localmente)
+e2e/.auth.json
+
+# Impeccable live mode
+.impeccable/
+
 coverage/
 .vite/
 *.log

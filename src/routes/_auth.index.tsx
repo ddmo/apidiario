@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { SwipeableRow } from '@/components/ui/swipeable-row'
 import { ShareSheet } from '@/features/apiaries/components/share-sheet'
 import { useToast } from '@/hooks/use-toast'
+import { cn } from '@/lib/utils'
 import { t } from '@/i18n/it'
 
 export const Route = createFileRoute('/_auth/')({
