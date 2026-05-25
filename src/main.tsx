@@ -41,6 +41,16 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js')
 }
 
+// Suppress harmless Supabase webauthn interceptor error (gotrue-js bug)
+window.addEventListener('error', (e) => {
+  if (
+    e.message?.includes?.('signalUnknownCredential') ||
+    (e.filename && e.filename.includes('webauthnInterceptor'))
+  ) {
+    e.preventDefault()
+  }
+})
+
 const rootEl = document.getElementById('root')
 if (!rootEl) throw new Error('Root element #root non trovato in index.html')
 

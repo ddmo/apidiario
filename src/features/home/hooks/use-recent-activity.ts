@@ -9,26 +9,30 @@ export type ActivityTag =
 
 export type ActivityItem = {
   id: string
-  hiveId: string
-  hiveIdentifier: string
+  type: 'inspection' | 'treatment'
+  hiveId?: string
+  hiveIdentifier?: string
   apiaryId: string
   apiaryName: string
   inspectorId: string
   inspectorName: string
   inspectedAt: string
   tags: ActivityTag[]
+  productName?: string
 }
 
 export function useRecentActivityByOthers() {
   const { session } = useAuth()
 
   return useQuery({
-    queryKey: ['recent-activity'],
+    queryKey: ['recent-activity', 'v2'],
     queryFn: async (): Promise<ActivityItem[]> => {
-      const sevenDaysAgo = new Date()
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+      const cutoff = new Date()
+      cutoff.setDate(cutoff.getDate() - 14)
+      const cutoffStr = cutoff.toISOString()
 
-      const { data, error } = await supabase
+      // Inspections by others (last 14 days)
+      const { data: inspections } = await supabase
         .from('inspections')
         .select(`
           id, hive_id, performed_at, performed_by,
@@ -36,45 +40,23 @@ export function useRecentActivityByOthers() {
           hives!inner(identifier, apiary_id, apiaries!inner(name)),
           profiles(display_name)
         `)
-        .gte('performed_at', sevenDaysAgo.toISOString())
+        .gte('performed_at', cutoffStr)
         .neq('performed_by', session?.user?.id ?? '')
         .order('performed_at', { ascending: false })
         .limit(20)
 
-      if (error) throw error
-      if (!data?.length) return []
-
-      return (data as unknown as {
-        id: string
-        hive_id: string
-        performed_at: string
-        performed_by: string
-        queen_seen: string | null
-        population: string | null
-        honey_frame_count: number | null
-        hives: { identifier: string; apiary_id: string; apiaries: { name: string } }
-        profiles: { display_name: string }
-      }[]).map((row) => {
+      const items: ActivityItem[] = (inspections ?? []).map((row: any) => {
         const tags: ActivityTag[] = []
-
-        if (row.queen_seen === 'vista') {
-          tags.push({ type: 'queen_seen', label: 'regina vista' })
-        }
-
-        if (row.population === 'forte') {
-          tags.push({ type: 'population', label: 'forte' })
-        } else if (row.population === 'media') {
-          tags.push({ type: 'population', label: 'media' })
-        } else if (row.population === 'debole') {
-          tags.push({ type: 'population', label: 'debole' })
-        }
-
+        if (row.queen_seen === 'vista') tags.push({ type: 'queen_seen', label: 'regina vista' })
+        if (row.population === 'forte') tags.push({ type: 'population', label: 'forte' })
+        else if (row.population === 'media') tags.push({ type: 'population', label: 'media' })
+        else if (row.population === 'debole') tags.push({ type: 'population', label: 'debole' })
         if (row.honey_frame_count != null && row.honey_frame_count > 0) {
           tags.push({ type: 'melari', label: `+${row.honey_frame_count} melario` })
         }
-
         return {
           id: row.id,
+          type: 'inspection' as const,
           hiveId: row.hive_id,
           hiveIdentifier: row.hives.identifier,
           apiaryId: row.hives.apiary_id,
@@ -85,6 +67,35 @@ export function useRecentActivityByOthers() {
           tags,
         }
       })
+
+      // Treatments by others (last 14 days)
+      const { data: treatments } = await supabase
+        .from('treatments')
+        .select('id, product_name, apiary_id, created_at, performed_by, apiaries!inner(name), performer:performed_by(display_name)')
+        .gte('created_at', cutoffStr)
+        .neq('performed_by', session?.user?.id ?? '')
+        .order('created_at', { ascending: false })
+        .limit(20)
+
+      for (const t of treatments ?? []) {
+        const row = t as any
+        items.push({
+          id: 'treatment-' + row.id,
+          type: 'treatment',
+          apiaryId: row.apiary_id,
+          apiaryName: row.apiaries.name,
+          inspectorId: row.performed_by,
+          inspectorName: row.performer?.display_name ?? '',
+          inspectedAt: row.created_at,
+          tags: [],
+          productName: row.product_name,
+        })
+      }
+
+      // Merge & sort by date descending
+      items.sort((a, b) => new Date(b.inspectedAt).getTime() - new Date(a.inspectedAt).getTime())
+
+      return items
     },
     enabled: !!session?.user?.id,
   })

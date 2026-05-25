@@ -172,13 +172,13 @@ export function useTodaysAlerts() {
 
   // 4. Bloom predictions — species at start/peak phase per apiary
   const bloomAlerts = useQuery({
-    queryKey: ['home-alerts', 'bloom-v2', new Date().getFullYear()],
+    queryKey: ['home-alerts', 'bloom-v3', new Date().getFullYear()],
     queryFn: async (): Promise<AlertUnion[]> => {
       const year = new Date().getFullYear()
       const today = new Date().toISOString().slice(0, 10)
-      const end = new Date()
-      end.setDate(end.getDate() + 15)
-      const endDate = end.toISOString().slice(0, 10)
+      const endDate = new Date()
+      endDate.setDate(endDate.getDate() + 15)
+      const endDateStr = endDate.toISOString().slice(0, 10)
 
       // Apiaries with coords
       const { data: apiaries } = await supabase
@@ -224,13 +224,13 @@ export function useTodaysAlerts() {
         speciesByApiary.set(row.apiary_id, set)
       }
 
-      // Batch weather fetch from Open-Meteo archive API
+      // Batch weather fetch from Open-Meteo historical-forecast API (single endpoint)
       const lats = withCoords.map((a) => a.latitude).join(',')
       const lngs = withCoords.map((a) => a.longitude).join(',')
       const weatherUrl =
-        `https://archive-api.open-meteo.com/v1/archive?` +
+        `https://historical-forecast-api.open-meteo.com/v1/forecast?` +
         `latitude=${lats}&longitude=${lngs}&` +
-        `start_date=${year}-01-01&end_date=${endDate}&` +
+        `start_date=${year}-01-01&end_date=${endDateStr}&` +
         `daily=temperature_2m_max,temperature_2m_min&timezone=Europe/Rome`
 
       const res = await fetch(weatherUrl)

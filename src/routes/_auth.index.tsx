@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Trees, Share2, Trash2, Pencil, AlertTriangle, CloudRain, FlaskRound, X, Flower2 } from 'lucide-react'
-import { useState } from 'react'
+import { Trees, Share2, Trash2, Pencil, AlertTriangle, CloudRain, FlaskRound, X, Flower2, Syringe } from 'lucide-react'
+import { useState, Fragment } from 'react'
 import { useApiaryCards } from '@/features/home/hooks/use-apiary-cards'
 import { useTodaysAlerts } from '@/features/home/hooks/use-home-alerts'
 import { useRecentActivityByOthers, type ActivityItem } from '@/features/home/hooks/use-recent-activity'
@@ -82,8 +82,26 @@ function HomePage() {
 
   const activeAlerts = alerts.filter(a => !dismissed.has(a.id))
 
+  // Dismissed activity items — persisted in localStorage
+  const [dismissedAct, setDismissedAct] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem('dismissedActivity')
+      return new Set(stored ? JSON.parse(stored) : [])
+    } catch { return new Set() }
+  })
+
+  function dismissActivity(id: string) {
+    setDismissedAct(prev => {
+      const next = new Set(prev)
+      next.add(id)
+      localStorage.setItem('dismissedActivity', JSON.stringify([...next]))
+      return next
+    })
+  }
+
   // Group activities by inspector name for section heading
-  const activityGroups = activities?.reduce<Record<string, ActivityItem[]>>((acc, item) => {
+  const activeActivities = activities?.filter(a => !dismissedAct.has(a.id)) ?? []
+  const activityGroups = activeActivities.reduce<Record<string, ActivityItem[]>>((acc, item) => {
     if (!acc[item.inspectorName]) acc[item.inspectorName] = []
     acc[item.inspectorName]!.push(item)
     return acc
@@ -224,6 +242,22 @@ function HomePage() {
             <div className="flex flex-col gap-2 pb-4">
               {apiaries.map((apiary) => {
                 const cardData = cards?.find((c) => c.id === apiary.id)
+                const isOwner = !cardData?.accessLevel || cardData.accessLevel === 'owner'
+
+                const listItem = (
+                  <ApiaryListItem
+                    apiary={apiary}
+                    lastInspectionAt={cardData?.lastInspectionAt}
+                    hasActiveTreatment={cardData?.hasActiveTreatment ?? false}
+                    accessLevel={cardData?.accessLevel}
+                    ownerDisplayName={cardData?.ownerDisplayName}
+                    weather={cardData?.weather}
+                    photoUrl={cardData?.photoUrl}
+                    onClick={() => void navigate({ to: '/apiaries/$apiaryId', params: { apiaryId: apiary.id } })}
+                  />
+                )
+
+                if (!isOwner) return <Fragment key={apiary.id}>{listItem}</Fragment>
 
                 return (
                   <SwipeableRow
@@ -258,15 +292,7 @@ function HomePage() {
                       </div>
                     }
                   >
-                    <ApiaryListItem
-                      apiary={apiary}
-                      lastInspectionAt={cardData?.lastInspectionAt}
-                      hasActiveTreatment={cardData?.hasActiveTreatment ?? false}
-                      accessLevel={cardData?.accessLevel}
-                      weather={cardData?.weather}
-                      photoUrl={cardData?.photoUrl}
-                      onClick={() => void navigate({ to: '/apiaries/$apiaryId', params: { apiaryId: apiary.id } })}
-                    />
+                    {listItem}
                   </SwipeableRow>
                 )
               })}
@@ -275,49 +301,75 @@ function HomePage() {
         </section>
 
         {/* ── Attività recente da altri ── */}
-        {!activityLoading && activityGroups && Object.keys(activityGroups).length > 0 && (
+        {!activityLoading && Object.keys(activityGroups).length > 0 && (
           <section className="px-4 pb-4">
             {Object.entries(activityGroups).map(([inspectorName, items]) => (
               <div key={inspectorName} className="mb-3 last:mb-0">
                 <p className="text-[11px] text-wood-500 mb-2 px-0.5">Da {inspectorName}</p>
-                <div className="rounded-lg border border-cream-200 bg-cream-100 overflow-hidden">
-                  {items.map((item, i) => (
-                    <button
+                <div className="flex flex-col gap-1">
+                  {items.map((item) => (
+                    <SwipeableRow
                       key={item.id}
-                      type="button"
-                      onClick={() => void navigate({
-                        to: '/hives/$hiveId/inspections/$inspectionId',
-                        params: { hiveId: item.hiveId, inspectionId: item.id },
-                      })}
-                      className={`w-full px-3.5 py-2.5 text-left hover:bg-cream-200/50 transition-colors ${
-                        i < items.length - 1 ? 'border-b border-cream-200' : ''
-                      }`}
+                      revealWidth={90}
+                      revealContent={
+                        <button
+                          type="button"
+                          onClick={() => dismissActivity(item.id)}
+                          className="flex-1 flex flex-col items-center justify-center gap-1 bg-wood-400 text-white rounded-r-lg"
+                        >
+                          <X size={16} strokeWidth={2} />
+                          <span className="text-[10px] font-semibold leading-none">Nascondi</span>
+                        </button>
+                      }
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-xs font-semibold text-wood-700">
-                          {item.hiveIdentifier} · {item.apiaryName}
-                        </span>
-                        <span className="text-[10px] text-wood-400 shrink-0">
-                          {formatTimeAgo(item.inspectedAt)}
-                        </span>
-                      </div>
-                      {item.tags.length > 0 && (
-                        <div className="flex gap-1.5 mt-1.5 flex-wrap">
-                          {item.tags.map((tag, ti) => (
-                            <span
-                              key={ti}
-                              className={`text-[9px] px-1.5 py-0.5 rounded-full leading-none font-medium ${
-                                tag.type === 'melari'
-                                  ? 'bg-[#FAEEDA] text-[#633806]'
-                                  : 'bg-cream-200 text-wood-500'
-                              }`}
-                            >
-                              {tag.label}
+                      {item.type === 'inspection' ? (
+                        <button
+                          type="button"
+                          onClick={() => void navigate({
+                            to: '/hives/$hiveId/inspections/$inspectionId',
+                            params: { hiveId: item.hiveId!, inspectionId: item.id },
+                          })}
+                          className="w-full px-3.5 py-2.5 text-left bg-cream-100 border border-cream-200 rounded-lg hover:bg-cream-200/50 transition-colors"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-xs font-semibold text-wood-700">
+                              {item.hiveIdentifier} · {item.apiaryName}
                             </span>
-                          ))}
+                            <span className="text-[10px] text-wood-400 shrink-0">
+                              {formatTimeAgo(item.inspectedAt)}
+                            </span>
+                          </div>
+                          {item.tags.length > 0 && (
+                            <div className="flex gap-1.5 mt-1.5 flex-wrap">
+                              {item.tags.map((tag, ti) => (
+                                <span
+                                  key={ti}
+                                  className={`text-[9px] px-1.5 py-0.5 rounded-full leading-none font-medium ${
+                                    tag.type === 'melari'
+                                      ? 'bg-[#FAEEDA] text-[#633806]'
+                                      : 'bg-cream-200 text-wood-500'
+                                  }`}
+                                >
+                                  {tag.label}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </button>
+                      ) : (
+                        <div className="w-full px-3.5 py-2.5 bg-cream-100 border border-cream-200 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <Syringe size={14} className="text-honey-600 shrink-0" />
+                            <span className="text-xs text-wood-700">
+                              Trattamento <strong>{item.productName}</strong> · {item.apiaryName}
+                            </span>
+                            <span className="text-[10px] text-wood-400 shrink-0 ml-auto">
+                              {formatTimeAgo(item.inspectedAt)}
+                            </span>
+                          </div>
                         </div>
                       )}
-                    </button>
+                    </SwipeableRow>
                   ))}
                 </div>
               </div>

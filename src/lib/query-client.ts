@@ -53,8 +53,8 @@ export async function setCachedUserId(userId: string): Promise<void> {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5,       // 5 minuti
-      gcTime: 1000 * 60 * 60 * 24,    // 24 ore (persiste in IndexedDB)
+      staleTime: 0,                    // sempre fresco se online
+      gcTime: 1000 * 60 * 60 * 24,    // 24 ore (fallback offline in IndexedDB)
       retry: 1,
     },
   },

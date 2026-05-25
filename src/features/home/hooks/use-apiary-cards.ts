@@ -23,6 +23,7 @@ export type ApiaryCard = {
   lastInspectionAt: string | null
   hasActiveTreatment: boolean
   accessLevel: AccessLevel
+  ownerDisplayName: string | null
   weather: WeatherInfo | null
   photoUrl: string | null
 }
@@ -46,12 +47,12 @@ export function useApiaryCards() {
     queryFn: async (): Promise<ApiaryCard[]> => {
       const { data, error } = await supabase
         .from('apiaries')
-        .select('id, name, owner_id, main_photo_path, latitude, longitude, hives(id)')
+        .select('id, name, owner_id, main_photo_path, latitude, longitude, hives(id), owner:owner_id(display_name)')
         .is('archived_at', null)
         .order('created_at', { ascending: true })
 
       if (error) throw error
-      const rows = data as unknown as (ApiaryRow & { owner_id: string; latitude: number | null; longitude: number | null })[]
+      const rows = data as unknown as (ApiaryRow & { owner_id: string; latitude: number | null; longitude: number | null; owner: { display_name: string } | null })[]
       if (!rows.length) return []
 
       const apiaryIds = rows.map((r) => r.id)
@@ -184,6 +185,7 @@ export function useApiaryCards() {
           lastInspectionAt: inspByApiary.get(r.id) ?? null,
           hasActiveTreatment: activeTxByApiary.has(r.id),
           accessLevel,
+          ownerDisplayName: r.owner?.display_name ?? null,
           weather: weatherByApiary.get(r.id) ?? null,
           photoUrl: photoUrlByApiary.get(r.id) ?? null,
         }

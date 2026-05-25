@@ -138,7 +138,7 @@ function BatchInspectionPage() {
         void queryClient.invalidateQueries({ queryKey: ['inspections', id] })
       }
       showToast('Ispezioni salvate', 'success')
-      navigate({ to: '/apiaries/$apiaryId', params: { apiaryId } })
+      navigate({ to: '/' })
     },
     onError: (err) => {
       console.error('Batch save failed:', err)

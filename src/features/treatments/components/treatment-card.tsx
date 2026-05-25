@@ -25,6 +25,9 @@ export function TreatmentCard({ treatment }: TreatmentCardProps) {
           <Lock size={12} strokeWidth={2} className="text-danger-500 shrink-0" />
         )}
       </div>
+      {treatment.performerName && (
+        <p className="text-[11px] text-wood-400 mb-1">Eseguito da {treatment.performerName}</p>
+      )}
       <p className="text-xs text-wood-500 mb-1">{formatDateRange(treatment.startDate, treatment.endDate)}</p>
       <p className="text-xs text-wood-400">
         {treatment.apiaryName}

@@ -14,6 +14,7 @@ export type TreatmentListItem = {
   appliesToAllHives: boolean
   apiaryId: string
   apiaryName: string
+  performerName: string
   hiveCount: number
 }
 
@@ -41,7 +42,7 @@ export function useTreatments() {
     queryFn: async (): Promise<TreatmentListItem[]> => {
       const { data, error } = await supabase
         .from('treatments')
-        .select('id, product_name, start_date, end_date, blocks_melari, applies_to_all_hives, apiary_id, apiaries!inner(name), treatment_hives(hive_id)')
+        .select('id, product_name, start_date, end_date, blocks_melari, applies_to_all_hives, apiary_id, apiaries!inner(name), treatment_hives(hive_id), performer:performed_by(display_name)')
         .order('start_date', { ascending: false })
 
       if (error) throw error
@@ -56,6 +57,7 @@ export function useTreatments() {
         apiary_id: string
         apiaries: { name: string }
         treatment_hives: { hive_id: string }[]
+        performer: { display_name: string } | null
       }[]).map((t) => ({
         id: t.id,
         productName: t.product_name,
@@ -65,6 +67,7 @@ export function useTreatments() {
         appliesToAllHives: t.applies_to_all_hives,
         apiaryId: t.apiary_id,
         apiaryName: t.apiaries.name,
+        performerName: t.performer?.display_name ?? '',
         hiveCount: t.applies_to_all_hives ? 0 : (Array.isArray(t.treatment_hives) ? t.treatment_hives.length : 0),
       }))
     },
@@ -77,7 +80,7 @@ export function useTreatmentsByApiary(apiaryId: string) {
     queryFn: async (): Promise<TreatmentListItem[]> => {
       const { data, error } = await supabase
         .from('treatments')
-        .select('id, product_name, start_date, end_date, blocks_melari, applies_to_all_hives, apiary_id, apiaries!inner(name), treatment_hives(hive_id)')
+        .select('id, product_name, start_date, end_date, blocks_melari, applies_to_all_hives, apiary_id, apiaries!inner(name), treatment_hives(hive_id), performer:performed_by(display_name)')
         .eq('apiary_id', apiaryId)
         .order('start_date', { ascending: false })
 
@@ -92,6 +95,7 @@ export function useTreatmentsByApiary(apiaryId: string) {
         appliesToAllHives: t.applies_to_all_hives,
         apiaryId: t.apiary_id,
         apiaryName: t.apiaries.name,
+        performerName: t.performer?.display_name ?? '',
         hiveCount: t.applies_to_all_hives ? 0 : (Array.isArray(t.treatment_hives) ? t.treatment_hives.length : 0),
       }))
     },
@@ -193,6 +197,7 @@ export function useCreateTreatment() {
 
 type UpdateTreatmentInput = {
   treatmentId: string
+  apiaryId: string
   productName: string
   blocksMelari: boolean
   appliesToAllHives: boolean
@@ -210,6 +215,7 @@ export function useUpdateTreatment() {
       const { error } = await supabase
         .from('treatments')
         .update({
+          apiary_id: input.apiaryId,
           product_name: input.productName,
           blocks_melari: input.blocksMelari,
           applies_to_all_hives: input.appliesToAllHives,

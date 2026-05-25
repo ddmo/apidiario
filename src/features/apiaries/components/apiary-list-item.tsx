@@ -1,4 +1,4 @@
-import { Syringe, ClipboardCheck, Hexagon, Trees } from 'lucide-react'
+import { Syringe, ClipboardCheck, Hexagon, Trees, Edit3, Eye } from 'lucide-react'
 import type { ApiaryListItem as ApiaryListItemData } from '../hooks/use-apiaries'
 import type { AccessLevel, WeatherInfo } from '@/features/home/hooks/use-apiary-cards'
 
@@ -8,6 +8,7 @@ interface ApiaryListItemProps {
   lastInspectionAt?: string | null
   hasActiveTreatment?: boolean
   accessLevel?: AccessLevel
+  ownerDisplayName?: string | null
   weather?: WeatherInfo | null
   photoUrl?: string | null
 }
@@ -18,16 +19,6 @@ function formatRelativeDate(iso: string): string {
   if (days === 0) return 'oggi'
   if (days === 1) return 'ieri'
   return `${days} g fa`
-}
-
-function RoleBadge({ level }: { level: AccessLevel }) {
-  if (level === 'owner') return null
-  const label = level === 'editor' ? 'editor' : 'lettore'
-  return (
-    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[#E6F1FB] text-[#0C447C] leading-none font-medium">
-      {label}
-    </span>
-  )
 }
 
 function WeatherIcon({ code }: { code: number }) {
@@ -43,7 +34,7 @@ function WeatherIcon({ code }: { code: number }) {
   return '☀️'
 }
 
-export function ApiaryListItem({ apiary, onClick, lastInspectionAt, hasActiveTreatment, accessLevel, weather, photoUrl }: ApiaryListItemProps) {
+export function ApiaryListItem({ apiary, onClick, lastInspectionAt, hasActiveTreatment, accessLevel, ownerDisplayName, weather, photoUrl }: ApiaryListItemProps) {
   const { name, hiveCount } = apiary
 
   return (
@@ -69,7 +60,6 @@ export function ApiaryListItem({ apiary, onClick, lastInspectionAt, hasActiveTre
           {/* Top row: name + badges | date */}
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-wood-800 truncate">{name}</span>
-            {accessLevel && accessLevel !== 'owner' && <RoleBadge level={accessLevel} />}
             {hasActiveTreatment && (
               <Syringe size={13} className="text-warning-600 shrink-0" />
             )}
@@ -80,6 +70,18 @@ export function ApiaryListItem({ apiary, onClick, lastInspectionAt, hasActiveTre
               </span>
             )}
           </div>
+
+          {/* Owner info for shared apiaries */}
+          {accessLevel && accessLevel !== 'owner' && (
+            <div className="flex items-center gap-1 mt-0.5">
+              {accessLevel === 'editor' ? (
+                <Edit3 size={10} className="text-wood-400 shrink-0" />
+              ) : (
+                <Eye size={10} className="text-wood-400 shrink-0" />
+              )}
+              <span className="text-[10px] text-wood-400">di {ownerDisplayName ?? '—'}</span>
+            </div>
+          )}
 
           {/* Bottom row: weather | hive count */}
           <div className="flex items-center gap-2 mt-1">
