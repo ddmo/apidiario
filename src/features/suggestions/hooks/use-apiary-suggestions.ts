@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { generateSuggestions } from '@/lib/suggestions/engine'
-import type { Suggestion, SuggestionContext, Hive, Inspection } from '@/lib/suggestions/types'
+import type { Suggestion, SuggestionContext, Hive, Inspection, Reminder } from '@/lib/suggestions/types'
 
 export interface HiveSuggestions {
   hive: Hive
@@ -13,6 +13,7 @@ export function computeSuggestions(
   hives: Hive[],
   inspections: Inspection[],
   today: Date,
+  reminders: Reminder[] = [],
 ): HiveSuggestions[] {
   const latestInspMap = new Map<string, Inspection>()
   for (const insp of inspections) {
@@ -33,6 +34,7 @@ export function computeSuggestions(
           )
         : null,
       today,
+      reminders,
     }
 
     return {
@@ -65,10 +67,29 @@ export function useApiarySuggestions(apiaryId: string) {
         .in('hive_id', hiveIds)
         .order('performed_at', { ascending: false })
 
+      // Fetch active reminders for this apiary.
+      // RLS policy already filters by auth.uid() — no need to filter by userId explicitly.
+      const { data: reminderRows } = await supabase
+        .from('reminders')
+        .select('*')
+        .is('completed_at', null)
+        .order('due_at', { ascending: true })
+
+      let remindersData: Reminder[] = []
+      if (reminderRows?.length) {
+        remindersData = (reminderRows as unknown as Reminder[]).filter(
+          (r) =>
+            r.scope === 'global' ||
+            r.apiary_id === apiaryId ||
+            (r.hive_id && hiveIds.includes(r.hive_id)),
+        )
+      }
+
       return computeSuggestions(
         hivesData as Hive[],
         (inspData ?? []) as Inspection[],
         new Date(),
+        remindersData,
       )
     },
     enabled: !!apiaryId,

@@ -6,7 +6,7 @@ import { pathologyFollowup, varroaTreatmentWindow, varroaCountMissingInSeason } 
 import { weakPopulation, lowHoneyStoresPreWinter, lowPollenSpring } from './rules/stores'
 import { pollenTrapCheck, propolisNetCheck } from './rules/equipment'
 import { melariCheck } from './rules/harvest'
-import { overdueInspectionActiveSeason, firstInspectionNeeded } from './rules/schedule'
+import { overdueInspectionActiveSeason, firstInspectionNeeded, remindersDue } from './rules/schedule'
 import { postSwarmQueenCheck } from './rules/season'
 
 export const rules: Rule[] = [
@@ -34,6 +34,7 @@ export const rules: Rule[] = [
   // Schedule
   overdueInspectionActiveSeason,
   firstInspectionNeeded,
+  remindersDue,
   // Season
   postSwarmQueenCheck,
 ]

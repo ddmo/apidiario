@@ -27,6 +27,7 @@ export interface Suggestion {
 
 export type Hive = Database['public']['Tables']['hives']['Row']
 export type Inspection = Database['public']['Tables']['inspections']['Row']
+export type Reminder = Database['public']['Tables']['reminders']['Row']
 
 export interface SuggestionContext {
   hive: Hive
@@ -35,6 +36,7 @@ export interface SuggestionContext {
   today: Date
   apiaryLat?: number | null
   recentInspections?: Inspection[]
+  reminders?: Reminder[]
 }
 
 export type Rule = (ctx: SuggestionContext) => Suggestion | null

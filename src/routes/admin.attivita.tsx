@@ -66,7 +66,7 @@ function AdminActivityLogPage() {
                     entry.action === 'insert'
                       ? 'bg-green-100 text-green-700'
                       : entry.action === 'delete'
-                        ? 'bg-red-100 text-red-700'
+                        ? 'bg-danger-100 text-danger-500'
                         : 'bg-amber-100 text-amber-700'
                   }`}>
                     {actionLabels[entry.action] ?? entry.action}

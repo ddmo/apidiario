@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Trees, Share2, Trash2, Pencil, AlertTriangle, CloudRain, FlaskRound, X, Flower2, Syringe } from 'lucide-react'
+import { Trees, Share2, Trash2, Pencil, AlertTriangle, CloudRain, FlaskRound, X, Flower2, Syringe, Bell } from 'lucide-react'
 import { useState, Fragment } from 'react'
 import { useApiaryCards } from '@/features/home/hooks/use-apiary-cards'
 import { useTodaysAlerts } from '@/features/home/hooks/use-home-alerts'
 import { useRecentActivityByOthers, type ActivityItem } from '@/features/home/hooks/use-recent-activity'
+import { useUpcomingReminders } from '@/features/reminders/hooks/use-reminders'
 import { useApiaries, useDeleteApiary } from '@/features/apiaries/hooks/use-apiaries'
 import { ApiaryListItem } from '@/features/apiaries/components/apiary-list-item'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -59,6 +60,7 @@ function HomePage() {
   const { alerts, isLoading: alertsLoading } = useTodaysAlerts()
   const { data: activities, isLoading: activityLoading } = useRecentActivityByOthers()
   const { data: cards } = useApiaryCards()
+  const { data: upcomingReminders } = useUpcomingReminders()
 
   const [shareTarget, setShareTarget] = useState<{ id: string; name: string } | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
@@ -204,6 +206,55 @@ function HomePage() {
                 )
               })()}
             </div>
+          </section>
+        )}
+
+        {/* ── Promemoria in scadenza ── */}
+        {upcomingReminders && upcomingReminders.length > 0 && (
+          <section className="px-4 pt-5">
+            <p className="text-xs text-wood-500 mb-2 px-0.5">In scadenza</p>
+            {upcomingReminders.length > 1 ? (
+              <button
+                type="button"
+                onClick={() => void navigate({ to: '/promemoria' })}
+                className="w-full rounded-lg border border-cream-200 bg-cream-100 px-3.5 py-3 text-left hover:bg-cream-200 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Bell size={16} className="text-honey-600 shrink-0" />
+                  <p className="text-sm font-medium text-wood-800">
+                    {upcomingReminders.length} promemoria in scadenza
+                  </p>
+                </div>
+                <div className="flex flex-col gap-1 mt-2">
+                  {upcomingReminders.map((r) => (
+                    <p key={r.id} className="text-xs text-wood-500 leading-relaxed">
+                      {r.title}
+                      <span className={new Date(r.due_at) < new Date() ? 'text-danger-500' : 'text-wood-400'}>
+                        {' · '}{new Date(r.due_at).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}
+                      </span>
+                    </p>
+                  ))}
+                </div>
+              </button>
+            ) : (
+              <button
+                key={upcomingReminders[0].id}
+                type="button"
+                onClick={() => void navigate({ to: '/promemoria' })}
+                className="flex items-center gap-2.5 rounded-lg border border-cream-200 bg-cream-100 px-3.5 py-2.5 text-left hover:bg-cream-200 transition-colors w-full"
+              >
+                <Bell size={16} className="text-honey-600 shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-wood-800 truncate">{upcomingReminders[0].title}</p>
+                  <p className={`text-xs ${new Date(upcomingReminders[0].due_at) < new Date() ? 'text-danger-500' : 'text-wood-400'}`}>
+                    {new Date(upcomingReminders[0].due_at).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}
+                    {upcomingReminders[0].recurrence !== 'none' && (
+                      <> · {upcomingReminders[0].recurrence === 'weekly' ? 'settimanale' : upcomingReminders[0].recurrence === 'monthly' ? 'mensile' : 'annuale'}</>
+                    )}
+                  </p>
+                </div>
+              </button>
+            )}
           </section>
         )}
 

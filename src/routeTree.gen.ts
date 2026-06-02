@@ -17,18 +17,21 @@ import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthIndexRouteImport } from './routes/_auth.index'
 import { Route as TrattamentiNewRouteImport } from './routes/trattamenti.new'
 import { Route as RaccoltiNewRouteImport } from './routes/raccolti.new'
+import { Route as PromemoriaNewRouteImport } from './routes/promemoria.new'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ApiariesNewRouteImport } from './routes/apiaries.new'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminAttivitaRouteImport } from './routes/admin.attivita'
 import { Route as AuthTrattamentiRouteImport } from './routes/_auth.trattamenti'
 import { Route as AuthRaccoltiRouteImport } from './routes/_auth.raccolti'
+import { Route as AuthPromemoriaRouteImport } from './routes/_auth.promemoria'
 import { Route as AuthPiuRouteImport } from './routes/_auth.piu'
 import { Route as AuthHomeRouteImport } from './routes/_auth.home'
 import { Route as AuthCalendarioRouteImport } from './routes/_auth.calendario'
 import { Route as AuthArnieRouteImport } from './routes/_auth.arnie'
 import { Route as TrattamentiTreatmentIdEditRouteImport } from './routes/trattamenti.$treatmentId.edit'
 import { Route as RaccoltiHarvestIdEditRouteImport } from './routes/raccolti.$harvestId.edit'
+import { Route as PromemoriaReminderIdEditRouteImport } from './routes/promemoria.$reminderId.edit'
 import { Route as InspectionsBatchApiaryIdRouteImport } from './routes/inspections.batch.$apiaryId'
 import { Route as InspectionsHiveIdNewRouteImport } from './routes/inspections.$hiveId.new'
 import { Route as HivesHiveIdEditRouteImport } from './routes/hives.$hiveId.edit'
@@ -79,6 +82,11 @@ const RaccoltiNewRoute = RaccoltiNewRouteImport.update({
   path: '/raccolti/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PromemoriaNewRoute = PromemoriaNewRouteImport.update({
+  id: '/promemoria/new',
+  path: '/promemoria/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
@@ -107,6 +115,11 @@ const AuthTrattamentiRoute = AuthTrattamentiRouteImport.update({
 const AuthRaccoltiRoute = AuthRaccoltiRouteImport.update({
   id: '/raccolti',
   path: '/raccolti',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthPromemoriaRoute = AuthPromemoriaRouteImport.update({
+  id: '/promemoria',
+  path: '/promemoria',
   getParentRoute: () => AuthRoute,
 } as any)
 const AuthPiuRoute = AuthPiuRouteImport.update({
@@ -140,6 +153,12 @@ const RaccoltiHarvestIdEditRoute = RaccoltiHarvestIdEditRouteImport.update({
   path: '/raccolti/$harvestId/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PromemoriaReminderIdEditRoute =
+  PromemoriaReminderIdEditRouteImport.update({
+    id: '/promemoria/$reminderId/edit',
+    path: '/promemoria/$reminderId/edit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const InspectionsBatchApiaryIdRoute =
   InspectionsBatchApiaryIdRouteImport.update({
     id: '/inspections/batch/$apiaryId',
@@ -206,12 +225,14 @@ export interface FileRoutesByFullPath {
   '/calendario': typeof AuthCalendarioRoute
   '/home': typeof AuthHomeRoute
   '/piu': typeof AuthPiuRoute
+  '/promemoria': typeof AuthPromemoriaRoute
   '/raccolti': typeof AuthRaccoltiRoute
   '/trattamenti': typeof AuthTrattamentiRoute
   '/admin/attivita': typeof AdminAttivitaRoute
   '/admin/users': typeof AdminUsersRoute
   '/apiaries/new': typeof ApiariesNewRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/promemoria/new': typeof PromemoriaNewRoute
   '/raccolti/new': typeof RaccoltiNewRoute
   '/trattamenti/new': typeof TrattamentiNewRoute
   '/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
@@ -221,6 +242,7 @@ export interface FileRoutesByFullPath {
   '/hives/$hiveId/edit': typeof HivesHiveIdEditRoute
   '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
   '/inspections/batch/$apiaryId': typeof InspectionsBatchApiaryIdRoute
+  '/promemoria/$reminderId/edit': typeof PromemoriaReminderIdEditRoute
   '/raccolti/$harvestId/edit': typeof RaccoltiHarvestIdEditRoute
   '/trattamenti/$treatmentId/edit': typeof TrattamentiTreatmentIdEditRoute
   '/hives/$hiveId/inspections': typeof AuthHivesHiveIdInspectionsRoute
@@ -236,12 +258,14 @@ export interface FileRoutesByTo {
   '/calendario': typeof AuthCalendarioRoute
   '/home': typeof AuthHomeRoute
   '/piu': typeof AuthPiuRoute
+  '/promemoria': typeof AuthPromemoriaRoute
   '/raccolti': typeof AuthRaccoltiRoute
   '/trattamenti': typeof AuthTrattamentiRoute
   '/admin/attivita': typeof AdminAttivitaRoute
   '/admin/users': typeof AdminUsersRoute
   '/apiaries/new': typeof ApiariesNewRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/promemoria/new': typeof PromemoriaNewRoute
   '/raccolti/new': typeof RaccoltiNewRoute
   '/trattamenti/new': typeof TrattamentiNewRoute
   '/': typeof AuthIndexRoute
@@ -252,6 +276,7 @@ export interface FileRoutesByTo {
   '/hives/$hiveId/edit': typeof HivesHiveIdEditRoute
   '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
   '/inspections/batch/$apiaryId': typeof InspectionsBatchApiaryIdRoute
+  '/promemoria/$reminderId/edit': typeof PromemoriaReminderIdEditRoute
   '/raccolti/$harvestId/edit': typeof RaccoltiHarvestIdEditRoute
   '/trattamenti/$treatmentId/edit': typeof TrattamentiTreatmentIdEditRoute
   '/hives/$hiveId/inspections': typeof AuthHivesHiveIdInspectionsRoute
@@ -269,12 +294,14 @@ export interface FileRoutesById {
   '/_auth/calendario': typeof AuthCalendarioRoute
   '/_auth/home': typeof AuthHomeRoute
   '/_auth/piu': typeof AuthPiuRoute
+  '/_auth/promemoria': typeof AuthPromemoriaRoute
   '/_auth/raccolti': typeof AuthRaccoltiRoute
   '/_auth/trattamenti': typeof AuthTrattamentiRoute
   '/admin/attivita': typeof AdminAttivitaRoute
   '/admin/users': typeof AdminUsersRoute
   '/apiaries/new': typeof ApiariesNewRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/promemoria/new': typeof PromemoriaNewRoute
   '/raccolti/new': typeof RaccoltiNewRoute
   '/trattamenti/new': typeof TrattamentiNewRoute
   '/_auth/': typeof AuthIndexRoute
@@ -285,6 +312,7 @@ export interface FileRoutesById {
   '/hives/$hiveId/edit': typeof HivesHiveIdEditRoute
   '/inspections/$hiveId/new': typeof InspectionsHiveIdNewRoute
   '/inspections/batch/$apiaryId': typeof InspectionsBatchApiaryIdRoute
+  '/promemoria/$reminderId/edit': typeof PromemoriaReminderIdEditRoute
   '/raccolti/$harvestId/edit': typeof RaccoltiHarvestIdEditRoute
   '/trattamenti/$treatmentId/edit': typeof TrattamentiTreatmentIdEditRoute
   '/_auth/hives/$hiveId/inspections': typeof AuthHivesHiveIdInspectionsRoute
@@ -303,12 +331,14 @@ export interface FileRouteTypes {
     | '/calendario'
     | '/home'
     | '/piu'
+    | '/promemoria'
     | '/raccolti'
     | '/trattamenti'
     | '/admin/attivita'
     | '/admin/users'
     | '/apiaries/new'
     | '/auth/callback'
+    | '/promemoria/new'
     | '/raccolti/new'
     | '/trattamenti/new'
     | '/apiaries/$apiaryId'
@@ -318,6 +348,7 @@ export interface FileRouteTypes {
     | '/hives/$hiveId/edit'
     | '/inspections/$hiveId/new'
     | '/inspections/batch/$apiaryId'
+    | '/promemoria/$reminderId/edit'
     | '/raccolti/$harvestId/edit'
     | '/trattamenti/$treatmentId/edit'
     | '/hives/$hiveId/inspections'
@@ -333,12 +364,14 @@ export interface FileRouteTypes {
     | '/calendario'
     | '/home'
     | '/piu'
+    | '/promemoria'
     | '/raccolti'
     | '/trattamenti'
     | '/admin/attivita'
     | '/admin/users'
     | '/apiaries/new'
     | '/auth/callback'
+    | '/promemoria/new'
     | '/raccolti/new'
     | '/trattamenti/new'
     | '/'
@@ -349,6 +382,7 @@ export interface FileRouteTypes {
     | '/hives/$hiveId/edit'
     | '/inspections/$hiveId/new'
     | '/inspections/batch/$apiaryId'
+    | '/promemoria/$reminderId/edit'
     | '/raccolti/$harvestId/edit'
     | '/trattamenti/$treatmentId/edit'
     | '/hives/$hiveId/inspections'
@@ -365,12 +399,14 @@ export interface FileRouteTypes {
     | '/_auth/calendario'
     | '/_auth/home'
     | '/_auth/piu'
+    | '/_auth/promemoria'
     | '/_auth/raccolti'
     | '/_auth/trattamenti'
     | '/admin/attivita'
     | '/admin/users'
     | '/apiaries/new'
     | '/auth/callback'
+    | '/promemoria/new'
     | '/raccolti/new'
     | '/trattamenti/new'
     | '/_auth/'
@@ -381,6 +417,7 @@ export interface FileRouteTypes {
     | '/hives/$hiveId/edit'
     | '/inspections/$hiveId/new'
     | '/inspections/batch/$apiaryId'
+    | '/promemoria/$reminderId/edit'
     | '/raccolti/$harvestId/edit'
     | '/trattamenti/$treatmentId/edit'
     | '/_auth/hives/$hiveId/inspections'
@@ -398,6 +435,7 @@ export interface RootRouteChildren {
   AdminUsersRoute: typeof AdminUsersRoute
   ApiariesNewRoute: typeof ApiariesNewRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  PromemoriaNewRoute: typeof PromemoriaNewRoute
   RaccoltiNewRoute: typeof RaccoltiNewRoute
   TrattamentiNewRoute: typeof TrattamentiNewRoute
   ApiariesApiaryIdEditRoute: typeof ApiariesApiaryIdEditRoute
@@ -406,6 +444,7 @@ export interface RootRouteChildren {
   HivesHiveIdEditRoute: typeof HivesHiveIdEditRoute
   InspectionsHiveIdNewRoute: typeof InspectionsHiveIdNewRoute
   InspectionsBatchApiaryIdRoute: typeof InspectionsBatchApiaryIdRoute
+  PromemoriaReminderIdEditRoute: typeof PromemoriaReminderIdEditRoute
   RaccoltiHarvestIdEditRoute: typeof RaccoltiHarvestIdEditRoute
   TrattamentiTreatmentIdEditRoute: typeof TrattamentiTreatmentIdEditRoute
   ApiariesApiaryIdHivesNewRoute: typeof ApiariesApiaryIdHivesNewRoute
@@ -470,6 +509,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RaccoltiNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/promemoria/new': {
+      id: '/promemoria/new'
+      path: '/promemoria/new'
+      fullPath: '/promemoria/new'
+      preLoaderRoute: typeof PromemoriaNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/callback': {
       id: '/auth/callback'
       path: '/auth/callback'
@@ -512,6 +558,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRaccoltiRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/promemoria': {
+      id: '/_auth/promemoria'
+      path: '/promemoria'
+      fullPath: '/promemoria'
+      preLoaderRoute: typeof AuthPromemoriaRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/piu': {
       id: '/_auth/piu'
       path: '/piu'
@@ -552,6 +605,13 @@ declare module '@tanstack/react-router' {
       path: '/raccolti/$harvestId/edit'
       fullPath: '/raccolti/$harvestId/edit'
       preLoaderRoute: typeof RaccoltiHarvestIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/promemoria/$reminderId/edit': {
+      id: '/promemoria/$reminderId/edit'
+      path: '/promemoria/$reminderId/edit'
+      fullPath: '/promemoria/$reminderId/edit'
+      preLoaderRoute: typeof PromemoriaReminderIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/inspections/batch/$apiaryId': {
@@ -632,6 +692,7 @@ interface AuthRouteChildren {
   AuthCalendarioRoute: typeof AuthCalendarioRoute
   AuthHomeRoute: typeof AuthHomeRoute
   AuthPiuRoute: typeof AuthPiuRoute
+  AuthPromemoriaRoute: typeof AuthPromemoriaRoute
   AuthRaccoltiRoute: typeof AuthRaccoltiRoute
   AuthTrattamentiRoute: typeof AuthTrattamentiRoute
   AuthIndexRoute: typeof AuthIndexRoute
@@ -644,6 +705,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthCalendarioRoute: AuthCalendarioRoute,
   AuthHomeRoute: AuthHomeRoute,
   AuthPiuRoute: AuthPiuRoute,
+  AuthPromemoriaRoute: AuthPromemoriaRoute,
   AuthRaccoltiRoute: AuthRaccoltiRoute,
   AuthTrattamentiRoute: AuthTrattamentiRoute,
   AuthIndexRoute: AuthIndexRoute,
@@ -663,6 +725,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminUsersRoute: AdminUsersRoute,
   ApiariesNewRoute: ApiariesNewRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  PromemoriaNewRoute: PromemoriaNewRoute,
   RaccoltiNewRoute: RaccoltiNewRoute,
   TrattamentiNewRoute: TrattamentiNewRoute,
   ApiariesApiaryIdEditRoute: ApiariesApiaryIdEditRoute,
@@ -671,6 +734,7 @@ const rootRouteChildren: RootRouteChildren = {
   HivesHiveIdEditRoute: HivesHiveIdEditRoute,
   InspectionsHiveIdNewRoute: InspectionsHiveIdNewRoute,
   InspectionsBatchApiaryIdRoute: InspectionsBatchApiaryIdRoute,
+  PromemoriaReminderIdEditRoute: PromemoriaReminderIdEditRoute,
   RaccoltiHarvestIdEditRoute: RaccoltiHarvestIdEditRoute,
   TrattamentiTreatmentIdEditRoute: TrattamentiTreatmentIdEditRoute,
   ApiariesApiaryIdHivesNewRoute: ApiariesApiaryIdHivesNewRoute,

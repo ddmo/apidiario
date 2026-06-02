@@ -148,9 +148,9 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
         onTouchEnd={handleTouchEnd}
         onTransitionEnd={() => setAnimate(false)}
       >
-        <div className="bg-cream-100 border border-cream-200 px-3 py-2 shadow-xs">
+        <div className="bg-cream-100 border border-cream-200 shadow-xs">
           {showSchematic ? (
-            <div className="flex gap-3">
+            <div className="px-3 py-2 flex gap-3">
               {/* Schematic */}
               <div className="w-[96px] shrink-0 flex items-center self-stretch bg-cream-200/50 rounded-lg">
                 <HiveSchematic
@@ -257,99 +257,98 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
               </div>
             </div>
           ) : (
-            <div className="flex flex-col gap-1">
-              {/* Row 1: Name + Last inspection */}
-              <div className="flex items-center justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="font-semibold text-wood-800 text-base leading-tight truncate">
-                    {hive.identifier}
+            <div className="flex items-stretch gap-0">
+              <div className="flex flex-col gap-1 flex-1 min-w-0 px-3 py-2">
+                {/* Row 1: Name + Last inspection */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-wood-800 text-base leading-tight truncate">
+                      {hive.identifier}
+                    </p>
+                    {hive.apiaryName && (
+                      <p className="text-xs text-honey-600 font-medium truncate">{hive.apiaryName}</p>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-wood-400 shrink-0 flex items-center gap-1">
+                    <ClipboardCheck size={10} className="shrink-0" />
+                    {hive.lastInspection
+                      ? relativeDate(hive.lastInspection.performedAt)
+                      : t.hive.card.noVisit}
                   </p>
-                  {hive.apiaryName && (
-                    <p className="text-xs text-honey-600 font-medium truncate">{hive.apiaryName}</p>
-                  )}
                 </div>
-                <p className="text-[10px] text-wood-400 shrink-0 flex items-center gap-1">
-                  <ClipboardCheck size={10} className="shrink-0" />
-                  {hive.lastInspection
-                    ? relativeDate(hive.lastInspection.performedAt)
-                    : t.hive.card.noVisit}
-                </p>
-              </div>
 
-              {/* Row 2: Melari icon + control */}
-              <div className="flex items-center gap-1">
-                <Droplets size={14} className="text-wood-400 shrink-0" />
-                <SegmentedControl
-                  options={MELARI_OPTIONS}
-                  value={String(hive.melariCount)}
-                  onChange={(v) => {
-                    const count = Number(v)
-                    if (count > hive.melariCount && melariBlock) {
-                      setPendingMelariCount(count)
-                      setShowMelariWarning(true)
-                    } else {
-                      updateMelari({ hiveId: hive.id, count })
-                    }
-                  }}
-                  ariaLabel="Numero melari"
-                  compact
-                />
-              </div>
-
-              {/* Row 3: Togglers + Inspect */}
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    aria-label={t.hive.card.apiscampo}
-                    onClick={() =>
-                      toggle({ hiveId: hive.id, field: 'has_apiscampo', value: !hive.hasApiscampo })
-                    }
-                    className={`size-8 flex items-center justify-center rounded-md border transition-colors active:scale-[0.97] ${
-                      hive.hasApiscampo
-                        ? 'bg-wood-500 border-wood-600 text-white'
-                        : 'bg-cream-50 border-cream-200 text-wood-400'
-                    }`}
-                  >
-                    <DoorOpen size={16} strokeWidth={1.75} />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label={t.hive.card.propoilsNet}
-                    onClick={() =>
-                      toggle({ hiveId: hive.id, field: 'has_propolis_net', value: !hive.hasPropolisNet })
-                    }
-                    className={`size-8 flex items-center justify-center rounded-md border transition-colors active:scale-[0.97] ${
-                      hive.hasPropolisNet
-                        ? 'bg-success-500 border-success-500 text-white'
-                        : 'bg-cream-50 border-cream-200 text-wood-400'
-                    }`}
-                  >
-                    <Grid3x3 size={16} strokeWidth={1.75} />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label={t.hive.card.pollenTrap}
-                    onClick={() =>
-                      toggle({ hiveId: hive.id, field: 'has_pollen_trap', value: !hive.hasPollenTrap })
-                    }
-                    className={`size-8 flex items-center justify-center rounded-md border transition-colors active:scale-[0.97] ${
-                      hive.hasPollenTrap
-                        ? 'bg-honey-500 border-honey-600 text-wood-900'
-                        : 'bg-cream-50 border-cream-200 text-wood-400'
-                    }`}
-                  >
-                    <Flower size={16} strokeWidth={1.75} />
-                  </button>
+                {/* Row 2: Melari + accessori */}
+                <div className="flex items-center gap-2">
+                  <Droplets size={14} className="text-wood-400 shrink-0" />
+                  <SegmentedControl
+                    options={MELARI_OPTIONS}
+                    value={String(hive.melariCount)}
+                    onChange={(v) => {
+                      const count = Number(v)
+                      if (count > hive.melariCount && melariBlock) {
+                        setPendingMelariCount(count)
+                        setShowMelariWarning(true)
+                      } else {
+                        updateMelari({ hiveId: hive.id, count })
+                      }
+                    }}
+                    ariaLabel="Numero melari"
+                    compact
+                  />
+                  <div className="flex items-center gap-1.5 ml-auto">
+                    <button
+                      type="button"
+                      aria-label={t.hive.card.apiscampo}
+                      onClick={() =>
+                        toggle({ hiveId: hive.id, field: 'has_apiscampo', value: !hive.hasApiscampo })
+                      }
+                      className={`size-8 flex items-center justify-center rounded-md border transition-colors active:scale-[0.97] ${
+                        hive.hasApiscampo
+                          ? 'bg-wood-500 border-wood-600 text-white'
+                          : 'bg-cream-50 border-cream-200 text-wood-400'
+                      }`}
+                    >
+                      <DoorOpen size={16} strokeWidth={1.75} />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={t.hive.card.propoilsNet}
+                      onClick={() =>
+                        toggle({ hiveId: hive.id, field: 'has_propolis_net', value: !hive.hasPropolisNet })
+                      }
+                      className={`size-8 flex items-center justify-center rounded-md border transition-colors active:scale-[0.97] ${
+                        hive.hasPropolisNet
+                          ? 'bg-success-500 border-success-500 text-white'
+                          : 'bg-cream-50 border-cream-200 text-wood-400'
+                      }`}
+                    >
+                      <Grid3x3 size={16} strokeWidth={1.75} />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={t.hive.card.pollenTrap}
+                      onClick={() =>
+                        toggle({ hiveId: hive.id, field: 'has_pollen_trap', value: !hive.hasPollenTrap })
+                      }
+                      className={`size-8 flex items-center justify-center rounded-md border transition-colors active:scale-[0.97] ${
+                        hive.hasPollenTrap
+                          ? 'bg-honey-500 border-honey-600 text-wood-900'
+                          : 'bg-cream-50 border-cream-200 text-wood-400'
+                      }`}
+                    >
+                      <Flower size={16} strokeWidth={1.75} />
+                    </button>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => navigate({ to: '/inspections/$hiveId/new', params: { hiveId: hive.id } })}
-                  className="inline-flex items-center justify-center h-8 px-4 bg-honey-400 text-wood-900 rounded-lg text-sm font-semibold ml-auto"
-                >
-                  {t.hive.card.inspect}
-                </button>
               </div>
+              <button
+                type="button"
+                aria-label={t.hive.card.inspect}
+                onClick={() => navigate({ to: '/inspections/$hiveId/new', params: { hiveId: hive.id } })}
+                className="flex items-center justify-center w-14 shrink-0 bg-honey-500 text-cream-50 hover:bg-honey-600 transition-colors rounded-r-md"
+              >
+                <ClipboardCheck size={20} strokeWidth={2} />
+              </button>
             </div>
           )}
         </div>

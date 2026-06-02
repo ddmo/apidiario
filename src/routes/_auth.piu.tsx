@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
 import { getPushStatus, subscribeToPush, unsubscribeFromPush } from '@/lib/push-notifications'
-import { Shield, LogOut, Sun, Moon, Monitor, User, Flower2, Activity, BarChart3, Bell, BellOff, Trees, Wheat } from 'lucide-react'
+import { Shield, LogOut, Sun, Moon, Monitor, User, Flower2, Activity, BarChart3, Bell, BellOff, Trees, Wheat, Clock } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { setThemeMode, getThemeMode, type ThemeMode } from '@/lib/theme'
 import { t } from '@/i18n/it'
@@ -104,6 +104,14 @@ function PiuPage() {
           >
             <Flower2 size={20} className="text-honey-600 shrink-0" />
             <span className="text-sm font-medium">Previsioni fioriture</span>
+          </Link>
+
+          <Link
+            to="/promemoria"
+            className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3 text-wood-800 hover:bg-cream-200 transition-colors"
+          >
+            <Clock size={20} className="text-honey-600 shrink-0" />
+            <span className="text-sm font-medium">Promemoria</span>
           </Link>
 
           <Link
