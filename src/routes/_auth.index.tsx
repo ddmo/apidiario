@@ -236,28 +236,24 @@ function HomePage() {
                   ))}
                 </div>
               </button>
-            ) : (() => {
-              const r = upcomingReminders[0]!
-              return (
+            ) : (
               <button
-                key={r.id}
+                key={upcomingReminders[0]!.id}
                 type="button"
                 onClick={() => void navigate({ to: '/promemoria' })}
                 className="flex items-center gap-2.5 rounded-lg border border-cream-200 bg-cream-100 px-3.5 py-2.5 text-left hover:bg-cream-200 transition-colors w-full"
               >
                 <Bell size={16} className="text-honey-600 shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-wood-800 truncate">{r.title}</p>
-                  <p className={`text-xs ${new Date(r.due_at) < new Date() ? 'text-danger-500' : 'text-wood-400'}`}>
-                    {new Date(r.due_at).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}
-                    {r.recurrence !== 'none' && (
-                      <> · {r.recurrence === 'weekly' ? 'settimanale' : r.recurrence === 'monthly' ? 'mensile' : 'annuale'}</>
+                  <p className="text-sm font-medium text-wood-800 truncate">{upcomingReminders[0]!.title}</p>
+                  <p className={`text-xs ${new Date(upcomingReminders[0]!.due_at) < new Date() ? 'text-danger-500' : 'text-wood-400'}`}>
+                    {new Date(upcomingReminders[0]!.due_at).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}
+                    {upcomingReminders[0]!.recurrence !== 'none' && (
+                      <> · {upcomingReminders[0]!.recurrence === 'weekly' ? 'settimanale' : upcomingReminders[0]!.recurrence === 'monthly' ? 'mensile' : 'annuale'}</>
                     )}
                   </p>
                 </div>
               </button>
-              )
-            })()
             )}
           </section>
         )}
