@@ -15,8 +15,11 @@ interface ApiaryListItemProps {
 }
 
 function formatRelativeDate(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime()
-  const days = Math.floor(diff / 86_400_000)
+  const now = new Date()
+  const then = new Date(iso)
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const thatDay = new Date(then.getFullYear(), then.getMonth(), then.getDate())
+  const days = Math.round((today.getTime() - thatDay.getTime()) / 86_400_000)
   if (days === 0) return 'oggi'
   if (days === 1) return 'ieri'
   return `${days} g fa`
