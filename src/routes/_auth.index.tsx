@@ -409,7 +409,10 @@ function HomePage() {
                           )}
                         </button>
                       ) : (
-                        <div className="w-full px-3.5 py-2.5 bg-cream-100 border border-cream-200">
+                        <button
+                          type="button"
+                          onClick={() => void navigate({ to: '/trattamenti' })}
+                          className="w-full px-3.5 py-2.5 text-left bg-cream-100 border border-cream-200 hover:bg-cream-200/50 transition-colors">
                           <div className="flex items-center gap-2">
                             <Syringe size={14} className="text-honey-600 shrink-0" />
                             <span className="text-xs text-wood-700">
@@ -419,7 +422,7 @@ function HomePage() {
                               {formatTimeAgo(item.inspectedAt)}
                             </span>
                           </div>
-                        </div>
+                        </button>
                       )}
                     </SwipeableRow>
                   ))}
