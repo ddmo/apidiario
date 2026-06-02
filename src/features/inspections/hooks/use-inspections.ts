@@ -69,17 +69,22 @@ export function useDeleteInspection() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async ({ inspectionId, hiveId }: { inspectionId: string; hiveId: string }) => {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('inspections')
         .delete()
         .eq('id', inspectionId)
+        .select('id')
       if (error) throw error
+      if (!data || data.length === 0) {
+        console.error('[useDeleteInspection] delete returned no rows — RLS or wrong id?', { inspectionId, hiveId })
+        throw new Error('Nessuna ispezione eliminata (verifica permessi)')
+      }
       return { inspectionId, hiveId }
     },
     onSuccess: ({ hiveId }) => {
-      void queryClient.invalidateQueries({ queryKey: ['inspections', hiveId] })
-      void queryClient.invalidateQueries({ queryKey: ['lastInspection', hiveId] })
-      void queryClient.invalidateQueries({ queryKey: ['hives'] })
+      queryClient.invalidateQueries({ queryKey: ['inspections', hiveId], refetchType: 'all' })
+      queryClient.invalidateQueries({ queryKey: ['lastInspection', hiveId], refetchType: 'all' })
+      queryClient.invalidateQueries({ queryKey: ['hives'], refetchType: 'all' })
     },
   })
 }
