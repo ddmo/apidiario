@@ -2,7 +2,6 @@ import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
-import { useApiaries } from '@/features/apiaries/hooks/use-apiaries'
 import { HiveForm } from '@/features/hives/components/hive-form'
 
 export const Route = createFileRoute('/hives/$hiveId/edit')({
@@ -18,7 +17,17 @@ function EditHivePage() {
   const { hiveId } = Route.useParams()
   const { session } = useAuth()
 
-  const { data: apiaries } = useApiaries()
+  const { data: allApiaries } = useQuery({
+    queryKey: ['apiaries', 'all-for-move'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('apiaries')
+        .select('id, name')
+        .is('archived_at', null)
+        .order('name')
+      return data ?? []
+    },
+  })
 
   const { data: hive, isLoading } = useQuery({
     queryKey: ['hive', hiveId],
@@ -45,17 +54,17 @@ function EditHivePage() {
 
   if (!hive) return null
 
-  const goToInspections = () => void navigate({ to: '/hives/$hiveId/inspections', params: { hiveId } })
+  const goToApiary = () => void navigate({ to: '/apiaries/$apiaryId', params: { apiaryId: hive.apiary_id } })
 
   return (
     <div className="flex flex-col h-dvh bg-cream-50">
       <HiveForm
         apiaryId={hive.apiary_id}
-        apiaries={apiaries?.map((a) => ({ id: a.id, name: a.name }))}
+        apiaries={allApiaries}
         userId={session.user.id}
         hive={hive}
-        onSuccess={goToInspections}
-        onCancel={goToInspections}
+        onSuccess={goToApiary}
+        onCancel={goToApiary}
       />
     </div>
   )
