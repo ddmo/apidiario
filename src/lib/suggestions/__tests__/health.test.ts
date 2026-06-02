@@ -25,6 +25,7 @@ const INSP = {
   varroa_count: null, varroa_count_method: null,
   melari_count: 0, interventions: [],
   weather_summary: null, temperature_c: null,
+  empty_frame_count: null,
 }
 
 describe('pathologyFollowup', () => {

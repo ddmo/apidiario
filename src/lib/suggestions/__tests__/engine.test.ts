@@ -32,6 +32,7 @@ describe('generateSuggestions', () => {
       varroa_count: null, varroa_count_method: null,
       melari_count: 0, interventions: [],
       weather_summary: null, temperature_c: null,
+      empty_frame_count: null,
     }
     const result = generateSuggestions(ctx({ lastInspection: INSP }))
     const ids = result.map((s) => s.id)
@@ -52,6 +53,7 @@ describe('generateSuggestions', () => {
       varroa_count: 5, varroa_count_method: 'caduta_naturale' as const,
       melari_count: 0, interventions: [],
       weather_summary: null, temperature_c: null,
+      empty_frame_count: null,
     }
     const result = generateSuggestions(ctx({
       lastInspection: INSP,

@@ -108,7 +108,7 @@ describe('HiveForm — apiary picker (sposta arnia)', () => {
   })
 
   it('saves with new apiaryId when changed', async () => {
-    const { user, onSuccess } = renderEditForm()
+    const { user } = renderEditForm()
 
     // Change apiary
     await user.selectOptions(screen.getByLabelText('Apiario'), 'apiary-2')
