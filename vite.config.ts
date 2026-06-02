@@ -21,7 +21,6 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(getVersion()),
   },
   server: {
-    https: true,
     proxy: {
       '/api': 'http://localhost:8787',
     },
