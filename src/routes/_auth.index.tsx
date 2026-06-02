@@ -381,7 +381,7 @@ function HomePage() {
                             to: '/hives/$hiveId/inspections/$inspectionId',
                             params: { hiveId: item.hiveId!, inspectionId: item.id },
                           })}
-                          className="w-full px-3.5 py-2.5 text-left bg-cream-100 border border-cream-200 rounded-lg hover:bg-cream-200/50 transition-colors"
+                          className="w-full px-3.5 py-2.5 text-left bg-cream-100 border border-cream-200 hover:bg-cream-200/50 transition-colors"
                         >
                           <div className="flex items-center justify-between gap-2">
                             <span className="text-xs font-semibold text-wood-700">
@@ -409,7 +409,7 @@ function HomePage() {
                           )}
                         </button>
                       ) : (
-                        <div className="w-full px-3.5 py-2.5 bg-cream-100 border border-cream-200 rounded-lg">
+                        <div className="w-full px-3.5 py-2.5 bg-cream-100 border border-cream-200">
                           <div className="flex items-center gap-2">
                             <Syringe size={14} className="text-honey-600 shrink-0" />
                             <span className="text-xs text-wood-700">
