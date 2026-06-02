@@ -429,8 +429,8 @@ function HomePage() {
           </section>
         )}
 
-        {/* Bottom spacer */}
-        <div className="h-20" />
+        {/* Bottom spacer per fixed nav + iOS safe area */}
+        <div style={{ height: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }} />
       </div>
 
       <ShareSheet
