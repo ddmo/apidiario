@@ -12,8 +12,8 @@ export function BottomNav() {
   return (
     <>
       <nav
-        className="fixed inset-x-0 h-16 bg-cream-50 border-t border-cream-200 shadow-sm"
-        style={{ bottom: 'env(safe-area-inset-bottom, 0px)' }}
+        className="fixed inset-x-0 bottom-0 min-h-16 bg-cream-50 border-t border-cream-200 shadow-sm"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
         aria-label="Navigazione principale"
       >
         <ul className="flex items-center h-full" role="list">
