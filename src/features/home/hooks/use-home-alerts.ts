@@ -257,8 +257,8 @@ export function useTodaysAlerts() {
         }))
 
         for (const s of typedSpecies) {
-          // If user configured species for this apiary, skip unselected ones
-          if (allowedSpecies && allowedSpecies.size > 0 && !allowedSpecies.has(s.id)) continue
+          // Only alert for species the user has configured on this apiary
+          if (!allowedSpecies || !allowedSpecies.has(s.id)) continue
 
           const prediction = predictBloom(weather, s, today)
           if (prediction.bloom_start?.date) {

@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { ArrowLeft, MoreVertical, Sun, Trash2 } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { ArrowLeft, MoreVertical, Sun, Trash2, Mic, Square, Loader2, Sparkles, AlertCircle, Speech } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import { Button } from '@/components/ui/button'
 import { ExpressBody } from './express-body'
@@ -10,6 +11,7 @@ import { UnsavedChangesSheet } from './components/unsaved-changes-sheet'
 import { useInspectionForm } from './use-inspection-form'
 import { useVoiceNotes } from './hooks/use-voice-notes'
 import { useInspectionMedia } from './hooks/use-inspection-media'
+import { useVoiceInspection } from '@/features/voice-inspection/hooks/use-voice-inspection'
 import type { InspectionFormState, InspectionMode } from './types'
 
 const MODE_OPTIONS = [
@@ -40,6 +42,7 @@ interface InspectionScreenProps {
 }
 
 export function InspectionScreen({
+  hiveId,
   hiveInfo,
   inspectionId,
   prefillState,
@@ -69,6 +72,37 @@ export function InspectionScreen({
     removePending,
     commit: commitMedia,
   } = useInspectionMedia(inspectionId ?? null)
+
+  const voiceInsp = useVoiceInspection({ hiveId: hiveId })
+  const voiceAppliedRef = useRef(false)
+  const [showingVoice, setShowingVoice] = useState(false)
+
+  useEffect(() => {
+    if (voiceInsp.status === 'success' && voiceInsp.result && !voiceAppliedRef.current) {
+      voiceAppliedRef.current = true
+      const result = voiceInsp.result
+      const entries = Object.entries(result) as [keyof InspectionFormState, InspectionFormState[keyof InspectionFormState]][]
+      for (const [key, value] of entries) {
+        update(key, value)
+      }
+
+      // Standard-only fields con valori significativi → mostra scheda standard
+      const hasStandardData =
+        (result.frames?.covata ?? 0) > 0 ||
+        (result.frames?.miele ?? 0) > 0 ||
+        (result.frames?.polline ?? 0) > 0 ||
+        (result.queenCells && result.queenCells !== 'nessuna') ||
+        (result.pathologies && result.pathologies.size > 0) ||
+        result.pollenIncoming === true ||
+        (result.varroaCount && result.varroaCount !== '') ||
+        (result.varroaMethod && result.varroaMethod !== 'caduta_naturale') ||
+        (result.behavior && result.behavior !== 'calmo') ||
+        (result.interventions && result.interventions.size > 0)
+
+      setShowingVoice(false)
+      setMode(hasStandardData ? 'standard' : 'express')
+    }
+  }, [voiceInsp.status, voiceInsp.result, update])
 
   const [showMenu, setShowMenu] = useState(false)
   const [showDeleteSheet, setShowDeleteSheet] = useState(false)
@@ -135,6 +169,27 @@ export function InspectionScreen({
               )}
             </div>
           </div>
+          <button
+            type="button"
+            aria-label={showingVoice ? 'Chiudi registrazione vocale' : 'Ispezione vocale'}
+            onClick={() => {
+              if (showingVoice) {
+                voiceInsp.reset()
+                voiceAppliedRef.current = false
+                setShowingVoice(false)
+              } else {
+                setShowingVoice(true)
+              }
+            }}
+            className={cn(
+              'size-11 flex items-center justify-center rounded-md transition-colors',
+              showingVoice
+                ? 'text-cream-50 bg-honey-500 hover:bg-honey-600'
+                : 'text-wood-500 hover:bg-cream-100',
+            )}
+          >
+            <Speech size={20} />
+          </button>
           {onDelete && (
             <div className="relative">
               <button
@@ -169,15 +224,17 @@ export function InspectionScreen({
         </div>
       </header>
 
-      {/* Mode tabs */}
-      <div className="px-4 pt-3 pb-2">
-        <SegmentedControl
-          ariaLabel="Modalità ispezione"
-          options={MODE_OPTIONS}
-          value={mode}
-          onChange={(v) => setMode(v as 'express' | 'standard')}
-        />
-      </div>
+      {/* Mode tabs — hidden during voice recording */}
+      {!showingVoice && (
+        <div className="px-4 pt-3 pb-2">
+          <SegmentedControl
+            ariaLabel="Modalità ispezione"
+            options={MODE_OPTIONS}
+            value={mode}
+            onChange={(v) => setMode(v as 'express' | 'standard')}
+          />
+        </div>
+      )}
 
       {/* Banner — always 41px reserved to avoid layout shift */}
       <div className="h-[41px]">
@@ -191,7 +248,16 @@ export function InspectionScreen({
 
       {/* Scrollable body */}
       <div className="flex-1 overflow-y-auto min-h-0">
-        {mode === 'express' ? (
+        {showingVoice ? (
+          <VoiceModeView
+            status={voiceInsp.status}
+            error={voiceInsp.error}
+            transcript={voiceInsp.transcript}
+            onStart={voiceInsp.startRecording}
+            onStop={voiceInsp.stopRecording}
+            onReset={voiceInsp.reset}
+          />
+        ) : mode === 'express' ? (
           <ExpressBody
             state={state}
             dirtyFields={dirtyFields}
@@ -278,6 +344,113 @@ export function InspectionScreen({
           </div>
         </>
       )}
+    </div>
+  )
+}
+
+type VoiceStatus = 'idle' | 'recording' | 'processing' | 'success' | 'error'
+
+function VoiceModeView({
+  status,
+  error,
+  transcript,
+  onStart,
+  onStop,
+  onReset,
+}: {
+  status: VoiceStatus
+  error: string | null
+  transcript: string | null
+  onStart: () => void
+  onStop: () => void
+  onReset: () => void
+}) {
+  if (status === 'success') {
+    return (
+      <div className="flex flex-col items-center justify-center h-full px-8 py-16 select-none">
+        <div className="size-16 rounded-full bg-green-500/10 flex items-center justify-center mb-4">
+          <Sparkles size={32} className="text-green-600" />
+        </div>
+        <p className="text-base font-semibold text-wood-800 text-center">Scheda compilata</p>
+        <p className="text-sm text-wood-500 text-center mt-1">Verifica e salva</p>
+        {transcript && (
+          <details className="mt-6 w-full max-w-sm">
+            <summary className="text-xs text-wood-400 cursor-pointer hover:text-wood-600 text-center select-text">Trascrizione</summary>
+            <p className="text-xs text-wood-500 mt-2 leading-relaxed select-text">{transcript}</p>
+          </details>
+        )}
+      </div>
+    )
+  }
+
+  if (status === 'processing') {
+    return (
+      <div className="flex flex-col items-center justify-center h-full px-8 py-16 select-none">
+        <div className="size-16 rounded-full bg-honey-500/10 flex items-center justify-center mb-4">
+          <Loader2 size={32} className="text-honey-600 animate-spin" />
+        </div>
+        <p className="text-base font-semibold text-wood-800">Elaborazione in corso</p>
+        <p className="text-sm text-wood-500 text-center mt-1">Stiamo analizzando la registrazione</p>
+      </div>
+    )
+  }
+
+  if (status === 'error') {
+    return (
+      <div className="flex flex-col items-center justify-center h-full px-8 py-16 select-none">
+        <div className="size-16 rounded-full bg-danger-500/10 flex items-center justify-center mb-4">
+          <AlertCircle size={32} className="text-danger-500" />
+        </div>
+        <p className="text-base font-semibold text-danger-600 text-center select-none">Errore</p>
+        <p className="text-sm text-wood-500 text-center mt-1 mb-6">{error || 'Qualcosa è andato storto'}</p>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={onStart}
+            className="h-11 px-6 rounded-lg bg-danger-500 text-cream-50 text-sm font-semibold hover:bg-danger-500/90 transition-colors"
+          >
+            Riprova
+          </button>
+          <button
+            type="button"
+            onClick={onReset}
+            className="h-11 px-6 rounded-lg bg-cream-200 text-wood-700 text-sm font-semibold hover:bg-cream-300 transition-colors"
+          >
+            Annulla
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // idle or recording
+  const isRecording = status === 'recording'
+  return (
+    <div className="flex flex-col items-center justify-center h-full px-8 py-16 select-none">
+      <button
+        type="button"
+        onClick={isRecording ? onStop : onStart}
+        className={cn(
+          'size-24 rounded-full flex items-center justify-center transition-all mb-6',
+          isRecording
+            ? 'bg-danger-500 animate-pulse shadow-lg shadow-danger-500/40'
+            : 'bg-honey-500 hover:bg-honey-600 shadow-lg shadow-honey-500/30 hover:shadow-xl hover:shadow-honey-500/40',
+        )}
+      >
+        {isRecording ? (
+          <Square size={28} className="text-cream-50 fill-cream-50" />
+        ) : (
+          <Mic size={36} className="text-cream-50" />
+        )}
+      </button>
+      <p className="text-base font-semibold text-wood-800">
+        {isRecording ? 'Registrazione in corso' : 'Registra ispezione'}
+      </p>
+      <p className="text-sm text-wood-500 text-center mt-1">
+        {isRecording
+          ? 'Tocca il pulsante per fermare'
+          : 'Tocca il microfono e parla a voce alta'}
+      </p>
     </div>
   )
 }
