@@ -38,6 +38,7 @@ function EditHivePage() {
         .eq('id', hiveId)
         .single()
       if (error) throw error
+      if (!data) throw new Error('Hive not found')
 
       let photoUrl: string | null = null
       const path = (data as unknown as { main_photo_path: string | null }).main_photo_path
@@ -48,7 +49,7 @@ function EditHivePage() {
         photoUrl = signed?.signedUrl ?? null
       }
 
-      return { ...data, photoUrl } as typeof data & { photoUrl: string | null }
+      return { ...data, photoUrl }
     },
     refetchOnWindowFocus: false,
     staleTime: 0,

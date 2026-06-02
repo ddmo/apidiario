@@ -14,11 +14,11 @@ export const remindersDue: Rule = (ctx) => {
 
   if (!relevant.length) return null
 
-  // Nearest reminder
+  // Nearest reminder (relevant is non-empty, so [0] is safe)
   const nearest = relevant.sort(
     (a: Reminder, b: Reminder) =>
       new Date(a.due_at).getTime() - new Date(b.due_at).getTime(),
-  )[0]
+  )[0]!
 
   const daysUntilDue = Math.ceil(
     (new Date(nearest.due_at).getTime() - ctx.today.getTime()) / 86_400_000,

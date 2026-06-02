@@ -280,7 +280,7 @@ export function useUpdateHive() {
       photoFile,
       removePhoto,
     }: UpdateHiveInput) => {
-      const update: Record<string, unknown> = {
+      const update: Partial<Database['public']['Tables']['hives']['Update']> = {
         identifier,
         hive_type: hiveType,
         bee_race: beeRace,

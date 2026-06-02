@@ -351,6 +351,7 @@ export type Database = {
           id: string
           identifier: string
           installed_on: string | null
+	          main_photo_path: string | null
           melari_count: number
           nido_frame_count: number
           notes: string | null
@@ -370,6 +371,7 @@ export type Database = {
           id?: string
           identifier: string
           installed_on?: string | null
+	          main_photo_path?: string | null
           melari_count?: number
           nido_frame_count?: number
           notes?: string | null
@@ -389,6 +391,7 @@ export type Database = {
           id?: string
           identifier?: string
           installed_on?: string | null
+	          main_photo_path?: string | null
           melari_count?: number
           nido_frame_count?: number
           notes?: string | null

@@ -50,7 +50,7 @@ export function useCompletedReminders() {
 
       const { data, error } = await buildBaseQuery()
         .eq('user_id', userId)
-        .is('completed_at', 'neq', null)
+        .neq('completed_at', null)
         .order('completed_at', { ascending: false })
         .limit(20)
 
