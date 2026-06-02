@@ -81,7 +81,7 @@ function PiuPage() {
           {t.nav.altro}
         </h1>
       </header>
-      <div className="flex-1 px-4 pt-6 overflow-y-auto" style={{ paddingBottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}>
+      <div className="flex-1 px-4 pt-6 overflow-y-auto" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
         <div className="max-w-lg mx-auto">
 
         <div className="flex flex-col gap-2">

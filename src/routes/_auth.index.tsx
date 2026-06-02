@@ -430,7 +430,7 @@ function HomePage() {
         )}
 
         {/* Bottom spacer per fixed nav + iOS safe area */}
-        <div style={{ height: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }} />
+        <div style={{ height: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }} />
       </div>
 
       <ShareSheet
