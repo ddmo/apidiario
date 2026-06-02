@@ -20,6 +20,7 @@ export type HiveListItem = {
   hasPollenTrap: boolean
   hasActiveQueen: boolean | 'non_cercata'
   lastInspection: { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number; emptyFrameCount: number; queenSeen: string | null } | null
+  photoUrl: string | null
 }
 
 export function useHivesByApiary(apiaryId: string) {
@@ -29,7 +30,7 @@ export function useHivesByApiary(apiaryId: string) {
       const { data: hivesData, error: hivesError } = await supabase
         .from('hives')
         .select(
-          'id, identifier, apiary_id, hive_type, bee_race, nido_frame_count, melari_count, status, has_apiscampo, has_propolis_net, has_pollen_trap',
+          'id, identifier, apiary_id, hive_type, bee_race, nido_frame_count, melari_count, status, has_apiscampo, has_propolis_net, has_pollen_trap, main_photo_path',
         )
         .eq('apiary_id', apiaryId)
         .is('archived_at', null)
@@ -37,6 +38,20 @@ export function useHivesByApiary(apiaryId: string) {
 
       if (hivesError) throw hivesError
       if (!hivesData.length) return []
+
+      // Batch-sign photo URLs
+      const photoUrls = new Map<string, string | null>()
+      for (const row of hivesData) {
+        const path = (row as unknown as { main_photo_path: string | null }).main_photo_path
+        if (path) {
+          const { data: signed } = await supabase.storage
+            .from('apidiario-media')
+            .createSignedUrl(path, 3600)
+          photoUrls.set(row.id, signed?.signedUrl ?? null)
+        } else {
+          photoUrls.set(row.id, null)
+        }
+      }
 
       const hiveIds = hivesData.map((h) => h.id)
 
@@ -96,6 +111,7 @@ export function useHivesByApiary(apiaryId: string) {
           return activeQueenSet.has(h.id)
         })(),
         lastInspection: lastInspMap.get(h.id) ?? null,
+        photoUrl: photoUrls.get(h.id) ?? null,
       }))
     },
     enabled: !!apiaryId,
@@ -229,6 +245,7 @@ export function useAllHives() {
           return activeQueenSet.has(h.id)
         })(),
         lastInspection: lastInspMap.get(h.id) ?? null,
+        photoUrl: null,
       }))
     },
   })
@@ -244,6 +261,8 @@ type UpdateHiveInput = {
   originNotes: string | null
   nidoFrameCount: number
   notes: string | null
+  photoFile?: File | null
+  removePhoto?: boolean
 }
 
 export function useUpdateHive() {
@@ -258,8 +277,10 @@ export function useUpdateHive() {
       originNotes,
       nidoFrameCount,
       notes,
+      photoFile,
+      removePhoto,
     }: UpdateHiveInput) => {
-      const { error } = await supabase.from('hives').update({
+      const update: Record<string, unknown> = {
         identifier,
         hive_type: hiveType,
         bee_race: beeRace,
@@ -268,7 +289,28 @@ export function useUpdateHive() {
         nido_frame_count: nidoFrameCount,
         notes: notes as string,
         apiary_id: apiaryId,
-      }).eq('id', hiveId)
+      }
+
+      if (removePhoto) {
+        update.main_photo_path = null
+      }
+
+      if (photoFile) {
+        const ext = photoFile.name.split('.').pop()?.toLowerCase() ?? 'jpg'
+        const path = `hives/${hiveId}/main.${ext}`
+
+        const { error: uploadError } = await supabase.storage
+          .from('apidiario-media')
+          .upload(path, photoFile, { upsert: true })
+
+        if (uploadError) {
+          console.error('[hive uploadPhoto]', uploadError)
+        } else {
+          update.main_photo_path = path
+        }
+      }
+
+      const { error } = await supabase.from('hives').update(update).eq('id', hiveId)
       if (error) throw error
     },
     onSuccess: (_, variables) => {

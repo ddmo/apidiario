@@ -10,6 +10,16 @@ import '@/app.css'
 
 applyTheme()
 
+// iOS PWA home‑screen cache busting — ricarica quando service worker si aggiorna
+let swRefreshing = false
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (swRefreshing) return
+    swRefreshing = true
+    window.location.reload()
+  })
+}
+
 // Prevent pinch-to-zoom on iOS Safari (ignores user-scalable=no since iOS 10)
 // NB: gesturestart/gesturechange NON bloccati su input/textarea — necessario per dettatura iOS
 document.addEventListener('gesturestart', (e) => {

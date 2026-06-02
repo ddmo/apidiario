@@ -258,6 +258,14 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
             </div>
           ) : (
             <div className="flex items-stretch gap-0">
+              <button
+                type="button"
+                aria-label={t.hive.card.inspect}
+                onClick={() => navigate({ to: '/inspections/$hiveId/new', params: { hiveId: hive.id } })}
+                className="flex items-center justify-center w-14 shrink-0 bg-honey-500 text-cream-50 hover:bg-honey-600 transition-colors rounded-l-md"
+              >
+                <ClipboardCheck size={20} strokeWidth={2} />
+              </button>
               <div className="flex flex-col gap-1 flex-1 min-w-0 px-3 py-2">
                 {/* Row 1: Name + Last inspection */}
                 <div className="flex items-center justify-between gap-2">
@@ -341,14 +349,6 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
                   </div>
                 </div>
               </div>
-              <button
-                type="button"
-                aria-label={t.hive.card.inspect}
-                onClick={() => navigate({ to: '/inspections/$hiveId/new', params: { hiveId: hive.id } })}
-                className="flex items-center justify-center w-14 shrink-0 bg-honey-500 text-cream-50 hover:bg-honey-600 transition-colors rounded-r-md"
-              >
-                <ClipboardCheck size={20} strokeWidth={2} />
-              </button>
             </div>
           )}
         </div>

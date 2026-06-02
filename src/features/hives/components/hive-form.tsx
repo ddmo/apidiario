@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { FrameCounter } from '@/features/inspections/components/frame-counter'
+import { MainPhotoSlot } from '@/components/ui/main-photo-slot'
 import { useHivesByApiary, useCreateHive, useUpdateHive } from '../hooks/use-hives'
 import { useToast } from '@/hooks/use-toast'
 import { t } from '@/i18n/it'
@@ -26,6 +27,7 @@ interface HiveFormProps {
   onSuccess: () => void
   onCancel: () => void
   apiaries?: { id: string; name: string }[]
+  photoUrl?: string | null
   hive?: {
     id: string
     identifier: string
@@ -38,7 +40,7 @@ interface HiveFormProps {
   }
 }
 
-export function HiveForm({ apiaryId, apiaries, hive, onSuccess, onCancel }: HiveFormProps) {
+export function HiveForm({ apiaryId, apiaries, photoUrl, hive, onSuccess, onCancel }: HiveFormProps) {
   const isEdit = !!hive
   const { showToast } = useToast()
   const { mutate: createHive, isPending: creating } = useCreateHive()
@@ -54,6 +56,51 @@ export function HiveForm({ apiaryId, apiaries, hive, onSuccess, onCancel }: Hive
   const [nidoFrameCount, setNidoFrameCount] = useState(hive?.nido_frame_count ?? 10)
   const [notes, setNotes] = useState(hive?.notes ?? '')
   const [selectedApiaryId, setSelectedApiaryId] = useState(apiaryId)
+
+  // Photo
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [photoFile, setPhotoFile] = useState<File | null>(null)
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState<string | null>(photoUrl ?? null)
+  const [photoRemoved, setPhotoRemoved] = useState(false)
+
+  useEffect(() => {
+    if (photoUrl && !photoFile && !photoRemoved) {
+      setPhotoPreviewUrl(photoUrl)
+    }
+  }, [photoUrl, photoFile, photoRemoved])
+
+  useEffect(() => {
+    return () => {
+      if (photoPreviewUrl && photoPreviewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(photoPreviewUrl)
+      }
+    }
+  }, [photoPreviewUrl])
+
+  function handlePhotoPick() {
+    fileInputRef.current?.click()
+  }
+
+  function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('La foto non deve superare 10 MB.', 'error')
+      return
+    }
+    setPhotoFile(file)
+    setPhotoPreviewUrl(URL.createObjectURL(file))
+    setPhotoRemoved(false)
+    markDirty()
+  }
+
+  function handlePhotoRemove() {
+    setPhotoFile(null)
+    if (photoPreviewUrl?.startsWith('blob:')) URL.revokeObjectURL(photoPreviewUrl)
+    setPhotoPreviewUrl(null)
+    setPhotoRemoved(true)
+    markDirty()
+  }
 
   const [identifierError, setIdentifierError] = useState('')
   const [isDirty, setIsDirty] = useState(false)
@@ -99,6 +146,8 @@ export function HiveForm({ apiaryId, apiaries, hive, onSuccess, onCancel }: Hive
           originNotes: originNotes.trim() || null,
           nidoFrameCount,
           notes: notes.trim() || null,
+          photoFile: photoFile ?? undefined,
+          removePhoto: photoRemoved || undefined,
         },
         {
           onSuccess: () => {
@@ -153,6 +202,24 @@ export function HiveForm({ apiaryId, apiaries, hive, onSuccess, onCancel }: Hive
       {/* Scrollable form body */}
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6">
         <div className="flex flex-col gap-5">
+
+          {/* Foto */}
+          <section>
+            <MainPhotoSlot
+              previewUrl={photoPreviewUrl}
+              onPick={handlePhotoPick}
+              onChange={handlePhotoPick}
+              onRemove={handlePhotoRemove}
+              aspect="4/3"
+            />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={handlePhotoChange}
+            />
+          </section>
 
           {/* Identificazione */}
           <section className="flex flex-col gap-3">

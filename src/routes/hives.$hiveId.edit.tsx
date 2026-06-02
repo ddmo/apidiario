@@ -34,14 +34,24 @@ function EditHivePage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('hives')
-        .select('id, identifier, hive_type, bee_race, installed_on, origin_notes, nido_frame_count, notes, apiary_id')
+        .select('id, identifier, hive_type, bee_race, installed_on, origin_notes, nido_frame_count, notes, apiary_id, main_photo_path')
         .eq('id', hiveId)
         .single()
       if (error) throw error
-      return data
+
+      let photoUrl: string | null = null
+      const path = (data as unknown as { main_photo_path: string | null }).main_photo_path
+      if (path) {
+        const { data: signed } = await supabase.storage
+          .from('apidiario-media')
+          .createSignedUrl(path, 3600)
+        photoUrl = signed?.signedUrl ?? null
+      }
+
+      return { ...data, photoUrl } as typeof data & { photoUrl: string | null }
     },
     refetchOnWindowFocus: false,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
   })
 
   if (!session?.user?.id || isLoading) {
@@ -62,6 +72,7 @@ function EditHivePage() {
         apiaryId={hive.apiary_id}
         apiaries={allApiaries}
         userId={session.user.id}
+        photoUrl={(hive as unknown as { photoUrl: string | null }).photoUrl}
         hive={hive}
         onSuccess={goToApiary}
         onCancel={goToApiary}
