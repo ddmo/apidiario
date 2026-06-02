@@ -25,6 +25,7 @@ interface HiveFormProps {
   userId: string
   onSuccess: () => void
   onCancel: () => void
+  apiaries?: { id: string; name: string }[]
   hive?: {
     id: string
     identifier: string
@@ -37,7 +38,7 @@ interface HiveFormProps {
   }
 }
 
-export function HiveForm({ apiaryId, hive, onSuccess, onCancel }: HiveFormProps) {
+export function HiveForm({ apiaryId, apiaries, hive, onSuccess, onCancel }: HiveFormProps) {
   const isEdit = !!hive
   const { showToast } = useToast()
   const { mutate: createHive, isPending: creating } = useCreateHive()
@@ -52,6 +53,7 @@ export function HiveForm({ apiaryId, hive, onSuccess, onCancel }: HiveFormProps)
   const [originNotes, setOriginNotes] = useState(hive?.origin_notes ?? '')
   const [nidoFrameCount, setNidoFrameCount] = useState(hive?.nido_frame_count ?? 10)
   const [notes, setNotes] = useState(hive?.notes ?? '')
+  const [selectedApiaryId, setSelectedApiaryId] = useState(apiaryId)
 
   const [identifierError, setIdentifierError] = useState('')
   const [isDirty, setIsDirty] = useState(false)
@@ -89,7 +91,7 @@ export function HiveForm({ apiaryId, hive, onSuccess, onCancel }: HiveFormProps)
       updateHive(
         {
           hiveId: hive.id,
-          apiaryId,
+          apiaryId: selectedApiaryId,
           identifier: trimmed,
           hiveType,
           beeRace,
@@ -169,6 +171,15 @@ export function HiveForm({ apiaryId, hive, onSuccess, onCancel }: HiveFormProps)
               autoCapitalize="words"
               maxLength={50}
             />
+            {isEdit && apiaries && apiaries.length > 1 && (
+              <Select
+                id="hive-apiary"
+                label="Apiario"
+                options={apiaries.map((a) => ({ value: a.id, label: a.name }))}
+                value={selectedApiaryId}
+                onChange={(e) => { setSelectedApiaryId(e.target.value); markDirty() }}
+              />
+            )}
           </section>
 
           {/* Tipo e razza */}

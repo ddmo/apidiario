@@ -30,6 +30,7 @@ export type FrameState = {
   covata: number
   miele: number
   polline: number
+  vuoti: number
 }
 
 export type InspectionFormState = {
@@ -55,7 +56,7 @@ export const DEFAULT_STATE: InspectionFormState = {
   brood: { uova: null, larve: null, opercolata: null },
   population: 'media',
   notes: '',
-  frames: { covata: 0, miele: 0, polline: 0 },
+  frames: { covata: 0, miele: 0, polline: 0, vuoti: 0 },
   queenCells: 'nessuna',
   pathologies: new Set(),
   pollenIncoming: false,

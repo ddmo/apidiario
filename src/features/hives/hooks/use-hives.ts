@@ -19,7 +19,7 @@ export type HiveListItem = {
   hasPropolisNet: boolean
   hasPollenTrap: boolean
   hasActiveQueen: boolean | 'non_cercata'
-  lastInspection: { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number; queenSeen: string | null } | null
+  lastInspection: { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number; emptyFrameCount: number; queenSeen: string | null } | null
 }
 
 export function useHivesByApiary(apiaryId: string) {
@@ -43,7 +43,7 @@ export function useHivesByApiary(apiaryId: string) {
       const [{ data: inspData }, { data: queensData }] = await Promise.all([
         supabase
           .from('inspections')
-          .select('hive_id, performed_at, brood_frame_count, honey_frame_count, pollen_frame_count, queen_seen')
+          .select('hive_id, performed_at, brood_frame_count, honey_frame_count, pollen_frame_count, empty_frame_count, queen_seen')
           .in('hive_id', hiveIds)
           .order('hive_id')
           .order('performed_at', { ascending: false }),
@@ -54,7 +54,7 @@ export function useHivesByApiary(apiaryId: string) {
           .is('end_date', null),
       ])
 
-      const lastInspMap = new Map<string, { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number; queenSeen: string | null }>()
+      const lastInspMap = new Map<string, { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number; emptyFrameCount: number; queenSeen: string | null }>()
       for (const insp of inspData ?? []) {
         if (!lastInspMap.has(insp.hive_id)) {
           lastInspMap.set(insp.hive_id, {
@@ -62,6 +62,7 @@ export function useHivesByApiary(apiaryId: string) {
             broodFrameCount: insp.brood_frame_count ?? 0,
             honeyFrameCount: insp.honey_frame_count ?? 0,
             pollenFrameCount: insp.pollen_frame_count ?? 0,
+            emptyFrameCount: insp.empty_frame_count ?? 0,
             queenSeen: insp.queen_seen ?? null,
           })
         }
@@ -77,8 +78,8 @@ export function useHivesByApiary(apiaryId: string) {
         beeRace: h.bee_race,
         nidoFrameCount: (() => {
           const insp = lastInspMap.get(h.id)
-          if (insp && (insp.broodFrameCount > 0 || insp.honeyFrameCount > 0 || insp.pollenFrameCount > 0)) {
-            return insp.broodFrameCount + insp.honeyFrameCount + insp.pollenFrameCount
+          if (insp && (insp.broodFrameCount > 0 || insp.honeyFrameCount > 0 || insp.pollenFrameCount > 0 || insp.emptyFrameCount > 0)) {
+            return insp.broodFrameCount + insp.honeyFrameCount + insp.pollenFrameCount + insp.emptyFrameCount
           }
           return h.nido_frame_count
         })(),
@@ -174,7 +175,7 @@ export function useAllHives() {
       const [{ data: inspData }, { data: queensData }] = await Promise.all([
         supabase
           .from('inspections')
-          .select('hive_id, performed_at, brood_frame_count, honey_frame_count, pollen_frame_count, queen_seen')
+          .select('hive_id, performed_at, brood_frame_count, honey_frame_count, pollen_frame_count, empty_frame_count, queen_seen')
           .in('hive_id', hiveIds)
           .order('hive_id')
           .order('performed_at', { ascending: false }),
@@ -185,7 +186,7 @@ export function useAllHives() {
           .is('end_date', null),
       ])
 
-      const lastInspMap = new Map<string, { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number; queenSeen: string | null }>()
+      const lastInspMap = new Map<string, { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number; emptyFrameCount: number; queenSeen: string | null }>()
       for (const insp of inspData ?? []) {
         if (!lastInspMap.has(insp.hive_id)) {
           lastInspMap.set(insp.hive_id, {
@@ -193,6 +194,7 @@ export function useAllHives() {
             broodFrameCount: insp.brood_frame_count ?? 0,
             honeyFrameCount: insp.honey_frame_count ?? 0,
             pollenFrameCount: insp.pollen_frame_count ?? 0,
+            emptyFrameCount: insp.empty_frame_count ?? 0,
             queenSeen: insp.queen_seen ?? null,
           })
         }
@@ -209,8 +211,8 @@ export function useAllHives() {
         beeRace: h.bee_race,
         nidoFrameCount: (() => {
           const insp = lastInspMap.get(h.id)
-          if (insp && (insp.broodFrameCount > 0 || insp.honeyFrameCount > 0 || insp.pollenFrameCount > 0)) {
-            return insp.broodFrameCount + insp.honeyFrameCount + insp.pollenFrameCount
+          if (insp && (insp.broodFrameCount > 0 || insp.honeyFrameCount > 0 || insp.pollenFrameCount > 0 || insp.emptyFrameCount > 0)) {
+            return insp.broodFrameCount + insp.honeyFrameCount + insp.pollenFrameCount + insp.emptyFrameCount
           }
           return h.nido_frame_count
         })(),
@@ -248,7 +250,7 @@ export function useUpdateHive() {
   return useMutation({
     mutationFn: async ({
       hiveId,
-      apiaryId: _apiaryId,
+      apiaryId,
       identifier,
       hiveType,
       beeRace,
@@ -265,13 +267,14 @@ export function useUpdateHive() {
         origin_notes: originNotes as string,
         nido_frame_count: nidoFrameCount,
         notes: notes as string,
+        apiary_id: apiaryId,
       }).eq('id', hiveId)
       if (error) throw error
     },
     onSuccess: (_, variables) => {
-      void queryClient.invalidateQueries({ queryKey: ['hives', variables.apiaryId], refetchType: 'all' })
-      void queryClient.invalidateQueries({ queryKey: ['hives', 'all'], refetchType: 'all' })
+      void queryClient.invalidateQueries({ queryKey: ['hives'], refetchType: 'all' })
       void queryClient.invalidateQueries({ queryKey: ['hive', variables.hiveId], refetchType: 'all' })
+      void queryClient.invalidateQueries({ queryKey: ['apiaries'], refetchType: 'all' })
       supabase.auth.getSession().then(({ data: { session } }) => {
         if (session?.user?.id) {
           void logActivity(session.user.id, 'update', 'hive', variables.hiveId, `Arnia "${variables.identifier}" modificata`)

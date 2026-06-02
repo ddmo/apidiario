@@ -20,7 +20,7 @@ interface InspectionResult {
   brood: { uova: boolean | null; larve: boolean | null; opercolata: boolean | null }
   population: string
   notes: string
-  frames: { covata: number; miele: number; polline: number }
+  frames: { covata: number; miele: number; polline: number; vuoti: number }
   queenCells: string
   pathologies: string[]
   pollenIncoming: boolean
@@ -69,7 +69,7 @@ SCHEMA DEL JSON RICHIESTO:
   "brood": { "uova": boolean | null, "larve": boolean | null, "opercolata": boolean | null },
   "population": "debole" | "media" | "forte",
   "notes": string,
-  "frames": { "covata": number (0-20), "miele": number (0-20), "polline": number (0-20) },
+  "frames": { "covata": number (0-20), "miele": number (0-20), "polline": number (0-20), "vuoti": number (0-20) },
   "queenCells": "nessuna" | "scorta" | "sciamatura" | "sostituzione",
   "pathologies": ["varroa", "peste_americana", "peste_europea", "covata_calcificata", "nosema", "virus", "altro"],
   "pollenIncoming": boolean,
@@ -84,7 +84,7 @@ DETTAGLIO CAMPI:
 - queen: "vista" (regina vista), "non_vista" (cercata ma non vista), "non_cercata" (non cercata)
 - brood: tre stadi indipendenti che possono coesistere. uova = uova fresche, larve = covata aperta/vermetti, opercolata = covata chiusa/stamperella. Se uno stadio non menzionato usa null. Se covata assente, hasBrood=false e tutti null.
 - population: "debole" (pochi telaini coperti), "media", "forte" (arnia piena)
-- frames: numero telaini 0-20. covata = covata, miele = miele, polline = polline
+- frames: numero telaini 0-20. covata = covata, miele = miele, polline = polline, vuoti = telaini vuoti
 - queenCells: "nessuna" (0), "scorta" (celle scorta), "sciamatura" (celle sciamatura), "sostituzione" (celle sostituzione)
 - pathologies: "varroa" (acaro), "peste_americana", "peste_europea", "covata_calcificata", "nosema", "virus", "altro"
 - varroaCount: conta acari come stringa numero es. "5". "" se non misurata.
@@ -96,7 +96,7 @@ DETTAGLIO CAMPI:
 
 REGOLE:
 1. Se un valore non è menzionato, usa il valore predefinito
-2. Predefiniti: queen="non_cercata", hasBrood=true, population="media", queenCells="nessuna", pollenIncoming=false, frames={0,0,0}, behavior="calmo", varroaMethod="caduta_naturale", varroaCount="", notes="", pathologies=[], interventions=[]
+2. Predefiniti: queen="non_cercata", hasBrood=true, population="media", queenCells="nessuna", pollenIncoming=false, frames={0,0,0,0}, behavior="calmo", varroaMethod="caduta_naturale", varroaCount="", notes="", pathologies=[], interventions=[]
 3. Pathologies e interventions sono array di stringhe (anche vuoti)
 4. varroaCount come stringa numerica o stringa vuota
 5. Includi SEMPRE la trascrizione originale nel campo "transcript"

@@ -123,6 +123,8 @@ export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes
             onChange={(v) => onUpdate('frames', { ...state.frames, miele: v })} />
           <FrameCounter label="Telaini polline" value={state.frames.polline} dirty={d('frames')}
             onChange={(v) => onUpdate('frames', { ...state.frames, polline: v })} />
+          <FrameCounter label="Telaini vuoti" value={state.frames.vuoti} dirty={d('frames')}
+            onChange={(v) => onUpdate('frames', { ...state.frames, vuoti: v })} />
         </div>
       </section>
 

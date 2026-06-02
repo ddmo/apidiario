@@ -3,6 +3,8 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { InspectionScreen } from '../inspection-screen'
 import type { InspectionFormState } from '../types'
+import type { ToastContextValue } from '@/contexts/toast-context'
+import { ToastContext } from '@/contexts/toast-context'
 
 // Leaflet produce error in jsdom — mock
 vi.mock('react-leaflet', () => ({
@@ -13,20 +15,23 @@ vi.mock('react-leaflet', () => ({
 }))
 
 const hiveInfo = { identifier: 'A1', apiaryName: 'Test' }
+const toastContext: ToastContextValue = { showToast: vi.fn() }
 
 function renderScreen(props: Partial<Parameters<typeof InspectionScreen>[0]> = {}) {
   const onSave = vi.fn().mockResolvedValue(undefined)
   const onBack = vi.fn()
   const user = userEvent.setup()
   const result = render(
-    <InspectionScreen
-      hiveId="hive-1"
-      hiveInfo={hiveInfo}
-      hasPrefill={false}
-      onSave={onSave}
-      onBack={onBack}
-      {...props}
-    />,
+    <ToastContext.Provider value={toastContext}>
+      <InspectionScreen
+        hiveId="hive-1"
+        hiveInfo={hiveInfo}
+        hasPrefill={false}
+        onSave={onSave}
+        onBack={onBack}
+        {...props}
+      />
+    </ToastContext.Provider>,
   )
   return { ...result, onSave, onBack, user }
 }
@@ -129,5 +134,14 @@ describe('InspectionScreen', () => {
   it('hides weather fields in express mode', () => {
     renderScreen({ weather: { temperature: 22, summary: 'sereno' } })
     expect(screen.queryByText('Meteo')).not.toBeInTheDocument()
+  })
+
+  it('shows "Telaini vuoti" frame counter in standard mode', async () => {
+    const { user } = renderScreen()
+
+    // Switch to standard mode
+    await user.click(screen.getByRole('radio', { name: /standard/i }))
+
+    expect(screen.getByText('Telaini vuoti')).toBeInTheDocument()
   })
 })
