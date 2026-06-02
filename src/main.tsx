@@ -10,7 +10,12 @@ import '@/app.css'
 
 applyTheme()
 
-// iOS PWA home‑screen cache busting — ricarica quando service worker si aggiorna
+// iOS PWA home‑screen cache busting
+// 1) pageshow — ricarica se pagina arriva da bfcache (iOS Safari PWA)
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) window.location.reload()
+})
+// 2) controllerchange — ricarica quando service worker prende controllo
 let swRefreshing = false
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.addEventListener('controllerchange', () => {

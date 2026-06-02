@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Syringe, ClipboardCheck, Hexagon, Trees, Edit3, Eye } from 'lucide-react'
 import type { ApiaryListItem as ApiaryListItemData } from '../hooks/use-apiaries'
 import type { AccessLevel, WeatherInfo } from '@/features/home/hooks/use-apiary-cards'
@@ -36,6 +37,7 @@ function WeatherIcon({ code }: { code: number }) {
 
 export function ApiaryListItem({ apiary, onClick, lastInspectionAt, hasActiveTreatment, accessLevel, ownerDisplayName, weather, photoUrl }: ApiaryListItemProps) {
   const { name, hiveCount } = apiary
+  const [imgError, setImgError] = useState(false)
 
   return (
     <button
@@ -45,11 +47,12 @@ export function ApiaryListItem({ apiary, onClick, lastInspectionAt, hasActiveTre
       style={{ borderLeft: '3px solid #BA7517' }}
     >
       <div className="flex items-stretch">
-        {photoUrl ? (
+        {photoUrl && !imgError ? (
           <img
             src={photoUrl}
             alt=""
             className="w-16 shrink-0 object-cover"
+            onError={() => setImgError(true)}
           />
         ) : (
           <div className="w-16 shrink-0 flex items-center justify-center bg-cream-200">
