@@ -278,7 +278,7 @@ export function useTodaysAlerts() {
               apiaryName: apiary.name,
               speciesName: s.common_name_it,
               phase: prediction.current_phase,
-              severity: prediction.current_phase === 'peak' ? 'info' : 'warning',
+              severity: 'warning',
             })
           }
 
