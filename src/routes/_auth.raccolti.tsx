@@ -1,7 +1,9 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { ArrowLeft, Plus, Wheat } from 'lucide-react'
-import { useHarvests } from '@/features/harvests/hooks/use-harvests'
+import { ArrowLeft, Plus, Trash2, Wheat } from 'lucide-react'
+import { useHarvests, useDeleteHarvest } from '@/features/harvests/hooks/use-harvests'
 import { Fab } from '@/components/ui/fab'
+import { SwipeableRow } from '@/components/ui/swipeable-row'
+import { useToast } from '@/hooks/use-toast'
 import type { HarvestListItem } from '@/features/harvests/types'
 
 export const Route = createFileRoute('/_auth/raccolti')({
@@ -33,6 +35,8 @@ function groupByYear(items: HarvestListItem[]): [string, HarvestListItem[]][] {
 function RaccoltiPage() {
   const navigate = useNavigate()
   const { data: harvests, isLoading } = useHarvests()
+  const { mutate: deleteHarvest } = useDeleteHarvest()
+  const { showToast } = useToast()
   const groups = harvests ? groupByYear(harvests) : []
 
   return (
@@ -83,25 +87,44 @@ function RaccoltiPage() {
                 </div>
                 <div className="flex flex-col gap-2">
                   {items.map((h) => (
-                    <Link
+                    <SwipeableRow
                       key={h.id}
-                      to="/raccolti/$harvestId/edit"
-                      params={{ harvestId: h.id }}
-                      className="flex items-center justify-between rounded-lg border border-cream-200 bg-cream-100 px-4 py-3 hover:bg-cream-200 transition-colors"
+                      revealWidth={84}
+                      revealContent={
+                        <button
+                          type="button"
+                          onClick={() => {
+                            deleteHarvest(h.id, {
+                              onSuccess: () => showToast('Raccolto eliminato', 'success'),
+                              onError: () => showToast('Eliminazione fallita', 'error'),
+                            })
+                          }}
+                          className="flex-1 flex flex-col items-center justify-center gap-1 bg-danger-500 text-white"
+                        >
+                          <Trash2 size={18} />
+                          <span className="text-xs font-semibold leading-none">Elimina</span>
+                        </button>
+                      }
                     >
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-wood-800 truncate">
-                          {h.honey_type}
-                        </p>
-                        <p className="text-xs text-wood-400 mt-0.5">
-                          {h.apiary_name ?? '—'} · {formatDate(h.harvested_on)}
-                          {h.batch_code && <> · lotto {h.batch_code}</>}
-                        </p>
-                      </div>
-                      <span className="text-sm font-semibold text-wood-700 shrink-0 ml-3 tabular-nums">
-                        {formatKg(h.total_kg)}
-                      </span>
-                    </Link>
+                      <Link
+                        to="/raccolti/$harvestId/edit"
+                        params={{ harvestId: h.id }}
+                        className="flex items-center justify-between border border-cream-200 bg-cream-100 px-4 py-3 hover:bg-cream-200 transition-colors w-full"
+                      >
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-wood-800 truncate">
+                            {h.honey_type}
+                          </p>
+                          <p className="text-xs text-wood-400 mt-0.5">
+                            {h.apiary_name ?? '—'} · {formatDate(h.harvested_on)}
+                            {h.batch_code && <> · lotto {h.batch_code}</>}
+                          </p>
+                        </div>
+                        <span className="text-sm font-semibold text-wood-700 shrink-0 ml-3 tabular-nums">
+                          {formatKg(h.total_kg)}
+                        </span>
+                      </Link>
+                    </SwipeableRow>
                   ))}
                 </div>
               </div>

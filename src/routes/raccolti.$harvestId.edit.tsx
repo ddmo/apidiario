@@ -2,7 +2,7 @@ import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useState, useCallback } from 'react'
 import { ArrowLeft, Save, Droplet, Trees, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
-import { useHarvest, useUpdateHarvest, useDeleteHarvest } from '@/features/harvests/hooks/use-harvests'
+import { useHarvest, useUpdateHarvest } from '@/features/harvests/hooks/use-harvests'
 import { useToast } from '@/hooks/use-toast'
 import { HONEY_TYPES } from '@/features/harvests/honey-types'
 import { useApiaries } from '@/features/apiaries/hooks/use-apiaries'
@@ -21,7 +21,6 @@ function EditRaccoltoPage() {
   const { showToast } = useToast()
   const { data: harvest, isLoading } = useHarvest(harvestId)
   const updateHarvest = useUpdateHarvest()
-  const deleteHarvest = useDeleteHarvest()
   const { data: apiaries } = useApiaries()
 
   const [apiaryId, setApiaryId] = useState('')
@@ -35,8 +34,6 @@ function EditRaccoltoPage() {
   const [showHoneyPicker, setShowHoneyPicker] = useState(false)
   const [saving, setSaving] = useState(false)
   const [initialized, setInitialized] = useState(false)
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [deleting, setDeleting] = useState(false)
 
   if (harvest && !initialized) {
     setInitialized(true)
@@ -73,18 +70,6 @@ function EditRaccoltoPage() {
     }
   }, [apiaryId, date, honeyType, totalKg, humidityPct, batchCode, notes, harvestId, updateHarvest, navigate, showToast])
 
-  const handleDelete = useCallback(async () => {
-    setDeleting(true)
-    try {
-      await deleteHarvest.mutateAsync(harvestId)
-      navigate({ to: '/raccolti' })
-    } catch {
-      showToast('Eliminazione fallita', 'error')
-    } finally {
-      setDeleting(false)
-    }
-  }, [harvestId, deleteHarvest, navigate])
-
   if (isLoading) {
     return (
       <main className="min-h-dvh px-4 py-6">
@@ -106,13 +91,6 @@ function EditRaccoltoPage() {
         <h1 className="font-display text-2xl font-medium text-wood-800 tracking-tight flex-1 px-1">
           Modifica raccolto
         </h1>
-        <button
-          type="button"
-          onClick={() => setShowDeleteConfirm(true)}
-          className="size-11 flex items-center justify-center text-danger-500 hover:bg-danger-100 rounded-md transition-colors"
-        >
-          <span className="text-sm font-medium">Elimina</span>
-        </button>
       </header>
 
       <div className="flex-1 px-4 py-6 overflow-y-auto">
@@ -292,35 +270,6 @@ function EditRaccoltoPage() {
         </div>
       )}
 
-      {/* Delete confirmation */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-end">
-          <div className="absolute inset-0 bg-wood-900/30" onClick={() => setShowDeleteConfirm(false)} />
-          <div className="relative w-full rounded-t-xl bg-cream-50 px-4 pb-8 pt-4">
-            <h3 className="text-sm font-medium text-wood-800 mb-2">Eliminare questo raccolto?</h3>
-            <p className="text-xs text-wood-500 mb-4">
-              Questa azione non può essere annullata.
-            </p>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 rounded-lg border border-cream-200 px-4 py-2.5 text-sm font-medium text-wood-700 hover:bg-cream-100 transition-colors"
-              >
-                Annulla
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={deleting}
-                className="flex-1 rounded-lg bg-danger-500 px-4 py-2.5 text-sm font-medium text-cream-50 hover:bg-danger-500/80 disabled:opacity-40 transition-colors"
-              >
-                {deleting ? 'Eliminazione…' : 'Elimina'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </main>
   )
 }
