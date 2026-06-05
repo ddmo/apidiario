@@ -261,6 +261,28 @@ export function useTodaysAlerts() {
           if (!allowedSpecies || !allowedSpecies.has(s.id)) continue
 
           const prediction = predictBloom(weather, s, today)
+
+          // Already ongoing bloom (start or peak phase)
+          if (prediction.current_phase === 'start' || prediction.current_phase === 'peak') {
+            const phaseLabel = prediction.current_phase === 'peak' ? 'piena fioritura' : 'inizio fioritura'
+            const daysSince = prediction.bloom_start?.date
+              ? Math.ceil(
+                  (Date.now() - new Date(prediction.bloom_start.date).getTime()) / 86_400_000,
+                )
+              : 0
+            result.push({
+              type: 'active_bloom',
+              id: `bloom-${apiary.id}-${s.id}-${year}`,
+              message: `${s.common_name_it} — ${phaseLabel} a ${apiary.name}${daysSince > 0 ? ` (da ${daysSince} ${daysSince === 1 ? 'giorno' : 'giorni'})` : ''}`,
+              apiaryId: apiary.id,
+              apiaryName: apiary.name,
+              speciesName: s.common_name_it,
+              phase: prediction.current_phase,
+              severity: prediction.current_phase === 'peak' ? 'info' : 'warning',
+            })
+          }
+
+          // Future bloom starting within 15 days
           if (prediction.bloom_start?.date) {
             const daysUntil = Math.ceil(
               (new Date(prediction.bloom_start.date).getTime() - Date.now()) / 86_400_000,
@@ -268,7 +290,7 @@ export function useTodaysAlerts() {
             if (daysUntil >= 0 && daysUntil <= 15) {
               result.push({
                 type: 'active_bloom',
-                id: `bloom-${apiary.id}-${s.id}-${year}`,
+                id: `bloom-${apiary.id}-${s.id}-${year}-future`,
                 message: `${s.common_name_it} — ${daysUntil} ${daysUntil === 1 ? 'giorno' : 'giorni'} all'inizio fioritura a ${apiary.name}`,
                 apiaryId: apiary.id,
                 apiaryName: apiary.name,
