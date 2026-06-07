@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import { ArrowLeft, MoreVertical, Sun, Trash2, Mic, Square, Loader2, Sparkles, AlertCircle, Speech } from 'lucide-react'
+import { ArrowLeft, MoreVertical, Sun, Trash2, Mic, Square, Loader2, Sparkles, AlertCircle, Speech, WifiOff } from 'lucide-react'
+import { useOnlineStatus } from '@/hooks/use-online-status'
 import { cn } from '@/lib/utils'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import { Button } from '@/components/ui/button'
@@ -372,6 +373,29 @@ function VoiceModeView({
   onStop: () => void
   onReset: () => void
 }) {
+  const online = useOnlineStatus()
+
+  if (!online && status === 'idle') {
+    return (
+      <div className="flex flex-col items-center justify-center h-full px-8 py-16 select-none">
+        <div className="size-16 rounded-full bg-wood-100 flex items-center justify-center mb-4">
+          <WifiOff size={28} className="text-wood-400" />
+        </div>
+        <p className="text-base font-semibold text-wood-700">Non disponibile offline</p>
+        <p className="text-sm text-wood-400 text-center mt-1">
+          La trascrizione vocale richiede una connessione a internet
+        </p>
+        <button
+          type="button"
+          onClick={onReset}
+          className="mt-6 h-10 px-5 rounded-lg bg-cream-200 text-wood-700 text-sm font-medium hover:bg-cream-300 transition-colors"
+        >
+          Torna alla scheda
+        </button>
+      </div>
+    )
+  }
+
   if (status === 'success') {
     return (
       <div className="flex flex-col items-center justify-center h-full px-8 py-16 select-none">

@@ -51,9 +51,18 @@ registerRoute(
   })
 )
 
-// Supabase API (REST + storage) e /api/ (Cloudflare Worker): NO caching.
-// I dati Supabase sono gestiti da TanStack Query + IndexedDB (query-client.ts).
-// Workbox non intercetta fetch cross-origin non registrati — pass-through automatico.
+// Supabase Storage — foto arnie/apiari: StaleWhileRevalidate.
+// Le signed URL scadono ma le immagini non cambiano; offline serve dalla cache.
+// REST API (/rest/v1/) esclusa: dati gestiti da TanStack Query + IndexedDB.
+registerRoute(
+  ({ url }) =>
+    url.hostname.endsWith('.supabase.co') &&
+    url.pathname.startsWith('/storage/v1/object/'),
+  new StaleWhileRevalidate({
+    cacheName: 'supabase-photos',
+    plugins: [new ExpirationPlugin({ maxEntries: 150, maxAgeSeconds: 7 * 86_400 })],
+  })
+)
 
 // Push notifications
 self.addEventListener('push', (e) => {

@@ -49,6 +49,15 @@ export async function syncPending(): Promise<void> {
   const pending = await offlineQueue.getAll()
   if (pending.length === 0) return
 
+  // Rinnova il JWT prima di tentare le chiamate — dopo un lungo periodo offline
+  // il token potrebbe essere scaduto. Se il refresh fallisce (refresh token scaduto
+  // o revocato) la sync viene rinviata finché l'utente non ri-effettua il login.
+  const { error: sessionError } = await supabase.auth.refreshSession()
+  if (sessionError) {
+    console.warn('[syncManager] sessione non rinnovabile, sync rinviata:', sessionError.message)
+    return
+  }
+
   syncing = true
   notifySyncState()
 
