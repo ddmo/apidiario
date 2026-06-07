@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Trees, Share2, Trash2, Pencil, AlertTriangle, CloudRain, FlaskRound, X, Flower2, Syringe, Bell } from 'lucide-react'
-import { useState, Fragment } from 'react'
+import { useState, Fragment, useEffect } from 'react'
 import { useApiaryCards } from '@/features/home/hooks/use-apiary-cards'
 import { useTodaysAlerts } from '@/features/home/hooks/use-home-alerts'
 import { useRecentActivityByOthers, type ActivityItem } from '@/features/home/hooks/use-recent-activity'
@@ -11,6 +11,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { SwipeableRow } from '@/components/ui/swipeable-row'
 import { ShareSheet } from '@/features/apiaries/components/share-sheet'
 import { useToast } from '@/hooks/use-toast'
+import { useAuth } from '@/hooks/use-auth'
 import { cn } from '@/lib/utils'
 import { t } from '@/i18n/it'
 
@@ -53,13 +54,14 @@ function SkeletonCard() {
 function HomePage() {
   const navigate = useNavigate()
   const { showToast } = useToast()
+  const { session, profile, loading: profileLoading } = useAuth()
 
-  const { data: apiaries, isLoading, isError } = useApiaries()
+  const { data: apiaries, isLoading, isError, isSuccess: apiariesSuccess } = useApiaries()
   const { mutate: deleteApiary } = useDeleteApiary()
 
   const { alerts, isLoading: alertsLoading } = useTodaysAlerts()
   const { data: activities, isLoading: activityLoading } = useRecentActivityByOthers()
-  const { data: cards } = useApiaryCards()
+  const { data: cards, isSuccess: cardsSuccess } = useApiaryCards()
   const { data: upcomingReminders } = useUpcomingReminders()
 
   const [shareTarget, setShareTarget] = useState<{ id: string; name: string } | null>(null)

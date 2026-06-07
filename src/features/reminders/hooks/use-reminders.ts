@@ -120,8 +120,9 @@ export function useDeleteReminder() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('reminders').delete().eq('id', id)
+      const { data, error } = await supabase.from('reminders').delete().eq('id', id).select('id')
       if (error) throw error
+      if (!data || data.length === 0) throw new Error('Nessun promemoria eliminato. Verifica i permessi.')
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [REMINDERS_KEY] })

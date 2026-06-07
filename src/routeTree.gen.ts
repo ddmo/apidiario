@@ -38,6 +38,7 @@ import { Route as HivesHiveIdEditRouteImport } from './routes/hives.$hiveId.edit
 import { Route as ApiariesApiaryIdSuggerimentiRouteImport } from './routes/apiaries.$apiaryId.suggerimenti'
 import { Route as ApiariesApiaryIdMeteoRouteImport } from './routes/apiaries.$apiaryId.meteo'
 import { Route as ApiariesApiaryIdEditRouteImport } from './routes/apiaries.$apiaryId.edit'
+import { Route as AuthImpostazioniIspezioneExpressRouteImport } from './routes/_auth.impostazioni.ispezione-express'
 import { Route as AuthApiariesApiaryIdRouteImport } from './routes/_auth.apiaries.$apiaryId'
 import { Route as HivesHiveIdInspectionsInspectionIdRouteImport } from './routes/hives.$hiveId.inspections.$inspectionId'
 import { Route as ApiariesApiaryIdHivesNewRouteImport } from './routes/apiaries.$apiaryId.hives.new'
@@ -191,6 +192,12 @@ const ApiariesApiaryIdEditRoute = ApiariesApiaryIdEditRouteImport.update({
   path: '/apiaries/$apiaryId/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthImpostazioniIspezioneExpressRoute =
+  AuthImpostazioniIspezioneExpressRouteImport.update({
+    id: '/impostazioni/ispezione-express',
+    path: '/impostazioni/ispezione-express',
+    getParentRoute: () => AuthRoute,
+  } as any)
 const AuthApiariesApiaryIdRoute = AuthApiariesApiaryIdRouteImport.update({
   id: '/apiaries/$apiaryId',
   path: '/apiaries/$apiaryId',
@@ -236,6 +243,7 @@ export interface FileRoutesByFullPath {
   '/raccolti/new': typeof RaccoltiNewRoute
   '/trattamenti/new': typeof TrattamentiNewRoute
   '/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
+  '/impostazioni/ispezione-express': typeof AuthImpostazioniIspezioneExpressRoute
   '/apiaries/$apiaryId/edit': typeof ApiariesApiaryIdEditRoute
   '/apiaries/$apiaryId/meteo': typeof ApiariesApiaryIdMeteoRoute
   '/apiaries/$apiaryId/suggerimenti': typeof ApiariesApiaryIdSuggerimentiRoute
@@ -270,6 +278,7 @@ export interface FileRoutesByTo {
   '/trattamenti/new': typeof TrattamentiNewRoute
   '/': typeof AuthIndexRoute
   '/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
+  '/impostazioni/ispezione-express': typeof AuthImpostazioniIspezioneExpressRoute
   '/apiaries/$apiaryId/edit': typeof ApiariesApiaryIdEditRoute
   '/apiaries/$apiaryId/meteo': typeof ApiariesApiaryIdMeteoRoute
   '/apiaries/$apiaryId/suggerimenti': typeof ApiariesApiaryIdSuggerimentiRoute
@@ -306,6 +315,7 @@ export interface FileRoutesById {
   '/trattamenti/new': typeof TrattamentiNewRoute
   '/_auth/': typeof AuthIndexRoute
   '/_auth/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
+  '/_auth/impostazioni/ispezione-express': typeof AuthImpostazioniIspezioneExpressRoute
   '/apiaries/$apiaryId/edit': typeof ApiariesApiaryIdEditRoute
   '/apiaries/$apiaryId/meteo': typeof ApiariesApiaryIdMeteoRoute
   '/apiaries/$apiaryId/suggerimenti': typeof ApiariesApiaryIdSuggerimentiRoute
@@ -342,6 +352,7 @@ export interface FileRouteTypes {
     | '/raccolti/new'
     | '/trattamenti/new'
     | '/apiaries/$apiaryId'
+    | '/impostazioni/ispezione-express'
     | '/apiaries/$apiaryId/edit'
     | '/apiaries/$apiaryId/meteo'
     | '/apiaries/$apiaryId/suggerimenti'
@@ -376,6 +387,7 @@ export interface FileRouteTypes {
     | '/trattamenti/new'
     | '/'
     | '/apiaries/$apiaryId'
+    | '/impostazioni/ispezione-express'
     | '/apiaries/$apiaryId/edit'
     | '/apiaries/$apiaryId/meteo'
     | '/apiaries/$apiaryId/suggerimenti'
@@ -411,6 +423,7 @@ export interface FileRouteTypes {
     | '/trattamenti/new'
     | '/_auth/'
     | '/_auth/apiaries/$apiaryId'
+    | '/_auth/impostazioni/ispezione-express'
     | '/apiaries/$apiaryId/edit'
     | '/apiaries/$apiaryId/meteo'
     | '/apiaries/$apiaryId/suggerimenti'
@@ -656,6 +669,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiariesApiaryIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_auth/impostazioni/ispezione-express': {
+      id: '/_auth/impostazioni/ispezione-express'
+      path: '/impostazioni/ispezione-express'
+      fullPath: '/impostazioni/ispezione-express'
+      preLoaderRoute: typeof AuthImpostazioniIspezioneExpressRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/apiaries/$apiaryId': {
       id: '/_auth/apiaries/$apiaryId'
       path: '/apiaries/$apiaryId'
@@ -697,6 +717,7 @@ interface AuthRouteChildren {
   AuthTrattamentiRoute: typeof AuthTrattamentiRoute
   AuthIndexRoute: typeof AuthIndexRoute
   AuthApiariesApiaryIdRoute: typeof AuthApiariesApiaryIdRoute
+  AuthImpostazioniIspezioneExpressRoute: typeof AuthImpostazioniIspezioneExpressRoute
   AuthHivesHiveIdInspectionsRoute: typeof AuthHivesHiveIdInspectionsRoute
 }
 
@@ -710,6 +731,7 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthTrattamentiRoute: AuthTrattamentiRoute,
   AuthIndexRoute: AuthIndexRoute,
   AuthApiariesApiaryIdRoute: AuthApiariesApiaryIdRoute,
+  AuthImpostazioniIspezioneExpressRoute: AuthImpostazioniIspezioneExpressRoute,
   AuthHivesHiveIdInspectionsRoute: AuthHivesHiveIdInspectionsRoute,
 }
 

@@ -18,11 +18,15 @@ const mockUpdateHive = vi.fn((_args, options) => {
   options?.onSuccess?.()
 })
 const mockCreateHive = vi.fn()
+const mockUpsertQueen = vi.fn((_args, options) => {
+  options?.onSuccess?.()
+})
 
 vi.mock('../hooks/use-hives', () => ({
   useHivesByApiary: () => ({ data: mockHives, isLoading: false }),
   useCreateHive: () => ({ mutate: mockCreateHive, isPending: false }),
   useUpdateHive: () => ({ mutate: mockUpdateHive, isPending: false }),
+  useUpsertQueen: () => ({ mutate: mockUpsertQueen, isPending: false }),
 }))
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

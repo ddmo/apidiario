@@ -104,6 +104,33 @@ describe('useInspectionForm', () => {
     expect(result.current.mode).toBe('standard')
   })
 
+  it('otherInterventions starts empty and can be updated', () => {
+    const { result } = renderHook(() => useInspectionForm())
+
+    expect(result.current.state.otherInterventions).toBe('')
+
+    act(() => {
+      result.current.update('otherInterventions', 'Trattato con acido ossalico')
+    })
+
+    expect(result.current.state.otherInterventions).toBe('Trattato con acido ossalico')
+    expect(result.current.dirtyFields.has('otherInterventions')).toBe(true)
+  })
+
+  it('otherInterventions survives reset when part of prefill', () => {
+    const prefill: Partial<InspectionFormState> = { otherInterventions: 'Nutrizione sciroppata' }
+    const { result } = renderHook(() => useInspectionForm({ prefillState: prefill }))
+
+    expect(result.current.state.otherInterventions).toBe('Nutrizione sciroppata')
+
+    act(() => {
+      result.current.update('otherInterventions', 'cambiato')
+      result.current.reset()
+    })
+
+    expect(result.current.state.otherInterventions).toBe('Nutrizione sciroppata')
+  })
+
   it('setShowSheet toggles the sheet visibility', () => {
     const { result } = renderHook(() => useInspectionForm())
 

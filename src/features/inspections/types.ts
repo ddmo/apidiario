@@ -4,7 +4,6 @@ export type InspectionMode = 'express' | 'standard'
 
 export type QueenSeen = Enums<'queen_seen_state'>
 export type PopulationStrength = Enums<'population_strength'>
-export type QueenCells = Enums<'queen_cells_type'>
 export type BehaviorType = Enums<'behavior_type'>
 export type VarroaMethod = Enums<'varroa_count_method'>
 export type PathologyType = Enums<'pathology'>
@@ -33,6 +32,15 @@ export type FrameState = {
   vuoti: number
 }
 
+export const QUEEN_CELL_OPTIONS = [
+  { value: 'dry_cup', label: 'Cupolino secco' },
+  { value: 'egg_cup', label: 'Cupolino con uovo' },
+  { value: 'larvae_cup', label: 'Cupolino con larva' },
+  { value: 'closed_cell', label: 'Cella chiusa' },
+] as const
+
+export type QueenCellType = (typeof QUEEN_CELL_OPTIONS)[number]['value']
+
 export type InspectionFormState = {
   queen: QueenSeen
   hasBrood: boolean
@@ -41,13 +49,16 @@ export type InspectionFormState = {
   notes: string
   // standard-only
   frames: FrameState
-  queenCells: QueenCells
+  hasQueenCells: boolean
+  queenCellsRemoved: QueenCellType[]
+  queenCellsRemaining: QueenCellType[]
   pathologies: Set<PathologyType>
   pollenIncoming: boolean
   varroaCount: string
   varroaMethod: VarroaMethod
   behavior: BehaviorType
   interventions: Set<string>
+  otherInterventions: string
 }
 
 export const DEFAULT_STATE: InspectionFormState = {
@@ -57,11 +68,14 @@ export const DEFAULT_STATE: InspectionFormState = {
   population: 'media',
   notes: '',
   frames: { covata: 0, miele: 0, polline: 0, vuoti: 0 },
-  queenCells: 'nessuna',
+  hasQueenCells: false,
+  queenCellsRemoved: [],
+  queenCellsRemaining: [],
   pathologies: new Set(),
   pollenIncoming: false,
   varroaCount: '',
   varroaMethod: 'caduta_naturale',
   behavior: 'calmo',
   interventions: new Set(),
+  otherInterventions: '',
 }

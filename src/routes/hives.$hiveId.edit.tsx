@@ -55,6 +55,20 @@ function EditHivePage() {
     staleTime: 0,
   })
 
+  const { data: queenData } = useQuery({
+    queryKey: ['queen', hiveId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('queens')
+        .select('marking_color, birth_year')
+        .eq('hive_id', hiveId)
+        .is('end_date', null)
+        .maybeSingle()
+      return data ?? null
+    },
+    enabled: !!hiveId,
+  })
+
   if (!session?.user?.id || isLoading) {
     return (
       <div className="flex flex-col h-dvh bg-cream-50 items-center justify-center">
@@ -74,6 +88,7 @@ function EditHivePage() {
         apiaries={allApiaries}
         userId={session.user.id}
         photoUrl={(hive as unknown as { photoUrl: string | null }).photoUrl}
+        queenData={queenData}
         hive={hive}
         onSuccess={goToApiary}
         onCancel={goToApiary}

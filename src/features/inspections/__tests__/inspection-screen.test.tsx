@@ -14,6 +14,10 @@ vi.mock('react-leaflet', () => ({
   useMap: () => null,
 }))
 
+vi.mock('../hooks/use-express-fields', () => ({
+  useExpressFields: () => ['queen', 'hasBrood', 'population', 'notes'],
+}))
+
 const hiveInfo = { identifier: 'A1', apiaryName: 'Test' }
 const toastContext: ToastContextValue = { showToast: vi.fn() }
 

@@ -260,8 +260,9 @@ export function useDeleteTreatment() {
         .single()
       const productName = treatment?.product_name ?? ''
 
-      const { error } = await supabase.from('treatments').delete().eq('id', id)
+      const { data, error } = await supabase.from('treatments').delete().eq('id', id).select('id')
       if (error) throw error
+      if (!data || data.length === 0) throw new Error('Nessun trattamento eliminato. Verifica i permessi.')
 
       return productName
     },

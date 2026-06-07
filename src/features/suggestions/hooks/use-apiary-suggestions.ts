@@ -16,10 +16,14 @@ export function computeSuggestions(
   reminders: Reminder[] = [],
 ): HiveSuggestions[] {
   const latestInspMap = new Map<string, Inspection>()
+  const hiveInspectionsMap = new Map<string, Inspection[]>()
   for (const insp of inspections) {
     if (!latestInspMap.has(insp.hive_id)) {
       latestInspMap.set(insp.hive_id, insp)
     }
+    const list = hiveInspectionsMap.get(insp.hive_id) ?? []
+    list.push(insp)
+    hiveInspectionsMap.set(insp.hive_id, list)
   }
 
   return hives.map((hive) => {
@@ -35,6 +39,7 @@ export function computeSuggestions(
         : null,
       today,
       reminders,
+      recentInspections: hiveInspectionsMap.get(hive.id) ?? [],
     }
 
     return {

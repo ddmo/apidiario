@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
 import { getPushStatus, subscribeToPush, unsubscribeFromPush } from '@/lib/push-notifications'
-import { Shield, LogOut, Sun, Moon, Monitor, User, Flower2, Activity, BarChart3, Bell, BellOff, Trees, Wheat, Clock, RefreshCw, Lock, X } from 'lucide-react'
+import { Shield, LogOut, Sun, Moon, Monitor, User, Flower2, Activity, BarChart3, Bell, BellOff, Trees, Wheat, Clock, RefreshCw, Lock, X, SlidersHorizontal } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { setThemeMode, getThemeMode, type ThemeMode } from '@/lib/theme'
 import { t } from '@/i18n/it'
@@ -42,9 +42,7 @@ function PiuPage() {
   }
 
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).__APP_VERSION__ = __APP_VERSION__
-    ;(supabase.rpc as any)('is_app_admin').then(({ data }: { data: boolean | null }) => setIsAdmin(!!data))
+    supabase.rpc('is_app_admin').then(({ data }) => setIsAdmin(!!data))
     getPushStatus().then((s) => {
       setPushSupported(s.supported)
       setPushSubscribed(s.subscribed)
@@ -206,6 +204,14 @@ function PiuPage() {
           {/* ── APP ── */}
           <p className="text-xs uppercase tracking-wider font-semibold text-wood-500 mt-2 mb-1">App</p>
 
+          <Link
+            to="/impostazioni/ispezione-express"
+            className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3 text-wood-800 hover:bg-cream-200 transition-colors"
+          >
+            <SlidersHorizontal size={20} className="text-honey-600 shrink-0" />
+            <span className="text-sm font-medium">Personalizza vista Express</span>
+          </Link>
+
           {/* Theme selector */}
           <div className="flex flex-col gap-2 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3">
             <span className="text-sm font-medium text-wood-700">Tema</span>
@@ -265,7 +271,9 @@ function PiuPage() {
           <button
             type="button"
             onClick={async () => {
+              const savedTheme = localStorage.getItem('theme-mode')
               localStorage.clear()
+              if (savedTheme) localStorage.setItem('theme-mode', savedTheme)
               try {
                 const keys = await caches.keys()
                 await Promise.all(keys.map((k) => caches.delete(k)))

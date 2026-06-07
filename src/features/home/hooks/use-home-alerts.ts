@@ -124,43 +124,46 @@ export function useTodaysAlerts() {
   const badWeather = useQuery({
     queryKey: ['home-alerts', 'weather'],
     queryFn: async () => {
-      const { data: apiary } = await supabase
+      const { data: apiaries } = await supabase
         .from('apiaries')
         .select('id, name, latitude, longitude')
         .not('latitude', 'is', null)
         .not('longitude', 'is', null)
-        .limit(1)
-        .maybeSingle()
+        .is('archived_at', null)
 
-      if (!apiary?.latitude || !apiary?.longitude) return []
+      if (!apiaries?.length) return []
 
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${apiary.latitude}&longitude=${apiary.longitude}&daily=precipitation_sum,precipitation_probability_max,wind_speed_10m_max,weather_code&timezone=Europe/Rome&forecast_days=2`
-
-      const res = await fetch(url)
-      if (!res.ok) return []
-
-      const json = await res.json()
       const alerts: AlertUnion[] = []
 
-      // Check today and tomorrow
-      for (let i = 0; i < Math.min(2, (json.daily?.time ?? []).length); i++) {
-        const precip = json.daily?.precipitation_sum?.[i] ?? 0
-        const wind = json.daily?.wind_speed_10m_max?.[i] ?? 0
-        const date = json.daily?.time?.[i] ?? ''
-        const label = i === 0 ? 'Oggi' : 'Domani'
+      for (const apiary of apiaries) {
+        if (!apiary.latitude || !apiary.longitude) continue
 
-        if (precip > 5 || wind > 40) {
-          const parts: string[] = [label]
-          if (precip > 5) parts.push(`${precip}mm pioggia`)
-          if (wind > 40) parts.push(`vento ${wind}km/h`)
-          alerts.push({
-            type: 'bad_weather',
-            id: 'weather-' + apiary.id + '-' + date,
-            message: `Meteo avverso in ${apiary.name}: ${parts.join(', ')}`,
-            apiaryId: apiary.id,
-            apiaryName: apiary.name,
-            severity: 'warning',
-          })
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${apiary.latitude}&longitude=${apiary.longitude}&daily=precipitation_sum,precipitation_probability_max,wind_speed_10m_max,weather_code&timezone=Europe/Rome&forecast_days=2`
+
+        const res = await fetch(url)
+        if (!res.ok) continue
+
+        const json = await res.json()
+
+        for (let i = 0; i < Math.min(2, (json.daily?.time ?? []).length); i++) {
+          const precip = json.daily?.precipitation_sum?.[i] ?? 0
+          const wind = json.daily?.wind_speed_10m_max?.[i] ?? 0
+          const date = json.daily?.time?.[i] ?? ''
+          const label = i === 0 ? 'Oggi' : 'Domani'
+
+          if (precip > 5 || wind > 40) {
+            const parts: string[] = [label]
+            if (precip > 5) parts.push(`${precip}mm pioggia`)
+            if (wind > 40) parts.push(`vento ${wind}km/h`)
+            alerts.push({
+              type: 'bad_weather',
+              id: 'weather-' + apiary.id + '-' + date,
+              message: `Meteo avverso in ${apiary.name}: ${parts.join(', ')}`,
+              apiaryId: apiary.id,
+              apiaryName: apiary.name,
+              severity: 'warning',
+            })
+          }
         }
       }
 
@@ -287,7 +290,7 @@ export function useTodaysAlerts() {
             const daysUntil = Math.ceil(
               (new Date(prediction.bloom_start.date).getTime() - Date.now()) / 86_400_000,
             )
-            if (daysUntil >= 0 && daysUntil <= 15) {
+            if (prediction.current_phase !== 'start' && prediction.current_phase !== 'peak' && daysUntil >= 0 && daysUntil <= 15) {
               result.push({
                 type: 'active_bloom',
                 id: `bloom-${apiary.id}-${s.id}-${year}-future`,

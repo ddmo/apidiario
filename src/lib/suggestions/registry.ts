@@ -1,7 +1,7 @@
 import type { Rule } from './types'
 
 import { queenNotSeen, suspectedOrphan, queenFailing, queenConfirmedByEggs } from './rules/queen'
-import { swarmingRoyalCellsFollowup, swarmingProneRaceSpring } from './rules/swarming'
+import { swarmingRoyalCellsFollowup, swarmingProneRaceSpring, swarmingFever } from './rules/swarming'
 import { pathologyFollowup, varroaTreatmentWindow, varroaCountMissingInSeason } from './rules/health'
 import { weakPopulation, lowHoneyStoresPreWinter, lowPollenSpring } from './rules/stores'
 import { pollenTrapCheck, propolisNetCheck } from './rules/equipment'
@@ -17,6 +17,7 @@ export const rules: Rule[] = [
   queenConfirmedByEggs,
   // Swarming
   swarmingRoyalCellsFollowup,
+  swarmingFever,
   swarmingProneRaceSpring,
   // Health
   pathologyFollowup,

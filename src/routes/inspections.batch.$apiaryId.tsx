@@ -82,9 +82,8 @@ function BatchInspectionPage() {
       const inspections: TablesInsert<'inspections'>[] = selectedHives.map((hive) => {
         const values = batch.getEffectiveValues(hive.id)
         const perHiveNote = batch.state.perHiveNotes[hive.id]
-        const combinedNotes = perHiveNote
-          ? [values.notes, `---\n${perHiveNote}`].filter(Boolean).join('\n')
-          : values.notes || null
+        const interventionsNote = values.otherInterventions ? `Altri interventi: ${values.otherInterventions}` : ''
+        const combinedNotes = [values.notes, interventionsNote, perHiveNote ? `---\n${perHiveNote}` : ''].filter(Boolean).join('\n') || null
 
         return {
           hive_id: hive.id,
@@ -99,7 +98,9 @@ function BatchInspectionPage() {
           brood_frame_count: isExpress ? null : values.frames.covata,
           honey_frame_count: isExpress ? null : values.frames.miele,
           pollen_frame_count: isExpress ? null : values.frames.polline,
-          queen_cells: isExpress ? null : values.queenCells,
+          has_queen_cells: values.hasQueenCells,
+          queen_cells_removed: values.hasQueenCells ? values.queenCellsRemoved : [],
+          queen_cells_remaining: values.hasQueenCells ? values.queenCellsRemaining : [],
           pollen_importation: isExpress ? null : values.pollenIncoming,
           behavior: isExpress ? null : values.behavior,
           pathologies: isExpress ? null : Array.from(values.pathologies),

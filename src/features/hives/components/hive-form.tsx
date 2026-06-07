@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { FrameCounter } from '@/features/inspections/components/frame-counter'
 import { MainPhotoSlot } from '@/components/ui/main-photo-slot'
-import { useHivesByApiary, useCreateHive, useUpdateHive } from '../hooks/use-hives'
+import { useHivesByApiary, useCreateHive, useUpdateHive, useUpsertQueen } from '../hooks/use-hives'
+import { QUEEN_COLORS, queenColorFromYear } from '../queen-color'
 import { useToast } from '@/hooks/use-toast'
 import { t } from '@/i18n/it'
 import type { Database } from '@/types/database'
@@ -28,6 +29,7 @@ interface HiveFormProps {
   onCancel: () => void
   apiaries?: { id: string; name: string }[]
   photoUrl?: string | null
+  queenData?: { marking_color: string | null; birth_year: number | null } | null
   hive?: {
     id: string
     identifier: string
@@ -40,12 +42,13 @@ interface HiveFormProps {
   }
 }
 
-export function HiveForm({ apiaryId, apiaries, photoUrl, hive, onSuccess, onCancel }: HiveFormProps) {
+export function HiveForm({ apiaryId, apiaries, photoUrl, queenData, hive, onSuccess, onCancel }: HiveFormProps) {
   const isEdit = !!hive
   const { showToast } = useToast()
   const { mutate: createHive, isPending: creating } = useCreateHive()
   const { mutate: updateHive, isPending: updating } = useUpdateHive()
-  const isPending = creating || updating
+  const { mutate: upsertQueen, isPending: queenPending } = useUpsertQueen()
+  const isPending = creating || updating || queenPending
   const { data: existingHives, isLoading: hivesLoading } = useHivesByApiary(apiaryId)
 
   const [identifier, setIdentifier] = useState(hive?.identifier ?? '')
@@ -56,6 +59,19 @@ export function HiveForm({ apiaryId, apiaries, photoUrl, hive, onSuccess, onCanc
   const [nidoFrameCount, setNidoFrameCount] = useState(hive?.nido_frame_count ?? 10)
   const [notes, setNotes] = useState(hive?.notes ?? '')
   const [selectedApiaryId, setSelectedApiaryId] = useState(apiaryId)
+
+  // Queen
+  const [queenColor, setQueenColor] = useState<string>(queenData?.marking_color ?? '')
+  const [queenBirthYear, setQueenBirthYear] = useState<string>(
+    queenData?.birth_year ? String(queenData.birth_year) : ''
+  )
+
+  useEffect(() => {
+    if (queenData) {
+      setQueenColor(queenData.marking_color ?? '')
+      setQueenBirthYear(queenData.birth_year ? String(queenData.birth_year) : '')
+    }
+  }, [queenData])
 
   // Photo
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -151,8 +167,17 @@ export function HiveForm({ apiaryId, apiaries, photoUrl, hive, onSuccess, onCanc
         },
         {
           onSuccess: () => {
-            showToast('Arnia aggiornata', 'success')
-            onSuccess()
+            upsertQueen({
+              hiveId: hive.id,
+              markingColor: queenColor || null,
+              birthYear: queenBirthYear ? parseInt(queenBirthYear, 10) || null : null,
+            }, {
+              onSuccess: () => {
+                showToast('Arnia aggiornata', 'success')
+                onSuccess()
+              },
+              onError: () => showToast(t.hive.new.errorSave, 'error'),
+            })
           },
           onError: () => showToast(t.hive.new.errorSave, 'error'),
         },
@@ -306,6 +331,52 @@ export function HiveForm({ apiaryId, apiaries, photoUrl, hive, onSuccess, onCanc
               max={30}
               dirty={isDirty}
             />
+          </section>
+
+          {/* Regina */}
+          <section>
+            <div className="text-xs uppercase tracking-wider font-semibold text-wood-500 mb-3">
+              Regina
+            </div>
+            <div className="flex flex-col gap-3">
+              <Select
+                id="queen-color"
+                label="Colore marcatura"
+                options={[
+                  { value: '', label: 'Non impostato' },
+                  ...QUEEN_COLORS.map((c) => ({ value: c.value, label: `${c.label} (${c.yearEndings})` })),
+                ]}
+                value={queenColor}
+                onChange={(e) => { setQueenColor(e.target.value); markDirty() }}
+              />
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="queen-birth-year" className="text-sm font-medium text-wood-700">
+                  Anno di nascita
+                </label>
+                <input
+                  id="queen-birth-year"
+                  type="number"
+                  min={2000}
+                  max={2099}
+                  placeholder="es. 2026"
+                  value={queenBirthYear}
+                  onChange={(e) => { setQueenBirthYear(e.target.value); markDirty() }}
+                  className="h-12 rounded-md border border-cream-200 bg-cream-50 px-4 text-base text-wood-700 transition-colors duration-150 focus:border-honey-500 focus:outline-none focus:ring-2 focus:ring-honey-500/20"
+                />
+                {queenBirthYear && queenColor === '' && (() => {
+                  const y = parseInt(queenBirthYear, 10)
+                  if (isNaN(y)) return null
+                  const derived = queenColorFromYear(y)
+                  if (!derived) return null
+                  const label = QUEEN_COLORS.find((c) => c.value === derived)?.label
+                  return (
+                    <p className="text-xs text-wood-400">
+                      Colore calcolato dall'anno: <span className="inline-block size-2 rounded-full align-middle" style={{ backgroundColor: QUEEN_COLORS.find((c) => c.value === derived)?.hex }} /> {label}
+                    </p>
+                  )
+                })()}
+              </div>
+            </div>
           </section>
 
           {/* Note */}

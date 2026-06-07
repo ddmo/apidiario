@@ -10,8 +10,9 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
-  use: {
-    baseURL: 'http://localhost:5173',
+    use: {
+    baseURL: 'https://localhost:5173',
+    ignoreHTTPSErrors: true,
     trace: 'on-first-retry',
   },
   projects: [

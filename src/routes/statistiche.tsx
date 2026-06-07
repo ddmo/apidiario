@@ -33,7 +33,7 @@ function StatistichePage() {
   const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
-    ;(supabase.rpc as any)('is_app_admin').then(({ data }: { data: boolean | null }) => setIsAdmin(!!data))
+    supabase.rpc('is_app_admin').then(({ data }) => setIsAdmin(!!data))
   }, [])
 
   const { data: apiaryCount } = useQuery({

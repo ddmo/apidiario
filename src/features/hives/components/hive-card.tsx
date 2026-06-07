@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { ClipboardList, Trash2, Pencil, DoorOpen, Grid3x3, Flower, Droplets, ClipboardCheck } from 'lucide-react'
+import { ClipboardList, Trash2, Pencil, DoorOpen, Grid3x3, Flower, Droplets, ClipboardCheck, Thermometer } from 'lucide-react'
 import { HiveSchematic } from './hive-schematic'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import {
@@ -27,12 +27,27 @@ function relativeDate(iso: string): string {
   return `${Math.floor(d / 365)} anni fa`
 }
 
+type SwarmingFeverSeverity = 'info' | 'warning' | 'critical'
+
 interface HiveCardProps {
   hive: HiveListItem
   onDelete?: (hiveId: string) => void
+  swarmingFeverSeverity?: SwarmingFeverSeverity | null
 }
 
-export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps & { showSchematic?: boolean }) {
+const FEVER_STYLES: Record<SwarmingFeverSeverity, string> = {
+  info: 'bg-transparent border-wood-300 text-wood-400',
+  warning: 'bg-amber-500 border-amber-500 text-white',
+  critical: 'bg-danger-500 border-danger-500 text-white',
+}
+
+const FEVER_LABELS: Record<SwarmingFeverSeverity, string> = {
+  info: 'Febbre sciamatoria bassa',
+  warning: 'Febbre sciamatoria in aumento',
+  critical: 'Febbre sciamatoria alta',
+}
+
+export function HiveCard({ hive, onDelete, showSchematic = true, swarmingFeverSeverity }: HiveCardProps & { showSchematic?: boolean }) {
   const navigate = useNavigate()
   const { mutate: toggle } = useToggleHiveAccessory()
   const { mutate: updateMelari } = useUpdateMelariCount()
@@ -160,6 +175,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
                   hasPropolisNet={hive.hasPropolisNet}
                   hasPollenTrap={hive.hasPollenTrap}
                   hasActiveQueen={hive.hasActiveQueen}
+                  queenMarkingColor={hive.queenMarkingColor}
                 />
               </div>
               <div className="flex-1 min-w-0 flex flex-col gap-1">
@@ -202,6 +218,15 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
 
                 {/* Accessory toggles */}
                 <div className="flex items-center justify-center gap-3">
+                  {swarmingFeverSeverity && (
+                    <div
+                      className={`size-9 flex items-center justify-center rounded-md border transition-colors cursor-default ${FEVER_STYLES[swarmingFeverSeverity]}`}
+                      aria-label={FEVER_LABELS[swarmingFeverSeverity]}
+                      title={FEVER_LABELS[swarmingFeverSeverity]}
+                    >
+                      <Thermometer size={18} strokeWidth={1.75} />
+                    </div>
+                  )}
                   <button
                     type="button"
                     aria-label={t.hive.card.apiscampo}
@@ -304,6 +329,15 @@ export function HiveCard({ hive, onDelete, showSchematic = true }: HiveCardProps
                     compact
                   />
                   <div className="flex items-center gap-1.5 ml-auto">
+                    {swarmingFeverSeverity && (
+                      <div
+                        className={`size-8 flex items-center justify-center rounded-md border transition-colors cursor-default ${FEVER_STYLES[swarmingFeverSeverity]}`}
+                        aria-label={FEVER_LABELS[swarmingFeverSeverity]}
+                        title={FEVER_LABELS[swarmingFeverSeverity]}
+                      >
+                        <Thermometer size={16} strokeWidth={1.75} />
+                      </div>
+                    )}
                     <button
                       type="button"
                       aria-label={t.hive.card.apiscampo}

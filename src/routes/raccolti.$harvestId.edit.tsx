@@ -1,5 +1,5 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { ArrowLeft, Save, Droplet, Trees, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useHarvest, useUpdateHarvest } from '@/features/harvests/hooks/use-harvests'
@@ -33,10 +33,9 @@ function EditRaccoltoPage() {
   const [showApiaryPicker, setShowApiaryPicker] = useState(false)
   const [showHoneyPicker, setShowHoneyPicker] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [initialized, setInitialized] = useState(false)
 
-  if (harvest && !initialized) {
-    setInitialized(true)
+  useEffect(() => {
+    if (!harvest) return
     setApiaryId(harvest.apiary_id)
     setDate(harvest.harvested_on)
     setHoneyType(harvest.honey_type)
@@ -44,7 +43,7 @@ function EditRaccoltoPage() {
     setHumidityPct(harvest.humidity_pct != null ? String(harvest.humidity_pct) : '')
     setBatchCode(harvest.batch_code ?? '')
     setNotes(harvest.notes ?? '')
-  }
+  }, [harvest])
 
   const selectedApiary = apiaries?.find((a) => a.id === apiaryId)
 

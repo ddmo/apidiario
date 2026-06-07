@@ -199,11 +199,5 @@ export const t = {
     queenSeen: { vista: 'Vista', non_vista: 'Non vista', non_cercata: 'Non cercata' },
     population: { debole: 'Debole', media: 'Media', forte: 'Forte' },
     behavior: { calmo: 'Calmo', nervoso: 'Nervoso', aggressivo: 'Aggressivo' },
-    queenCells: {
-      nessuna: 'Nessuna',
-      scorta: 'Scorta / emergenza',
-      sciamatura: 'Sciamatura',
-      sostituzione: 'Sostituzione',
-    },
   },
 } as const

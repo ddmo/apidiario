@@ -96,11 +96,16 @@ function ApiaryDetailPage() {
           </div>
         ) : (
           <ul className="px-4 pt-4 flex flex-col gap-3">
-            {hives.map((hive) => (
-              <li key={hive.id}>
-                <HiveCard hive={hive} showSchematic={showSchematic} onDelete={(id) => setDeleteId(id)} />
-              </li>
-            ))}
+            {hives.map((hive) => {
+              const hiveSuggestions = suggestions?.find((s) => s.hive.id === hive.id)
+              const feverSugg = hiveSuggestions?.suggestions.find((s) => s.id === 'swarming-fever')
+              const feverSeverity = feverSugg?.severity
+              return (
+                <li key={hive.id}>
+                  <HiveCard hive={hive} showSchematic={showSchematic} onDelete={(id) => setDeleteId(id)} swarmingFeverSeverity={feverSeverity} />
+                </li>
+              )
+            })}
           </ul>
         )}
       </div>

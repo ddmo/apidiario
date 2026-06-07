@@ -91,7 +91,8 @@ export function InspectionScreen({
         (result.frames?.covata ?? 0) > 0 ||
         (result.frames?.miele ?? 0) > 0 ||
         (result.frames?.polline ?? 0) > 0 ||
-        (result.queenCells && result.queenCells !== 'nessuna') ||
+        (result.queenCellsRemoved && result.queenCellsRemoved.length > 0) ||
+        (result.queenCellsRemaining && result.queenCellsRemaining.length > 0) ||
         (result.pathologies && result.pathologies.size > 0) ||
         result.pollenIncoming === true ||
         (result.varroaCount && result.varroaCount !== '') ||

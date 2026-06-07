@@ -1,3 +1,5 @@
+import { queenColorHex } from '../queen-color'
+
 interface HiveSchematicProps {
   nidoFrameCount: number
   melariCount: number
@@ -5,6 +7,7 @@ interface HiveSchematicProps {
   hasPropolisNet: boolean
   hasPollenTrap: boolean
   hasActiveQueen: boolean | 'non_cercata'
+  queenMarkingColor?: string | null
 }
 
 const SVG_W  = 72
@@ -25,7 +28,9 @@ export function HiveSchematic({
   hasPropolisNet,
   hasPollenTrap,
   hasActiveQueen,
+  queenMarkingColor,
 }: HiveSchematicProps) {
+  const queenColor = queenColorHex(queenMarkingColor)
   const effectiveMelari = Math.min(melariCount, 2)
 
   // Build layout bottom-up, then flip to top-down coordinates
@@ -88,9 +93,14 @@ export function HiveSchematic({
       {/* Nido */}
       <rect x={NIDO_X} y={nidoY} width={NIDO_W} height={NIDO_H} fill="#5A4830" rx={2} />
 
-      {/* Queen */}
+      {/* Queen — crown + color dot centered as group */}
       {hasActiveQueen === true && (
-        <text x={SVG_W / 2} y={nidoY + 20} textAnchor="middle" fontSize={18} fill="#E5A938">♛</text>
+        <text x={SVG_W / 2} y={nidoY + 20} textAnchor="middle" fontSize={18} fill="#E5A938">
+          ♛{queenColor && <tspan fill={queenColor} fontSize={11}> ●</tspan>}
+        </text>
+      )}
+      {hasActiveQueen === false && (
+        <text x={SVG_W / 2} y={nidoY + 20} textAnchor="middle" fontSize={16} fill="#FAF6ED" opacity={0.85}>⚠</text>
       )}
       {hasActiveQueen === 'non_cercata' && (
         <text x={SVG_W / 2} y={nidoY + 20} textAnchor="middle" fontSize={14} fill="#A6916C" fontFamily="Inter, system-ui, sans-serif">?</text>

@@ -21,7 +21,9 @@ interface InspectionResult {
   population: string
   notes: string
   frames: { covata: number; miele: number; polline: number; vuoti: number }
-  queenCells: string
+  hasQueenCells: boolean
+  queenCellsRemoved: string[]
+  queenCellsRemaining: string[]
   pathologies: string[]
   pollenIncoming: boolean
   varroaCount: string
@@ -70,7 +72,9 @@ SCHEMA DEL JSON RICHIESTO:
   "population": "debole" | "media" | "forte",
   "notes": string,
   "frames": { "covata": number (0-20), "miele": number (0-20), "polline": number (0-20), "vuoti": number (0-20) },
-  "queenCells": "nessuna" | "scorta" | "sciamatura" | "sostituzione",
+  "hasQueenCells": boolean,
+  "queenCellsRemoved": ["dry_cup", "egg_cup", "larvae_cup", "closed_cell"],
+  "queenCellsRemaining": ["dry_cup", "egg_cup", "larvae_cup", "closed_cell"],
   "pathologies": ["varroa", "peste_americana", "peste_europea", "covata_calcificata", "nosema", "virus", "altro"],
   "pollenIncoming": boolean,
   "varroaCount": string (es. "5", "12", ""),
@@ -85,7 +89,7 @@ DETTAGLIO CAMPI:
 - brood: tre stadi indipendenti che possono coesistere. uova = uova fresche, larve = covata aperta/vermetti, opercolata = covata chiusa/stamperella. Se uno stadio non menzionato usa null. Se covata assente, hasBrood=false e tutti null.
 - population: "debole" (pochi telaini coperti), "media", "forte" (arnia piena)
 - frames: numero telaini 0-20. covata = covata, miele = miele, polline = polline, vuoti = telaini vuoti
-- queenCells: "nessuna" (0), "scorta" (celle scorta), "sciamatura" (celle sciamatura), "sostituzione" (celle sostituzione)
+- hasQueenCells: true se menzionate celle reali. queenCellsRemoved: celle reali TOLTE/DISTRUTTE (indice febbre sciamatoria). queenCellsRemaining: celle reali LASCIATE (per sostituzione o famiglia orfana). Tipi: ["dry_cup"] (cupolino secco), ["egg_cup"] (cupolino con uovo), ["larvae_cup"] (cupolino con larva), ["closed_cell"] (cella chiusa). "tolte celle reali" → removete, "lasciate celle reali" → remaining.
 - pathologies: "varroa" (acaro), "peste_americana", "peste_europea", "covata_calcificata", "nosema", "virus", "altro"
 - varroaCount: conta acari come stringa numero es. "5". "" se non misurata.
 - varroaMethod: "caduta_naturale", "lavaggio_alcol", "zucchero_velo", "altro"
@@ -96,7 +100,7 @@ DETTAGLIO CAMPI:
 
 REGOLE:
 1. Se un valore non è menzionato, usa il valore predefinito
-2. Predefiniti: queen="non_cercata", hasBrood=true, population="media", queenCells="nessuna", pollenIncoming=false, frames={0,0,0,0}, behavior="calmo", varroaMethod="caduta_naturale", varroaCount="", notes="", pathologies=[], interventions=[]
+2. Predefiniti: queen="non_cercata", hasBrood=true, population="media", hasQueenCells=false, queenCellsRemoved=[], queenCellsRemaining=[], pollenIncoming=false, frames={0,0,0,0}, behavior="calmo", varroaMethod="caduta_naturale", varroaCount="", notes="", pathologies=[], interventions=[]
 3. Pathologies e interventions sono array di stringhe (anche vuoti)
 4. varroaCount come stringa numerica o stringa vuota
 5. Includi SEMPRE la trascrizione originale nel campo "transcript"
@@ -181,7 +185,9 @@ function validateResult(result: unknown): result is InspectionResult {
   if (typeof r.hasBrood !== 'boolean') return false
   if (typeof r.population !== 'string') return false
   if (typeof r.notes !== 'string') return false
-  if (typeof r.queenCells !== 'string') return false
+  if (typeof r.hasQueenCells !== 'boolean') return false
+  if (!Array.isArray(r.queenCellsRemoved)) return false
+  if (!Array.isArray(r.queenCellsRemaining)) return false
   if (typeof r.pollenIncoming !== 'boolean') return false
   if (typeof r.varroaCount !== 'string') return false
   if (typeof r.varroaMethod !== 'string') return false

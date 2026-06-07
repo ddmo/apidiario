@@ -4,8 +4,8 @@ import { Input } from '@/components/ui/input'
 import { SectionLabel } from './components/section-label'
 import { QueenSightingPicker } from './components/queen-sighting-picker'
 import { BroodStageToggles } from './components/brood-stage-toggles'
+import { QueenCellsGrid } from './components/queen-cells-grid'
 import { FrameCounter } from './components/frame-counter'
-import { QueenCellsSelector } from './components/queen-cells-selector'
 import { PathologyChip } from './components/pathology-chip'
 import { InspectionNoteField } from './components/inspection-note-field'
 import { InspectionMediaPicker } from './components/inspection-media-picker'
@@ -147,8 +147,48 @@ export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes
       </section>
 
       <section>
-        <SectionLabel required>Celle reali</SectionLabel>
-        <QueenCellsSelector value={state.queenCells} onChange={(v) => onUpdate('queenCells', v)} dirty={d('queenCells')} />
+        <SectionLabel>Celle reali</SectionLabel>
+        <button
+          type="button"
+          aria-pressed={state.hasQueenCells}
+          onClick={() => onUpdate('hasQueenCells', !state.hasQueenCells)}
+          className={`w-full h-12 rounded-md border px-4 flex items-center justify-between transition-colors ${state.hasQueenCells ? 'bg-honey-300/60 border-honey-500 text-wood-800' : 'bg-cream-50 border-cream-200 text-wood-500'}`}
+        >
+          <span className="text-sm font-medium">
+            {state.hasQueenCells ? 'Celle reali presenti' : 'Nessuna cella reale'}
+          </span>
+          <span className={`h-6 w-10 rounded-full p-0.5 transition-colors duration-150 ${state.hasQueenCells ? 'bg-honey-500' : 'bg-cream-200'}`}>
+            <span className={`block size-5 rounded-full bg-cream-50 transition-transform ${state.hasQueenCells ? 'translate-x-4' : 'translate-x-0'}`} />
+          </span>
+        </button>
+        {state.hasQueenCells && (
+          <div className="mt-3 flex flex-col gap-3">
+            <QueenCellsGrid
+              title="Tolte"
+              selected={state.queenCellsRemoved}
+              onToggle={(v) => {
+                const remaining = state.queenCellsRemaining.filter((t) => t !== v)
+                const removed = state.queenCellsRemoved.includes(v)
+                  ? state.queenCellsRemoved.filter((t) => t !== v)
+                  : [...state.queenCellsRemoved, v]
+                onUpdate('queenCellsRemoved', removed)
+                onUpdate('queenCellsRemaining', remaining)
+              }}
+            />
+            <QueenCellsGrid
+              title="Lasciate"
+              selected={state.queenCellsRemaining}
+              onToggle={(v) => {
+                const removed = state.queenCellsRemoved.filter((t) => t !== v)
+                const remaining = state.queenCellsRemaining.includes(v)
+                  ? state.queenCellsRemaining.filter((t) => t !== v)
+                  : [...state.queenCellsRemaining, v]
+                onUpdate('queenCellsRemoved', removed)
+                onUpdate('queenCellsRemaining', remaining)
+              }}
+            />
+          </div>
+        )}
       </section>
 
       <section>
@@ -216,6 +256,8 @@ export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes
         <textarea
           rows={2}
           placeholder="Altri interventi…"
+          value={state.otherInterventions}
+          onChange={(e) => onUpdate('otherInterventions', e.target.value)}
           className="w-full bg-cream-50 border border-cream-200 rounded-md px-4 py-2.5 text-sm text-wood-700 placeholder:text-wood-400 focus:border-honey-500 focus:outline-none focus:ring-2 focus:ring-honey-500/20 resize-none"
         />
       </section>

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, type ReactNode, type MouseEvent } from 'react'
 
-interface SwipeableRowProps {
+interface SwipeableRowProps extends React.HTMLAttributes<HTMLDivElement> {
   children: ReactNode
   revealContent: ReactNode
   revealWidth?: number
@@ -9,7 +9,7 @@ interface SwipeableRowProps {
 // Module-level registry — when a row opens, all others close
 const closeRegistry = new Set<() => void>()
 
-export function SwipeableRow({ children, revealContent, revealWidth = 84 }: SwipeableRowProps) {
+export function SwipeableRow({ children, revealContent, revealWidth = 84, ...rest }: SwipeableRowProps) {
   const startRef = useRef<{ x: number; y: number } | null>(null)
   const trackingRef = useRef(false)
   const swipedRef = useRef(false)
@@ -81,12 +81,8 @@ export function SwipeableRow({ children, revealContent, revealWidth = 84 }: Swip
     }
   }
 
-  function close() {
-    snapTo(0)
-  }
-
   return (
-    <div className="relative overflow-hidden rounded-xl">
+    <div className="relative overflow-hidden rounded-xl" {...rest}>
       {/* Grid: content + panel at equal heights */}
       <div
         style={{

@@ -27,12 +27,13 @@ export function HivePickerSheet({ open, onClose }: HivePickerSheetProps) {
   })
 
   const { data: hives, isPending: loadingHives } = useQuery({
-    queryKey: ['hives', 'attiva'],
+    queryKey: ['hives', 'attiva', 'not-archived'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('hives')
         .select('id, identifier, apiary_id')
         .eq('status', 'attiva')
+        .is('archived_at', null)
         .order('identifier')
       if (error) throw error
       return data

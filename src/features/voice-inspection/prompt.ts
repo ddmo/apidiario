@@ -18,7 +18,9 @@ SCHEMA DEL JSON RICHIESTO:
   "population": "debole" | "media" | "forte",
   "notes": string (appunti liberi),
   "frames": { "covata": number (telaini di covata), "miele": number (telaini di miele), "polline": number (telaini di polline) },
-  "queenCells": "nessuna" | "qualcuna" | "molte",
+  "hasQueenCells": boolean,
+  "queenCellsRemoved": ["dry_cup", "egg_cup", "larvae_cup", "closed_cell"],
+  "queenCellsRemaining": ["dry_cup", "egg_cup", "larvae_cup", "closed_cell"],
   "pathologies": ["varroa", "peste_americana", "peste_europea", "covata_calcificata", "nosema", "virus", "altro"],
   "pollenIncoming": boolean,
   "varroaCount": string (es. "5", "12"),
@@ -34,7 +36,7 @@ GUIDA MAPPA TERMINOLOGICA:
 - "uova", "larve", "covata aperta" → brood.uova / brood.larve. "opercolata" / "stamperella" → brood.opercolata
 - "popolazione debole/media/forte" → population
 - "telaini covata" / "telai di covata" → frames.covata. "telaini miele" → frames.miele. "polline" → frames.polline
-- "celle reali" → queenCells: nessuna=0, qualcuna=1-3, molte=più di 3
+- "celle reali" → hasQueenCells: true. "tolte/distrutte" → queenCellsRemoved, "lasciate" → queenCellsRemaining. Tipi: "dry_cup" (cupolino secco), "egg_cup" (cupolino con uovo), "larvae_cup" (cupolino con larva), "closed_cell" (cella chiusa)
 - "varroa" / "acaro" → pathology varroa. "peste americana/europea", "covata calcificata", "nosema"
 - "conta varroa" + numero → varroaCount. "caduta" / "alcol" / "zucchero" → varroaMethod
 - "calmo/nervoso/aggressivo" → behavior
@@ -42,7 +44,7 @@ GUIDA MAPPA TERMINOLOGICA:
 
 REGOLE:
 1. Se un valore non è menzionato, usa il valore predefinito
-2. Predefiniti: queen="non_cercata", hasBrood=true, population="media", queenCells="nessuna", pollenIncoming=false, frames={0,0,0}, behavior="calmo", varroaMethod="caduta_naturale", varroaCount="", notes="", pathologies=[], interventions=[]
+2. Predefiniti: queen="non_cercata", hasBrood=true, population="media", hasQueenCells=false, queenCellsRemoved=[], queenCellsRemaining=[], pollenIncoming=false, frames={0,0,0}, behavior="calmo", varroaMethod="caduta_naturale", varroaCount="", notes="", pathologies=[], interventions=[]
 3. Pathologies e interventions sono array di stringhe (anche vuoti)
 4. varroaCount come stringa numerica o stringa vuota
 5. Includi SEMPRE la trascrizione originale nel campo "transcript"

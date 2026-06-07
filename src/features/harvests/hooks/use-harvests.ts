@@ -83,8 +83,9 @@ export function useDeleteHarvest() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('harvests').delete().eq('id', id)
+      const { data, error } = await supabase.from('harvests').delete().eq('id', id).select('id')
       if (error) throw error
+      if (!data || data.length === 0) throw new Error('Nessun raccolto eliminato. Verifica i permessi.')
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [HARVESTS_KEY] })
