@@ -5,6 +5,7 @@ import { queryClient } from '@/lib/query-client'
 import { useToast } from '@/hooks/use-toast'
 import { InspectionScreen } from '@/features/inspections/inspection-screen'
 import { useDeleteInspection } from '@/features/inspections/hooks/use-inspections'
+import { logActivity } from '@/lib/activity-log'
 import type { InspectionFormState, InspectionMode } from '@/features/inspections/types'
 import type { TablesUpdate } from '@/types/database'
 
@@ -98,12 +99,14 @@ function EditInspectionPage() {
         .update(payload)
         .eq('id', inspectionId)
       if (error) throw error
+      return s.user.id
     },
-    onSuccess: () => {
+    onSuccess: (userId) => {
       void queryClient.invalidateQueries({ queryKey: ['inspection', inspectionId] })
       void queryClient.invalidateQueries({ queryKey: ['inspections', hiveId] })
       void queryClient.invalidateQueries({ queryKey: ['lastInspection', hiveId] })
       void queryClient.invalidateQueries({ queryKey: ['hives'] })
+      logActivity(userId, 'update', 'inspection', hiveId, `Ispezione aggiornata per arnia ${hive?.identifier ?? hiveId}`)
       router.history.back()
     },
     onError: (err) => {

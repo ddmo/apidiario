@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-toast'
 import { InspectionScreen } from '@/features/inspections/inspection-screen'
 import { useWeatherSnapshot } from '@/lib/weather/snapshot'
+import { logActivity } from '@/lib/activity-log'
 import type { InspectionFormState } from '@/features/inspections/types'
 import type { TablesInsert } from '@/types/database'
 
@@ -109,6 +110,9 @@ function NewInspectionPage() {
       return data.id
     },
     onSuccess: (newId) => {
+      if (session?.user?.id) {
+        logActivity(session.user.id, 'insert', 'inspection', hiveId, `Nuova ispezione per arnia ${hive?.identifier ?? hiveId}`)
+      }
       showToast('Ispezione salvata', 'success')
       void queryClient.invalidateQueries({ queryKey: ['lastInspection', hiveId] })
       void queryClient.invalidateQueries({ queryKey: ['hives'] })
