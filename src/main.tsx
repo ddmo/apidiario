@@ -49,7 +49,7 @@ document.addEventListener('touchmove', (e) => {
   }
 }, { passive: false })
 
-// Register push‑only service worker (no fetch handler — no caching issues)
+// Registra service worker (workbox precaching + push notifications)
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js')
 }

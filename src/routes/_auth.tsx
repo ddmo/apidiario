@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, redirect, useRouterState } from '@tanstack/rea
 import { supabase } from '@/lib/supabase'
 import { getAuthUser } from '@/lib/auth-guard'
 import { BottomNav } from '@/components/layout/bottom-nav'
+import { SyncIndicator } from '@/components/layout/sync-indicator'
 
 export const Route = createFileRoute('/_auth')({
   beforeLoad: async () => {
@@ -19,6 +20,7 @@ function AuthLayout() {
       <main key={routeId} className="flex-1 min-h-0 max-w-lg mx-auto w-full animate-fade-in">
         <Outlet />
       </main>
+      <SyncIndicator />
       <BottomNav />
     </div>
   )
