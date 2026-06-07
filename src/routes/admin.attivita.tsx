@@ -21,6 +21,8 @@ const entityLabels: Record<string, string> = {
   apiary: 'apiario',
   hive: 'arnia',
   treatment: 'trattamento',
+  bloom_observation: 'osservazione fioritura',
+  inspection: 'ispezione',
 }
 
 function AdminActivityLogPage() {
