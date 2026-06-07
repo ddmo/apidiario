@@ -136,8 +136,8 @@ function NewInspectionPage() {
           vuoti: lastInspection.empty_frame_count ?? 0,
         },
         hasQueenCells: lastInspection.has_queen_cells ?? false,
-        queenCellsRemoved: lastInspection.queen_cells_removed ?? [],
-        queenCellsRemaining: lastInspection.queen_cells_remaining ?? [],
+        queenCellsRemoved: (lastInspection.queen_cells_removed ?? []) as InspectionFormState['queenCellsRemoved'],
+        queenCellsRemaining: (lastInspection.queen_cells_remaining ?? []) as InspectionFormState['queenCellsRemaining'],
         pollenIncoming: lastInspection.pollen_importation ?? false,
         behavior: lastInspection.behavior ?? 'calmo',
       }

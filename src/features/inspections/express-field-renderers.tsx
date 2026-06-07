@@ -9,7 +9,7 @@ import { InspectionNoteField } from './components/inspection-note-field'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import { Input } from '@/components/ui/input'
 import { PATHOLOGY_OPTIONS, VARROA_METHOD_OPTIONS, INTERVENTION_OPTIONS } from './constants'
-import type { InspectionFormState, PathologyType, VoiceNote } from './types'
+import type { InspectionFormState, VoiceNote } from './types'
 import type { ExpressField } from './express-fields-constants'
 
 const POPULATION_OPTIONS = [
@@ -24,7 +24,7 @@ const BEHAVIOR_OPTIONS = [
   { value: 'aggressivo', label: 'Aggressivo' },
 ]
 
-interface SectionContext {
+export interface SectionContext {
   state: InspectionFormState
   onUpdate: <K extends keyof InspectionFormState>(key: K, value: InspectionFormState[K]) => void
   d: (key: string) => boolean

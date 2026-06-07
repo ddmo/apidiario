@@ -45,7 +45,8 @@ function ExpressSettingsPage() {
     const idx = fields.indexOf(key)
     if (idx <= 0) return
     const next = [...fields]
-    ;[next[idx - 1], next[idx]] = [next[idx], next[idx - 1]]
+    const a = idx - 1, b = idx
+    ;[next[a]!, next[b]!] = [next[b]!, next[a]!]
     setFields(next)
   }
 
@@ -53,7 +54,8 @@ function ExpressSettingsPage() {
     const idx = fields.indexOf(key)
     if (idx < 0 || idx >= fields.length - 1) return
     const next = [...fields]
-    ;[next[idx], next[idx + 1]] = [next[idx + 1], next[idx]]
+    const a = idx, b = idx + 1
+    ;[next[a]!, next[b]!] = [next[b]!, next[a]!]
     setFields(next)
   }
 

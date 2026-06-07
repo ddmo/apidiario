@@ -169,7 +169,7 @@ export function HiveForm({ apiaryId, apiaries, photoUrl, queenData, hive, onSucc
           onSuccess: () => {
             upsertQueen({
               hiveId: hive.id,
-              markingColor: queenColor || null,
+              markingColor: (queenColor || null) as "bianco" | "giallo" | "rosso" | "verde" | "blu" | "non_marcata" | null,
               birthYear: queenBirthYear ? parseInt(queenBirthYear, 10) || null : null,
             }, {
               onSuccess: () => {

@@ -15,10 +15,10 @@ const mockOnAuthStateChange = vi.fn(() => ({
 vi.mock('@/lib/supabase', () => ({
   supabase: {
     auth: {
-      getSession: (...args: unknown[]) => mockGetSession(...args),
-      onAuthStateChange: (...args: unknown[]) => mockOnAuthStateChange(...args),
+      getSession: (...args: unknown[]) => (mockGetSession as any)(...args),
+      onAuthStateChange: (...args: unknown[]) => (mockOnAuthStateChange as any)(...args),
     },
-    from: (...args: unknown[]) => mockFrom(...args),
+    from: (...args: unknown[]) => (mockFrom as any)(...args),
   },
 }))
 
@@ -85,7 +85,7 @@ describe('useAuth', () => {
     mockSingle.mockResolvedValue({ data: profile, error: null })
 
     // Grab the callback passed to onAuthStateChange
-    const handler = mockOnAuthStateChange.mock.calls[0][0]
+    const handler = (mockOnAuthStateChange as any).mock.calls[0][0]
     act(() => handler('SIGNED_IN', newSession))
 
     await waitFor(() => {
@@ -104,7 +104,7 @@ describe('useAuth', () => {
       expect(result.current.session).not.toBeNull()
     })
 
-    const handler = mockOnAuthStateChange.mock.calls[0][0]
+    const handler = (mockOnAuthStateChange as any).mock.calls[0][0]
     act(() => handler('SIGNED_OUT', null))
 
     expect(result.current.session).toBeNull()

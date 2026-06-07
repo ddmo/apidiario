@@ -20,7 +20,7 @@ const INSP = {
   brood_eggs: true, brood_larvae: true, brood_capped: true,
   population: 'media' as const,
   brood_frame_count: 5, honey_frame_count: 3, pollen_frame_count: 2,
-  notes: null, has_queen_cells: false, queen_cells_removed: [], queen_cells_remaining: [], pollen_importation: null,
+  notes: null, has_queen_cells: false, queen_cells_removed: [], queen_cell_types: [], queen_cells_remaining: [], pollen_importation: null,
   behavior: null, pathologies: null,
   varroa_count: null, varroa_count_method: null,
   melari_count: 0, interventions: [],

@@ -43,6 +43,7 @@ function makeInsp(overrides: Partial<Inspection> = {}): Inspection {
     pollen_frame_count: null,
     notes: null,
     queen_cells_removed: [],
+	    queen_cell_types: [],
     pollen_importation: null,
     behavior: null,
     pathologies: null,

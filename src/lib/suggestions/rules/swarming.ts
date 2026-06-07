@@ -28,7 +28,7 @@ export const swarmingRoyalCellsFollowup: Rule = (ctx) => {
 function countRemovedInRecent(inspections: Inspection[], n: number): number {
   let count = 0
   for (let i = 0; i < Math.min(n, inspections.length); i++) {
-    const removed = (inspections[i].queen_cells_removed as string[] | null) ?? []
+    const removed = (inspections[i]!.queen_cells_removed as string[] | null) ?? []
     if (removed.length > 0) count++
   }
   return count
@@ -85,13 +85,13 @@ export const swarmingFever: Rule = (ctx) => {
     : score >= 4 ? 'warning' as const
     : 'info' as const
 
-  const titles: Record<string, string> = {
+  const titles: Record<string, string | undefined> = {
     critical: 'Febbre sciamatoria alta',
     warning: 'Febbre sciamatoria in aumento',
     info: 'Febbre sciamatoria bassa',
   }
 
-  const descs: Record<string, string> = {
+  const descs: Record<string, string | undefined> = {
     critical: 'Rischio sciamatura imminente. Intervento rapido consigliato.',
     warning: 'Segnali di febbre sciamatoria in aumento. Monitora e considera interventi preventivi.',
     info: 'Leggeri segnali di febbre sciamatoria. Tieni d\'occhio la colonia.',
@@ -101,8 +101,8 @@ export const swarmingFever: Rule = (ctx) => {
     id: 'swarming-fever',
     severity,
     category: 'swarming',
-    title: titles[severity],
-    description: `${descs[severity]} Fattori: ${factors.join(', ')}.`,
+    title: titles[severity] ?? '',
+    description: `${descs[severity] ?? ''} Fattori: ${factors.join(', ')}.`,
     reason: `score = ${score} (base celle tolte + aggravanti)`,
     ...(severity !== 'info' && { dueByDays: 7 }),
   }

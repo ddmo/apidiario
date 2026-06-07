@@ -26,8 +26,6 @@ export function ExpressBody({
   const [noteOpen, setNoteOpen] = useState(false)
   const d = (key: string) => dirtyFields.has(key)
   const fields = useExpressFields()
-  const showExtra = fields.length > 5
-
   const ctx: SectionContext = {
     state, onUpdate, d,
     noteOpen, setNoteOpen,
