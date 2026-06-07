@@ -351,7 +351,7 @@ export type Database = {
           id: string
           identifier: string
           installed_on: string | null
-	          main_photo_path: string | null
+          main_photo_path: string | null
           melari_count: number
           nido_frame_count: number
           notes: string | null
@@ -371,7 +371,7 @@ export type Database = {
           id?: string
           identifier: string
           installed_on?: string | null
-	          main_photo_path?: string | null
+          main_photo_path?: string | null
           melari_count?: number
           nido_frame_count?: number
           notes?: string | null
@@ -391,7 +391,7 @@ export type Database = {
           id?: string
           identifier?: string
           installed_on?: string | null
-	          main_photo_path?: string | null
+          main_photo_path?: string | null
           melari_count?: number
           nido_frame_count?: number
           notes?: string | null
@@ -483,6 +483,7 @@ export type Database = {
           brood_larvae: boolean | null
           created_at: string
           empty_frame_count: number | null
+          has_queen_cells: boolean
           hive_id: string
           honey_frame_count: number | null
           id: string
@@ -494,7 +495,9 @@ export type Database = {
           pollen_frame_count: number | null
           pollen_importation: boolean | null
           population: Database["public"]["Enums"]["population_strength"] | null
-          queen_cells: Database["public"]["Enums"]["queen_cells_type"] | null
+          queen_cell_types: Json
+          queen_cells_remaining: Json
+          queen_cells_removed: Json
           queen_seen: Database["public"]["Enums"]["queen_seen_state"]
           temperature_c: number | null
           updated_at: string
@@ -513,6 +516,7 @@ export type Database = {
           brood_larvae?: boolean | null
           created_at?: string
           empty_frame_count?: number | null
+          has_queen_cells?: boolean
           hive_id: string
           honey_frame_count?: number | null
           id?: string
@@ -524,7 +528,9 @@ export type Database = {
           pollen_frame_count?: number | null
           pollen_importation?: boolean | null
           population?: Database["public"]["Enums"]["population_strength"] | null
-          queen_cells?: Database["public"]["Enums"]["queen_cells_type"] | null
+          queen_cell_types?: Json
+          queen_cells_remaining?: Json
+          queen_cells_removed?: Json
           queen_seen?: Database["public"]["Enums"]["queen_seen_state"]
           temperature_c?: number | null
           updated_at?: string
@@ -543,6 +549,7 @@ export type Database = {
           brood_larvae?: boolean | null
           created_at?: string
           empty_frame_count?: number | null
+          has_queen_cells?: boolean
           hive_id?: string
           honey_frame_count?: number | null
           id?: string
@@ -554,7 +561,9 @@ export type Database = {
           pollen_frame_count?: number | null
           pollen_importation?: boolean | null
           population?: Database["public"]["Enums"]["population_strength"] | null
-          queen_cells?: Database["public"]["Enums"]["queen_cells_type"] | null
+          queen_cell_types?: Json
+          queen_cells_remaining?: Json
+          queen_cells_removed?: Json
           queen_seen?: Database["public"]["Enums"]["queen_seen_state"]
           temperature_c?: number | null
           updated_at?: string
@@ -709,6 +718,7 @@ export type Database = {
           created_at: string
           display_name: string
           id: string
+          onboarding_completed: boolean
           updated_at: string
         }
         Insert: {
@@ -716,6 +726,7 @@ export type Database = {
           created_at?: string
           display_name: string
           id: string
+          onboarding_completed?: boolean
           updated_at?: string
         }
         Update: {
@@ -723,6 +734,7 @@ export type Database = {
           created_at?: string
           display_name?: string
           id?: string
+          onboarding_completed?: boolean
           updated_at?: string
         }
         Relationships: []
@@ -964,6 +976,24 @@ export type Database = {
           },
         ]
       }
+      user_inspection_preferences: {
+        Row: {
+          express_fields: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          express_fields?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          express_fields?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -995,6 +1025,10 @@ export type Database = {
         Args: { object_name: string }
         Returns: boolean
       }
+      storage_can_delete_hive_media: {
+        Args: { object_name: string }
+        Returns: boolean
+      }
       storage_can_delete_inspection_media: {
         Args: { object_name: string }
         Returns: boolean
@@ -1003,11 +1037,19 @@ export type Database = {
         Args: { object_name: string }
         Returns: boolean
       }
+      storage_can_read_hive_media: {
+        Args: { object_name: string }
+        Returns: boolean
+      }
       storage_can_read_inspection_media: {
         Args: { object_name: string }
         Returns: boolean
       }
       storage_can_write_apiary_media: {
+        Args: { object_name: string }
+        Returns: boolean
+      }
+      storage_can_write_hive_media: {
         Args: { object_name: string }
         Returns: boolean
       }
