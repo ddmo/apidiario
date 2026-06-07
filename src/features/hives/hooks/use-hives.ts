@@ -400,7 +400,7 @@ export function useUpsertQueen() {
       birthYear,
     }: {
       hiveId: string
-      markingColor: string | null
+      markingColor: QueenMarkingColor | null
       birthYear: number | null
     }) => {
       const { data: existing } = await supabase
@@ -411,7 +411,7 @@ export function useUpsertQueen() {
         .maybeSingle()
 
       const payload = {
-        marking_color: markingColor as QueenMarkingColor | null,
+        marking_color: markingColor ?? undefined,
         birth_year: birthYear,
         start_date: existing ? undefined : new Date().toISOString().slice(0, 10),
       }
