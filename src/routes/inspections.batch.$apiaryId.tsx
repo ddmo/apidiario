@@ -26,8 +26,8 @@ export const Route = createFileRoute('/inspections/batch/$apiaryId')({
         : [] as string[],
   }),
   beforeLoad: async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) throw redirect({ to: '/login' })
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw redirect({ to: '/login' })
   },
   component: BatchInspectionPage,
 })
@@ -603,7 +603,7 @@ function PerHiveEditSheet({
   function handleSave() {
     const override: Partial<InspectionFormState> = {}
     for (const key of form.dirtyFields) {
-      ;(override as any)[key] = form.state[key as keyof InspectionFormState]
+      ;(override as Partial<Record<keyof InspectionFormState, unknown>>)[key as keyof InspectionFormState] = form.state[key as keyof InspectionFormState]
     }
     onSave(override)
   }

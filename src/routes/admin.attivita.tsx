@@ -5,8 +5,10 @@ import { ArrowLeft } from 'lucide-react'
 
 export const Route = createFileRoute('/admin/attivita')({
   beforeLoad: async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) throw redirect({ to: '/login' })
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw redirect({ to: '/login' })
+    const { data: isAdmin } = await supabase.rpc('is_app_admin')
+    if (!isAdmin) throw redirect({ to: '/' })
   },
   component: AdminActivityLogPage,
 })

@@ -45,7 +45,13 @@ export function useRecentActivityByOthers() {
         .order('performed_at', { ascending: false })
         .limit(20)
 
-      const items: ActivityItem[] = (inspections ?? []).map((row: any) => {
+      type InspRow = {
+        id: string; hive_id: string; performed_at: string; performed_by: string
+        queen_seen: string | null; population: string | null; honey_frame_count: number | null
+        hives: { identifier: string; apiary_id: string; apiaries: { name: string } }
+        profiles: { display_name: string } | null
+      }
+      const items: ActivityItem[] = (inspections as unknown as InspRow[] ?? []).map((row) => {
         const tags: ActivityTag[] = []
         if (row.queen_seen === 'vista') tags.push({ type: 'queen_seen', label: 'regina vista' })
         if (row.population === 'forte') tags.push({ type: 'population', label: 'forte' })
@@ -62,7 +68,7 @@ export function useRecentActivityByOthers() {
           apiaryId: row.hives.apiary_id,
           apiaryName: row.hives.apiaries.name,
           inspectorId: row.performed_by,
-          inspectorName: row.profiles.display_name,
+          inspectorName: row.profiles?.display_name ?? '',
           inspectedAt: row.performed_at,
           tags,
         }
@@ -77,8 +83,11 @@ export function useRecentActivityByOthers() {
         .order('created_at', { ascending: false })
         .limit(20)
 
-      for (const t of treatments ?? []) {
-        const row = t as any
+      type TreatRow = {
+        id: string; product_name: string; apiary_id: string; created_at: string; performed_by: string
+        apiaries: { name: string }; performer: { display_name: string } | null
+      }
+      for (const row of (treatments as unknown as TreatRow[]) ?? []) {
         items.push({
           id: 'treatment-' + row.id,
           type: 'treatment',

@@ -68,7 +68,6 @@ export function HiveCard({ hive, onDelete, showSchematic = true, swarmingFeverSe
   const [offsetX, setOffsetX] = useState(0)
   const [revealed, setRevealed] = useState(false)
   const [animate, setAnimate] = useState(false)
-
   function snapTo(px: number) {
     setAnimate(true)
     setOffsetX(px)
@@ -294,13 +293,28 @@ export function HiveCard({ hive, onDelete, showSchematic = true, swarmingFeverSe
               <div className="flex flex-col gap-1 flex-1 min-w-0 px-3 py-2">
                 {/* Row 1: Name + Last inspection */}
                 <div className="flex items-center justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="font-semibold text-wood-800 text-base leading-tight truncate">
-                      {hive.identifier}
-                    </p>
-                    {hive.apiaryName && (
-                      <p className="text-xs text-honey-600 font-medium truncate">{hive.apiaryName}</p>
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    {swarmingFeverSeverity && (
+                      <Thermometer
+                        size={16}
+                        strokeWidth={1.75}
+                        aria-label={FEVER_LABELS[swarmingFeverSeverity]}
+                        title={FEVER_LABELS[swarmingFeverSeverity]}
+                        className={
+                          swarmingFeverSeverity === 'critical' ? 'text-danger-500' :
+                          swarmingFeverSeverity === 'warning' ? 'text-amber-500' :
+                          'text-wood-400'
+                        }
+                      />
                     )}
+                    <div className="min-w-0">
+                      <p className="font-semibold text-wood-800 text-base leading-tight truncate">
+                        {hive.identifier}
+                      </p>
+                      {hive.apiaryName && (
+                        <p className="text-xs text-honey-600 font-medium truncate">{hive.apiaryName}</p>
+                      )}
+                    </div>
                   </div>
                   <p className="text-[10px] text-wood-400 shrink-0 flex items-center gap-1">
                     <ClipboardCheck size={10} className="shrink-0" />
@@ -329,28 +343,19 @@ export function HiveCard({ hive, onDelete, showSchematic = true, swarmingFeverSe
                     compact
                   />
                   <div className="flex items-center gap-1.5 ml-auto">
-                    {swarmingFeverSeverity && (
-                      <div
-                        className={`size-8 flex items-center justify-center rounded-md border transition-colors cursor-default ${FEVER_STYLES[swarmingFeverSeverity]}`}
-                        aria-label={FEVER_LABELS[swarmingFeverSeverity]}
-                        title={FEVER_LABELS[swarmingFeverSeverity]}
-                      >
-                        <Thermometer size={16} strokeWidth={1.75} />
-                      </div>
-                    )}
                     <button
                       type="button"
                       aria-label={t.hive.card.apiscampo}
                       onClick={() =>
                         toggle({ hiveId: hive.id, field: 'has_apiscampo', value: !hive.hasApiscampo })
                       }
-                      className={`size-8 flex items-center justify-center rounded-md border transition-colors active:scale-[0.97] ${
+                      className={`size-9 flex items-center justify-center rounded-md border transition-colors active:scale-[0.97] ${
                         hive.hasApiscampo
                           ? 'bg-wood-500 border-wood-600 text-white'
                           : 'bg-cream-50 border-cream-200 text-wood-400'
                       }`}
                     >
-                      <DoorOpen size={16} strokeWidth={1.75} />
+                      <DoorOpen size={18} strokeWidth={1.75} />
                     </button>
                     <button
                       type="button"
@@ -358,13 +363,13 @@ export function HiveCard({ hive, onDelete, showSchematic = true, swarmingFeverSe
                       onClick={() =>
                         toggle({ hiveId: hive.id, field: 'has_propolis_net', value: !hive.hasPropolisNet })
                       }
-                      className={`size-8 flex items-center justify-center rounded-md border transition-colors active:scale-[0.97] ${
+                      className={`size-9 flex items-center justify-center rounded-md border transition-colors active:scale-[0.97] ${
                         hive.hasPropolisNet
                           ? 'bg-success-500 border-success-500 text-white'
                           : 'bg-cream-50 border-cream-200 text-wood-400'
                       }`}
                     >
-                      <Grid3x3 size={16} strokeWidth={1.75} />
+                      <Grid3x3 size={18} strokeWidth={1.75} />
                     </button>
                     <button
                       type="button"
@@ -372,13 +377,13 @@ export function HiveCard({ hive, onDelete, showSchematic = true, swarmingFeverSe
                       onClick={() =>
                         toggle({ hiveId: hive.id, field: 'has_pollen_trap', value: !hive.hasPollenTrap })
                       }
-                      className={`size-8 flex items-center justify-center rounded-md border transition-colors active:scale-[0.97] ${
+                      className={`size-9 flex items-center justify-center rounded-md border transition-colors active:scale-[0.97] ${
                         hive.hasPollenTrap
                           ? 'bg-honey-500 border-honey-600 text-wood-900'
                           : 'bg-cream-50 border-cream-200 text-wood-400'
                       }`}
                     >
-                      <Flower size={16} strokeWidth={1.75} />
+                      <Flower size={18} strokeWidth={1.75} />
                     </button>
                   </div>
                 </div>

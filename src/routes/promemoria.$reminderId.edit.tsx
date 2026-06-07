@@ -7,8 +7,8 @@ import type { ReminderFormData } from '@/features/reminders/types'
 
 export const Route = createFileRoute('/promemoria/$reminderId/edit')({
   beforeLoad: async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) throw redirect({ to: '/login' })
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw redirect({ to: '/login' })
   },
   component: EditReminderPage,
 })

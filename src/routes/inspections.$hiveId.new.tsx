@@ -12,10 +12,8 @@ import type { TablesInsert } from '@/types/database'
 
 export const Route = createFileRoute('/inspections/$hiveId/new')({
   beforeLoad: async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-    if (!session) throw redirect({ to: '/login' })
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw redirect({ to: '/login' })
   },
   component: NewInspectionPage,
 })
@@ -46,7 +44,7 @@ function NewInspectionPage() {
       const { data, error } = await supabase
         .from('apiaries')
         .select('id, name, latitude, longitude')
-        .eq('id', hive!.apiary_id)
+        .eq('id', hive?.apiary_id ?? '')
         .single()
       if (error) throw error
       return data
@@ -109,14 +107,14 @@ function NewInspectionPage() {
       if (error) throw error
       return data.id
     },
-    onSuccess: (newId) => {
+    onSuccess: () => {
       if (session?.user?.id) {
         logActivity(session.user.id, 'insert', 'inspection', hiveId, `Nuova ispezione per arnia ${hive?.identifier ?? hiveId}`)
       }
       showToast('Ispezione salvata', 'success')
       void queryClient.invalidateQueries({ queryKey: ['lastInspection', hiveId] })
       void queryClient.invalidateQueries({ queryKey: ['hives'] })
-      void navigate({ to: '/hives/$hiveId/inspections/$inspectionId', params: { hiveId, inspectionId: newId }, replace: true })
+      router.history.back()
     },
     onError: () => {
       showToast('Salvataggio fallito. Riprova.', 'error')

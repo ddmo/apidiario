@@ -6,8 +6,8 @@ import { HiveForm } from '@/features/hives/components/hive-form'
 
 export const Route = createFileRoute('/hives/$hiveId/edit')({
   beforeLoad: async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) throw redirect({ to: '/login' })
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw redirect({ to: '/login' })
   },
   component: EditHivePage,
 })

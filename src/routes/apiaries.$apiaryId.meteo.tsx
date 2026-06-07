@@ -6,10 +6,8 @@ import { useWeatherForecast, type ForecastDay } from '@/features/weather/hooks/u
 
 export const Route = createFileRoute('/apiaries/$apiaryId/meteo')({
   beforeLoad: async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-    if (!session) throw redirect({ to: '/login' })
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw redirect({ to: '/login' })
   },
   component: MeteoPage,
 })

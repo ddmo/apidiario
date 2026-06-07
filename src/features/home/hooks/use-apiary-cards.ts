@@ -66,6 +66,7 @@ export function useApiaryCards() {
           .select('hive_id, performed_at, hives!inner(apiary_id)')
           .in('hive_id', hiveIds)
           .order('performed_at', { ascending: false })
+          .limit(hiveIds.length * 3)
 
         if (inspections) {
           const seen = new Set<string>()

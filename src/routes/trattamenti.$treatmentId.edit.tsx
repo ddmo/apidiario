@@ -8,8 +8,8 @@ import { useToast } from '@/hooks/use-toast'
 
 export const Route = createFileRoute('/trattamenti/$treatmentId/edit')({
   beforeLoad: async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) throw redirect({ to: '/login' })
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw redirect({ to: '/login' })
   },
   component: EditTreatmentPage,
 })

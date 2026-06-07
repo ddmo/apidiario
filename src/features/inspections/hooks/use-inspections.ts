@@ -22,6 +22,7 @@ export type InspectionListItem = Pick<
 export function useInspectionsByHive(hiveId: string) {
   return useQuery({
     queryKey: ['inspections', hiveId],
+    enabled: !!hiveId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('inspections')
@@ -53,6 +54,7 @@ export function useInspectionsByHive(hiveId: string) {
 export function useInspection(inspectionId: string) {
   return useQuery({
     queryKey: ['inspection', inspectionId],
+    enabled: !!inspectionId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('inspections')

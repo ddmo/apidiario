@@ -9,8 +9,8 @@ type Status = 'idle' | 'loading' | 'error' | 'success'
 
 export const Route = createFileRoute('/set-password')({
   beforeLoad: async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
       throw redirect({ to: '/login' })
     }
   },

@@ -1,14 +1,14 @@
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useExpressFields, useUpdateExpressFields } from '@/features/inspections/hooks/use-express-fields'
 import { EXPRESS_FIELD_OPTIONS, type ExpressField } from '@/features/inspections/express-fields-constants'
 import { useToast } from '@/hooks/use-toast'
 
 export const Route = createFileRoute('/_auth/impostazioni/ispezione-express')({
   beforeLoad: async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) throw redirect({ to: '/login' })
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw redirect({ to: '/login' })
   },
   component: ExpressSettingsPage,
 })
@@ -22,10 +22,12 @@ function ExpressSettingsPage() {
   const { showToast } = useToast()
 
   const [fields, setFields] = useState<ExpressField[]>([])
+  const hasInitialized = useRef(false)
 
-  // Sync when query returns fresh data
+  // Populate from DB on first non-empty result; ignore subsequent refetches to preserve edits
   useEffect(() => {
-    if (savedFields.length > 0) {
+    if (!hasInitialized.current && savedFields.length > 0) {
+      hasInitialized.current = true
       setFields(savedFields)
     }
   }, [savedFields])

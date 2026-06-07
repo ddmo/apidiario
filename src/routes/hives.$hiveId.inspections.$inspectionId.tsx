@@ -11,10 +11,8 @@ import type { TablesUpdate } from '@/types/database'
 
 export const Route = createFileRoute('/hives/$hiveId/inspections/$inspectionId')({
   beforeLoad: async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-    if (!session) throw redirect({ to: '/login' })
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw redirect({ to: '/login' })
   },
   component: EditInspectionPage,
 })
@@ -44,7 +42,7 @@ function EditInspectionPage() {
       const { data, error } = await supabase
         .from('apiaries')
         .select('id, name')
-        .eq('id', hive!.apiary_id)
+        .eq('id', hive?.apiary_id ?? '')
         .single()
       if (error) throw error
       return data
@@ -101,11 +99,13 @@ function EditInspectionPage() {
       if (error) throw error
       return s.user.id
     },
-    onSuccess: (userId) => {
-      void queryClient.invalidateQueries({ queryKey: ['inspection', inspectionId] })
-      void queryClient.invalidateQueries({ queryKey: ['inspections', hiveId] })
-      void queryClient.invalidateQueries({ queryKey: ['lastInspection', hiveId] })
-      void queryClient.invalidateQueries({ queryKey: ['hives'] })
+    onSuccess: async (userId) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['inspection', inspectionId] }),
+        queryClient.invalidateQueries({ queryKey: ['inspections', hiveId] }),
+        queryClient.invalidateQueries({ queryKey: ['lastInspection', hiveId] }),
+        queryClient.invalidateQueries({ queryKey: ['hives'] }),
+      ])
       logActivity(userId, 'update', 'inspection', hiveId, `Ispezione aggiornata per arnia ${hive?.identifier ?? hiveId}`)
       router.history.back()
     },

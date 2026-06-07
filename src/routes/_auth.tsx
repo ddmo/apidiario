@@ -4,12 +4,8 @@ import { BottomNav } from '@/components/layout/bottom-nav'
 
 export const Route = createFileRoute('/_auth')({
   beforeLoad: async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-    if (!session) {
-      throw redirect({ to: '/login' })
-    }
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw redirect({ to: '/login' })
   },
   component: AuthLayout,
 })

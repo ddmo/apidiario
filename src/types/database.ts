@@ -1013,12 +1013,30 @@ export type Database = {
         }
         Returns: undefined
       }
+      get_active_user_counts: {
+        Args: Record<string, never>
+        Returns: { active_7d: number; active_30d: number }[]
+      }
       get_storage_usage: {
         Args: { bucket_name: string }
         Returns: {
           total_files: number
           total_size: number
         }[]
+      }
+      get_user_activity_stats: {
+        Args: Record<string, never>
+        Returns: {
+          user_id: string
+          display_name: string
+          inspection_count: number
+          last_inspection_at: string | null
+          last_active_at: string | null
+        }[]
+      }
+      get_weekly_inspection_counts: {
+        Args: { weeks_back?: number }
+        Returns: { week_start: string; count: number }[]
       }
       is_app_admin: { Args: never; Returns: boolean }
       storage_can_delete_apiary_media: {

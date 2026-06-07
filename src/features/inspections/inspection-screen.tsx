@@ -294,8 +294,14 @@ export function InspectionScreen({
         )}
       </div>
 
-      {/* Submit bar */}
-      <FormSubmitBar onCancel={handleBack} onSave={handleSave} isSaving={isSaving} saveDisabled={!hasChanges} />
+      {/* Submit bar — locked while media is uploading to avoid saving incomplete files */}
+      <FormSubmitBar
+        onCancel={handleBack}
+        onSave={handleSave}
+        isSaving={isSaving}
+        saveDisabled={!hasChanges || mediaUploading}
+        saveLabel={mediaUploading ? 'Upload foto in corso…' : undefined}
+      />
 
       {/* Unsaved changes sheet */}
       <UnsavedChangesSheet
@@ -426,6 +432,14 @@ function VoiceModeView({
 
   // idle or recording
   const isRecording = status === 'recording'
+  const [elapsed, setElapsed] = useState(0)
+  useEffect(() => {
+    if (!isRecording) { setElapsed(0); return }
+    const id = setInterval(() => setElapsed((e) => e + 1), 1000)
+    return () => clearInterval(id)
+  }, [isRecording])
+  const fmtElapsed = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+
   return (
     <div className="flex flex-col items-center justify-center h-full px-8 py-16 select-none">
       <button
@@ -452,6 +466,21 @@ function VoiceModeView({
           ? 'Tocca il pulsante per fermare'
           : 'Tocca il microfono e parla a voce alta'}
       </p>
+      {!isRecording && (
+        <p className="text-xs text-wood-400 mt-2">Massimo 60 secondi</p>
+      )}
+      {isRecording && (
+        <div className="mt-5 flex flex-col items-center gap-2 w-40">
+          <p className="text-xl font-mono tabular-nums text-wood-700">{fmtElapsed(elapsed)}</p>
+          <div className="w-full h-1 rounded-full bg-cream-200 overflow-hidden">
+            <div
+              className="h-full bg-danger-500 transition-all duration-1000"
+              style={{ width: `${Math.min((elapsed / 60) * 100, 100)}%` }}
+            />
+          </div>
+          <p className="text-xs text-wood-400">max 1:00</p>
+        </div>
+      )}
     </div>
   )
 }

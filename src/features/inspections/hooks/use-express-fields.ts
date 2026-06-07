@@ -42,5 +42,6 @@ export function useUpdateExpressFields() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['expressFields'] })
     },
+    onError: (err) => { console.error("[src/features/inspections/hooks/use-express-fields.ts] mutation failed", err) },
   })
 }

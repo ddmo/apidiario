@@ -1,6 +1,8 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Trees, Share2, Trash2, Pencil, AlertTriangle, CloudRain, FlaskRound, X, Flower2, Syringe, Bell } from 'lucide-react'
 import { useState, Fragment } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { supabase } from '@/lib/supabase'
 import { useApiaryCards } from '@/features/home/hooks/use-apiary-cards'
 import { useTodaysAlerts } from '@/features/home/hooks/use-home-alerts'
 import { useRecentActivityByOthers, type ActivityItem } from '@/features/home/hooks/use-recent-activity'
@@ -56,17 +58,31 @@ function HomePage() {
   const { showToast } = useToast()
   useAuth()
 
-  const { data: apiaries, isLoading, isError } = useApiaries()
+  const { data: apiaries, isLoading, isError, refetch } = useApiaries()
   const { mutate: deleteApiary } = useDeleteApiary()
+
+  const [shareTarget, setShareTarget] = useState<{ id: string; name: string } | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
+  const [swipeResetKey, setSwipeResetKey] = useState(0)
+
+  const { data: targetHiveCount } = useQuery({
+    queryKey: ['apiary-hive-count', deleteTarget?.id],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from('hives')
+        .select('*', { count: 'exact', head: true })
+        .eq('apiary_id', deleteTarget!.id)
+        .is('archived_at', null)
+      return count ?? 0
+    },
+    enabled: !!deleteTarget,
+    staleTime: 0,
+  })
 
   const { alerts, isLoading: alertsLoading } = useTodaysAlerts()
   const { data: activities, isLoading: activityLoading } = useRecentActivityByOthers()
   const { data: cards } = useApiaryCards()
   const { data: upcomingReminders } = useUpcomingReminders()
-
-  const [shareTarget, setShareTarget] = useState<{ id: string; name: string } | null>(null)
-  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
-  const [swipeResetKey, setSwipeResetKey] = useState(0)
 
   // Dismissed alerts — persisted in localStorage
   const [dismissed, setDismissed] = useState<Set<string>>(() => {
@@ -273,8 +289,15 @@ function HomePage() {
           )}
 
           {isError && (
-            <div className="flex items-center justify-center py-10">
+            <div className="flex flex-col items-center gap-3 py-10">
               <p className="text-sm text-danger-500">{t.common.error}</p>
+              <button
+                type="button"
+                onClick={() => void refetch()}
+                className="text-xs font-semibold text-honey-600 hover:text-honey-700 transition-colors px-3 py-1.5 rounded-md hover:bg-cream-100"
+              >
+                Riprova
+              </button>
             </div>
           )}
 
@@ -464,7 +487,11 @@ function HomePage() {
             <div className="px-5 pt-3 pb-4">
               <h2 className="text-lg font-semibold text-wood-800 mb-1">Elimina apiario</h2>
               <p className="text-sm text-wood-500 leading-relaxed">
-                Eliminare <strong>{deleteTarget.name}</strong>? Tutte le arnie e ispezioni associate verranno rimosse. L&rsquo;operazione non pu&ograve; essere annullata.
+                Eliminare <strong>{deleteTarget.name}</strong>?{' '}
+                {targetHiveCount != null
+                  ? <>Verranno rimosse <strong>{targetHiveCount} {targetHiveCount === 1 ? 'arnia' : 'arnie'}</strong> e tutte le ispezioni associate.</>
+                  : 'Tutte le arnie e ispezioni associate verranno rimosse.'}
+                {' '}L&rsquo;operazione non pu&ograve; essere annullata.
               </p>
             </div>
             <div className="px-4 flex flex-col gap-2 [padding-bottom:calc(1rem+env(safe-area-inset-bottom))]">

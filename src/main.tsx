@@ -30,7 +30,6 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('gesturestart', (e) => {
   const tag = (e.target as HTMLElement)?.tagName?.toLowerCase()
   if (tag === 'input' || tag === 'textarea') {
-    console.log('[gesturestart] su input — permesso per dettatura')
     return
   }
   e.preventDefault()
@@ -38,7 +37,6 @@ document.addEventListener('gesturestart', (e) => {
 document.addEventListener('gesturechange', (e) => {
   const tag = (e.target as HTMLElement)?.tagName?.toLowerCase()
   if (tag === 'input' || tag === 'textarea') {
-    console.log('[gesturechange] su input — permesso per dettatura')
     return
   }
   e.preventDefault()

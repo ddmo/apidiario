@@ -185,6 +185,7 @@ export function useCreateHive() {
         }
       })
     },
+    onError: (err) => { console.error('[useCreateHive] failed', err) },
   })
 }
 
@@ -353,6 +354,7 @@ export function useUpdateHive() {
         }
       })
     },
+    onError: (err) => { console.error('[useUpdateHive] failed', err) },
   })
 }
 
@@ -377,6 +379,7 @@ export function useToggleHiveAccessory() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['hives'] })
     },
+    onError: (err) => { console.error("[src/features/hives/hooks/use-hives.ts] mutation failed", err) },
   })
 }
 
@@ -389,6 +392,7 @@ export function useUpdateMelariCount() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['hives'] })
     },
+    onError: (err) => { console.error("[src/features/hives/hooks/use-hives.ts] mutation failed", err) },
   })
 }
 
@@ -432,6 +436,7 @@ export function useUpsertQueen() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['hives'] })
     },
+    onError: (err) => { console.error("[src/features/hives/hooks/use-hives.ts] mutation failed", err) },
   })
 }
 
@@ -462,5 +467,6 @@ export function useDeleteHive() {
         }
       })
     },
+    onError: (err) => { console.error('[useDeleteHive] failed', err) },
   })
 }

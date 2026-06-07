@@ -5,10 +5,8 @@ import { HiveForm } from '@/features/hives/components/hive-form'
 
 export const Route = createFileRoute('/apiaries/$apiaryId/hives/new')({
   beforeLoad: async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-    if (!session) throw redirect({ to: '/login' })
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw redirect({ to: '/login' })
   },
   component: NewHivePage,
 })

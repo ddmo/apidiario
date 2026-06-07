@@ -86,6 +86,7 @@ export function useCreateReminder() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [REMINDERS_KEY] })
     },
+    onError: (err) => { console.error("[src/features/reminders/hooks/use-reminders.ts] mutation failed", err) },
   })
 }
 
@@ -100,6 +101,7 @@ export function useUpdateReminder() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [REMINDERS_KEY] })
     },
+    onError: (err) => { console.error("[src/features/reminders/hooks/use-reminders.ts] mutation failed", err) },
   })
 }
 
@@ -113,6 +115,7 @@ export function useCompleteReminder() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [REMINDERS_KEY] })
     },
+    onError: (err) => { console.error("[src/features/reminders/hooks/use-reminders.ts] mutation failed", err) },
   })
 }
 
@@ -127,6 +130,7 @@ export function useDeleteReminder() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [REMINDERS_KEY] })
     },
+    onError: (err) => { console.error("[src/features/reminders/hooks/use-reminders.ts] mutation failed", err) },
   })
 }
 

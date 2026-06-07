@@ -12,8 +12,8 @@ interface SearchParams {
 
 export const Route = createFileRoute('/trattamenti/new')({
   beforeLoad: async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) throw redirect({ to: '/login' })
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw redirect({ to: '/login' })
   },
   validateSearch: (params: Record<string, unknown>): SearchParams => ({
     apiaryId: typeof params.apiaryId === 'string' ? params.apiaryId : undefined,

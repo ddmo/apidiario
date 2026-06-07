@@ -7,10 +7,8 @@ import { BeeAnimation } from '@/components/animations/BeeAnimation'
 
 export const Route = createFileRoute('/login')({
   beforeLoad: async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-    if (session) {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
       throw redirect({ to: '/' })
     }
   },
