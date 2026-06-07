@@ -96,7 +96,7 @@ export function useHivesByApiary(apiaryId: string) {
       function getQueenColor(hiveId: string): QueenMarkingColor | null {
         const q = queenInfoMap.get(hiveId)
         if (!q) return null
-        if (q.marking_color && q.marking_color !== 'non_marcata') return q.marking_color
+        if (q.marking_color && q.marking_color !== 'non_marcata') return q.marking_color as QueenMarkingColor | null
         if (q.birth_year) return queenColorFromYear(q.birth_year)
         return null
       }
@@ -242,7 +242,7 @@ export function useAllHives() {
       function getQueenColor(hiveId: string): QueenMarkingColor | null {
         const q = queenInfoMap.get(hiveId)
         if (!q) return null
-        if (q.marking_color && q.marking_color !== 'non_marcata') return q.marking_color
+        if (q.marking_color && q.marking_color !== 'non_marcata') return q.marking_color as QueenMarkingColor | null
         if (q.birth_year) return queenColorFromYear(q.birth_year)
         return null
       }
@@ -411,7 +411,7 @@ export function useUpsertQueen() {
         .maybeSingle()
 
       const payload = {
-        marking_color: markingColor,
+        marking_color: markingColor as QueenMarkingColor | null,
         birth_year: birthYear,
         start_date: existing ? undefined : new Date().toISOString().slice(0, 10),
       }

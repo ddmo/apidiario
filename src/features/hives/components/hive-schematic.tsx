@@ -1,4 +1,7 @@
 import { queenColorHex } from '../queen-color'
+import type { Database } from '@/types/database'
+
+type QueenMarkingColor = Database['public']['Enums']['queen_marking_color']
 
 interface HiveSchematicProps {
   nidoFrameCount: number
@@ -7,7 +10,7 @@ interface HiveSchematicProps {
   hasPropolisNet: boolean
   hasPollenTrap: boolean
   hasActiveQueen: boolean | 'non_cercata'
-  queenMarkingColor?: string | null
+  queenMarkingColor?: QueenMarkingColor | null
 }
 
 const SVG_W  = 72
