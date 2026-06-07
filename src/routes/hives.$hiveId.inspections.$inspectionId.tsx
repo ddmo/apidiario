@@ -1,6 +1,7 @@
 import { createFileRoute, redirect, useNavigate, useRouter } from '@tanstack/react-router'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { getAuthUser } from '@/lib/auth-guard'
 import { queryClient } from '@/lib/query-client'
 import { useToast } from '@/hooks/use-toast'
 import { InspectionScreen } from '@/features/inspections/inspection-screen'
@@ -11,7 +12,7 @@ import type { TablesUpdate } from '@/types/database'
 
 export const Route = createFileRoute('/hives/$hiveId/inspections/$inspectionId')({
   beforeLoad: async () => {
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getAuthUser()
     if (!user) throw redirect({ to: '/login' })
   },
   component: EditInspectionPage,

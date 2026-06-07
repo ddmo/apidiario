@@ -7,13 +7,14 @@ import { useToast } from '@/hooks/use-toast'
 
 export const Route = createFileRoute('/_auth/impostazioni/ispezione-express')({
   beforeLoad: async () => {
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getAuthUser()
     if (!user) throw redirect({ to: '/login' })
   },
   component: ExpressSettingsPage,
 })
 
 import { supabase } from '@/lib/supabase'
+import { getAuthUser } from '@/lib/auth-guard'
 
 function ExpressSettingsPage() {
   const router = useRouter()

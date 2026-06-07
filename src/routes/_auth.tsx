@@ -1,10 +1,11 @@
 import { createFileRoute, Outlet, redirect, useRouterState } from '@tanstack/react-router'
 import { supabase } from '@/lib/supabase'
+import { getAuthUser } from '@/lib/auth-guard'
 import { BottomNav } from '@/components/layout/bottom-nav'
 
 export const Route = createFileRoute('/_auth')({
   beforeLoad: async () => {
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getAuthUser()
     if (!user) throw redirect({ to: '/login' })
   },
   component: AuthLayout,

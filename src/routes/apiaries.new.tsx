@@ -1,11 +1,12 @@
 import { createFileRoute, redirect, useNavigate, useRouter } from '@tanstack/react-router'
 import { supabase } from '@/lib/supabase'
+import { getAuthUser } from '@/lib/auth-guard'
 import { useAuth } from '@/hooks/use-auth'
 import { ApiaryForm } from '@/features/apiaries/components/apiary-form'
 
 export const Route = createFileRoute('/apiaries/new')({
   beforeLoad: async () => {
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getAuthUser()
     if (!user) throw redirect({ to: '/login' })
   },
   component: NewApiaryPage,

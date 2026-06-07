@@ -1,5 +1,6 @@
 import { createFileRoute, redirect, useNavigate, useSearch } from '@tanstack/react-router'
 import { supabase } from '@/lib/supabase'
+import { getAuthUser } from '@/lib/auth-guard'
 import { useAuth } from '@/hooks/use-auth'
 import { useCreateTreatment } from '@/features/treatments/hooks/use-treatments'
 import { TreatmentForm } from '@/features/treatments/components/treatment-form'
@@ -12,7 +13,7 @@ interface SearchParams {
 
 export const Route = createFileRoute('/trattamenti/new')({
   beforeLoad: async () => {
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getAuthUser()
     if (!user) throw redirect({ to: '/login' })
   },
   validateSearch: (params: Record<string, unknown>): SearchParams => ({

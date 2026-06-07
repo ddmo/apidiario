@@ -21,9 +21,20 @@ type PageStatus = 'loading' | 'error' | 'denied' | 'ready'
 
 export const Route = createFileRoute('/admin/users')({
   beforeLoad: async () => {
-    const { data: { user } } = await supabase.auth.getUser()
+    let user = null
+    let isAdmin = false
+    try {
+      const { data } = await supabase.auth.getUser()
+      user = data.user
+      if (user) {
+        const { data: adminData } = await supabase.rpc('is_app_admin')
+        isAdmin = adminData ?? false
+      }
+    } catch {
+      const { data: { session } } = await supabase.auth.getSession()
+      user = session?.user ?? null
+    }
     if (!user) throw redirect({ to: '/login' })
-    const { data: isAdmin } = await supabase.rpc('is_app_admin')
     if (!isAdmin) throw redirect({ to: '/' })
   },
   component: AdminUsersPage,

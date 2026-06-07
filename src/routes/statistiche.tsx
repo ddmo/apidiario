@@ -1,6 +1,7 @@
 import { createFileRoute, redirect, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { getAuthUser } from '@/lib/auth-guard'
 import { ArrowLeft, TreePine, Hexagon, ClipboardList, Syringe, Cloud, HardDrive, Mic, Users, Activity, TrendingUp } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
@@ -38,7 +39,7 @@ function StatCard({ icon: Icon, label, value, accent, sub }: {
 
 export const Route = createFileRoute('/statistiche')({
   beforeLoad: async () => {
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getAuthUser()
     if (!user) throw redirect({ to: '/login' })
   },
   component: StatistichePage,

@@ -1,12 +1,13 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { getAuthUser } from '@/lib/auth-guard'
 import { useAuth } from '@/hooks/use-auth'
 import { HiveForm } from '@/features/hives/components/hive-form'
 
 export const Route = createFileRoute('/hives/$hiveId/edit')({
   beforeLoad: async () => {
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getAuthUser()
     if (!user) throw redirect({ to: '/login' })
   },
   component: EditHivePage,

@@ -2,6 +2,7 @@ import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useState, useCallback } from 'react'
 import { ArrowLeft, Save, Droplet, Trees, X } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { getAuthUser } from '@/lib/auth-guard'
 import { useCreateHarvest } from '@/features/harvests/hooks/use-harvests'
 import { useToast } from '@/hooks/use-toast'
 import { HONEY_TYPES } from '@/features/harvests/honey-types'
@@ -9,7 +10,7 @@ import { useApiaries } from '@/features/apiaries/hooks/use-apiaries'
 
 export const Route = createFileRoute('/raccolti/new')({
   beforeLoad: async () => {
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getAuthUser()
     if (!user) throw redirect({ to: '/login' })
   },
   component: NewRaccoltoPage,

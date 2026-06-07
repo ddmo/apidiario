@@ -1,5 +1,6 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { supabase } from '@/lib/supabase'
+import { getAuthUser } from '@/lib/auth-guard'
 import { useReminder, useUpdateReminder } from '@/features/reminders/hooks/use-reminders'
 import { ReminderForm } from '@/features/reminders/components/reminder-form'
 import { useToast } from '@/hooks/use-toast'
@@ -7,7 +8,7 @@ import type { ReminderFormData } from '@/features/reminders/types'
 
 export const Route = createFileRoute('/promemoria/$reminderId/edit')({
   beforeLoad: async () => {
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getAuthUser()
     if (!user) throw redirect({ to: '/login' })
   },
   component: EditReminderPage,
