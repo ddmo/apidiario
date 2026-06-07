@@ -4,6 +4,7 @@ import { RouterProvider } from '@tanstack/react-router'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { supabase } from '@/lib/supabase'
 import { queryClient, persister, clearPersistedCache, getCachedUserId, setCachedUserId } from '@/lib/query-client'
+import { initSyncManager } from '@/lib/sync-manager'
 import { router } from '@/router'
 import { applyTheme } from '@/lib/theme'
 import '@/app.css'
@@ -53,6 +54,9 @@ document.addEventListener('touchmove', (e) => {
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js')
 }
+
+// Avvia sync manager: drena la queue quando si torna online
+initSyncManager()
 
 // Suppress harmless Supabase webauthn interceptor error (gotrue-js bug)
 window.addEventListener('error', (e) => {
