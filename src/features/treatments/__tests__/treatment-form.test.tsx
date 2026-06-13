@@ -184,19 +184,14 @@ describe('TreatmentForm — validation', () => {
     // Try to save
     await user.click(screen.getByText('Salva trattamento'))
 
-    expect(toastContext.showToast).toHaveBeenCalledWith(
-      expect.stringContaining('prodotto'),
-      'error',
-    )
+    // La validazione dei campi obbligatori usa errori inline, non toast
+    expect(await screen.findByText('Inserisci il nome del prodotto')).toBeInTheDocument()
   })
 
   it('shows error when no apiary selected', async () => {
     const { user } = renderForm()
     await user.click(screen.getByText('Salva trattamento'))
-    expect(toastContext.showToast).toHaveBeenCalledWith(
-      expect.stringContaining('apiario'),
-      'error',
-    )
+    expect(await screen.findByText('Seleziona un apiario')).toBeInTheDocument()
   })
 
   it('shows error when start date is missing', async () => {
@@ -204,10 +199,7 @@ describe('TreatmentForm — validation', () => {
     await selectOption(user, 'Apiario', 'apiary-1')
     await user.type(screen.getByLabelText('Prodotto'), 'Apivar')
     await user.click(screen.getByText('Salva trattamento'))
-    expect(toastContext.showToast).toHaveBeenCalledWith(
-      expect.stringContaining('data'),
-      'error',
-    )
+    expect(await screen.findByText('Inserisci la data di inizio')).toBeInTheDocument()
   })
 
   it('shows error when scope=specific and no hives selected', async () => {

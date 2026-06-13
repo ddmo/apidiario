@@ -1,5 +1,4 @@
 import { createFileRoute, redirect, useNavigate, useSearch } from '@tanstack/react-router'
-import { supabase } from '@/lib/supabase'
 import { getAuthUser } from '@/lib/auth-guard'
 import { useAuth } from '@/hooks/use-auth'
 import { useCreateTreatment } from '@/features/treatments/hooks/use-treatments'

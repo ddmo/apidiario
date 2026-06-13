@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
+import { supabase } from '@/lib/supabase'
 import type { InspectionFormState } from '@/features/inspections/types'
 import type { VoiceInspectionStatus, VoiceInspectionResponse } from '../types'
 
@@ -90,8 +91,14 @@ export function useVoiceInspection({ hiveId }: UseVoiceInspectionOpts = {}) {
       formData.append('audio', audioBlob, 'recording.webm')
       formData.append('context', JSON.stringify({ hiveId }))
 
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        throw new Error('Sessione scaduta. Effettua di nuovo il login.')
+      }
+
       const res = await fetch('/api/voice-inspection', {
         method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
         body: formData,
       })
 

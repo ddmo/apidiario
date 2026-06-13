@@ -455,6 +455,18 @@ function VoiceModeView({
   }
 
   // idle or recording
+  return <RecordingControls status={status} onStart={onStart} onStop={onStop} />
+}
+
+function RecordingControls({
+  status,
+  onStart,
+  onStop,
+}: {
+  status: VoiceStatus
+  onStart: () => void
+  onStop: () => void
+}) {
   const isRecording = status === 'recording'
   const [elapsed, setElapsed] = useState(0)
   useEffect(() => {

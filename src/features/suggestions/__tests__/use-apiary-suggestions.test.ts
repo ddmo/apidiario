@@ -77,7 +77,7 @@ describe('computeSuggestions', () => {
 
   it('returns pathology-followup when pathologies present', () => {
     const hive = makeHive()
-    const insp = makeInsp({ pathologies: ['varroa'] as any })
+    const insp = makeInsp({ pathologies: ['varroa' as const] })
     const result = computeSuggestions([hive], [insp], today)
     expect(result[0]!.suggestions.map((s) => s.id)).toContain('pathology-followup')
   })

@@ -299,7 +299,6 @@ export function HiveCard({ hive, onDelete, showSchematic = true, swarmingFeverSe
                         size={16}
                         strokeWidth={1.75}
                         aria-label={FEVER_LABELS[swarmingFeverSeverity]}
-                        title={FEVER_LABELS[swarmingFeverSeverity]}
                         className={
                           swarmingFeverSeverity === 'critical' ? 'text-danger-500' :
                           swarmingFeverSeverity === 'warning' ? 'text-amber-500' :

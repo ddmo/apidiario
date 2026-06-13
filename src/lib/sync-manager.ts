@@ -5,6 +5,10 @@ import type { QueryKey } from '@tanstack/react-query'
 
 let syncing = false
 
+// Oltre questo numero di tentativi falliti la mutation va in dead-letter:
+// non si ritenta più all'infinito (es. payload invalido, vincolo DB violato).
+const MAX_ATTEMPTS = 5
+
 function notifySyncState() {
   window.dispatchEvent(new CustomEvent('sync-state-changed', { detail: { syncing } }))
 }
@@ -72,7 +76,12 @@ export async function syncPending(): Promise<void> {
       }
     } catch (err) {
       console.error('[syncManager] sync fallita per', mutation.type, err)
-      await offlineQueue.incrementAttempts(mutation.id)
+      const attempts = await offlineQueue.incrementAttempts(mutation.id)
+      if (attempts >= MAX_ATTEMPTS) {
+        const message = err instanceof Error ? err.message : String(err)
+        await offlineQueue.moveToDead(mutation, message)
+        console.warn('[syncManager] mutation spostata in dead-letter dopo', attempts, 'tentativi:', mutation.type)
+      }
       // Continua con le altre mutation anche se una fallisce
     }
   }

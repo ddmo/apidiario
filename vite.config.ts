@@ -5,11 +5,15 @@ import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import { VitePWA } from 'vite-plugin-pwa'
 import { resolve } from 'path'
+import { execSync } from 'node:child_process'
+import { createRequire } from 'node:module'
+
+const require = createRequire(import.meta.url)
 
 function getVersion() {
-  const pkg = require('./package.json')
+  const pkg = require('./package.json') as { version: string }
   try {
-    const hash = require('child_process').execSync('git rev-parse --short HEAD').toString().trim()
+    const hash = execSync('git rev-parse --short HEAD').toString().trim()
     return `${pkg.version}+${hash}`
   } catch {
     return pkg.version

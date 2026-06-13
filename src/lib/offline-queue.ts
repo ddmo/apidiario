@@ -9,12 +9,24 @@ export interface PendingMutation {
   attempts: number
 }
 
+// Mutation che ha superato il numero massimo di tentativi di sync.
+// Tenuta separata per non bloccare la coda e per poterla mostrare all'utente.
+export interface DeadMutation extends PendingMutation {
+  failedAt: number
+  lastError: string
+}
+
 class OfflineQueueDb extends Dexie {
   mutations!: Table<PendingMutation, string>
+  dead!: Table<DeadMutation, string>
 
   constructor() {
     super('apidiario-offline-queue')
     this.version(1).stores({ mutations: 'id,createdAt,type' })
+    this.version(2).stores({
+      mutations: 'id,createdAt,type',
+      dead: 'id,failedAt,type',
+    })
   }
 }
 
@@ -50,7 +62,31 @@ export const offlineQueue = {
     return db.mutations.count()
   },
 
-  async incrementAttempts(id: string): Promise<void> {
-    await db.mutations.where('id').equals(id).modify(m => { m.attempts += 1 })
+  async incrementAttempts(id: string): Promise<number> {
+    await db.mutations.where('id').equals(id).modify((m) => { m.attempts += 1 })
+    const row = await db.mutations.get(id)
+    return row?.attempts ?? 0
+  },
+
+  // Sposta una mutation nel dead-letter store e la rimuove dalla coda attiva.
+  async moveToDead(m: PendingMutation, lastError: string): Promise<void> {
+    await db.transaction('rw', db.mutations, db.dead, async () => {
+      await db.dead.put({ ...m, failedAt: Date.now(), lastError })
+      await db.mutations.delete(m.id)
+    })
+    notify()
+  },
+
+  async getDead(): Promise<DeadMutation[]> {
+    return db.dead.orderBy('failedAt').toArray()
+  },
+
+  async removeDead(id: string): Promise<void> {
+    await db.dead.delete(id)
+    notify()
+  },
+
+  async deadCount(): Promise<number> {
+    return db.dead.count()
   },
 }

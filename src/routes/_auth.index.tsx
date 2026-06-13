@@ -14,6 +14,7 @@ import { SwipeableRow } from '@/components/ui/swipeable-row'
 import { ShareSheet } from '@/features/apiaries/components/share-sheet'
 import { useToast } from '@/hooks/use-toast'
 import { useAuth } from '@/hooks/use-auth'
+import { useOnlineStatus } from '@/hooks/use-online-status'
 import { cn } from '@/lib/utils'
 import { t } from '@/i18n/it'
 
@@ -58,6 +59,7 @@ function HomePage() {
   const { showToast } = useToast()
   useAuth()
 
+  const online = useOnlineStatus()
   const { data: apiaries, isLoading, isError, refetch } = useApiaries()
   const { mutate: deleteApiary } = useDeleteApiary()
 
@@ -290,14 +292,18 @@ function HomePage() {
 
           {isError && (
             <div className="flex flex-col items-center gap-3 py-10">
-              <p className="text-sm text-danger-500">{t.common.error}</p>
-              <button
-                type="button"
-                onClick={() => void refetch()}
-                className="text-xs font-semibold text-honey-600 hover:text-honey-700 transition-colors px-3 py-1.5 rounded-md hover:bg-cream-100"
-              >
-                Riprova
-              </button>
+              <p className="text-sm text-wood-400">
+                {online ? t.common.error : 'Dati non disponibili offline'}
+              </p>
+              {online && (
+                <button
+                  type="button"
+                  onClick={() => void refetch()}
+                  className="text-xs font-semibold text-honey-600 hover:text-honey-700 transition-colors px-3 py-1.5 rounded-md hover:bg-cream-100"
+                >
+                  Riprova
+                </button>
+              )}
             </div>
           )}
 

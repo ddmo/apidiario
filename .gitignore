@@ -39,7 +39,6 @@ node_modules/.tmp/
 # Supabase locale
 supabase/.branches/
 supabase/.temp/
-supabase/functions/
 
 # Cache
 .cache/
@@ -52,6 +51,10 @@ e2e/.auth.json
 
 # Impeccable live mode
 .impeccable/
+
+# Output di build/script locali
+temp/
+guide-output/
 
 coverage/
 .vite/

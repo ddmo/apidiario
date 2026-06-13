@@ -203,7 +203,7 @@ export function useTodaysAlerts() {
 
       // Species catalog
       const { data: species } = await supabase
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         .from('phenology_species')
         .select('id, common_name_it, gdd_bloom_start, gdd_bloom_peak, gdd_bloom_end, honey_relevance')
 

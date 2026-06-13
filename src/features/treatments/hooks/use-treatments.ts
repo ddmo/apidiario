@@ -86,7 +86,19 @@ export function useTreatmentsByApiary(apiaryId: string) {
 
       if (error) throw error
 
-      return (data as unknown[]).map((t: any) => ({
+      interface TreatmentRow {
+        id: string
+        product_name: string
+        start_date: string
+        end_date: string | null
+        blocks_melari: boolean
+        applies_to_all_hives: boolean
+        apiary_id: string
+        apiaries: { name: string }
+        performer?: { display_name: string | null } | null
+        treatment_hives?: unknown[]
+      }
+      return (data as unknown as TreatmentRow[]).map((t) => ({
         id: t.id,
         productName: t.product_name,
         startDate: t.start_date,

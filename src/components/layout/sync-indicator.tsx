@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { WifiOff, RefreshCw } from 'lucide-react'
+import { WifiOff, RefreshCw, AlertTriangle } from 'lucide-react'
 import { useOnlineStatus } from '@/hooks/use-online-status'
 import { getLastSyncAt } from '@/lib/query-client'
 import { offlineQueue } from '@/lib/offline-queue'
@@ -16,11 +16,15 @@ function formatSyncTime(ts: number): string {
 export function SyncIndicator() {
   const online = useOnlineStatus()
   const [pendingCount, setPendingCount] = useState(0)
+  const [deadCount, setDeadCount] = useState(0)
   const [syncing, setSyncing] = useState(false)
 
-  // Aggiorna contatore ogni volta che la queue cambia
+  // Aggiorna contatori ogni volta che la queue cambia
   useEffect(() => {
-    const refresh = () => { void offlineQueue.count().then(setPendingCount) }
+    const refresh = () => {
+      void offlineQueue.count().then(setPendingCount)
+      void offlineQueue.deadCount().then(setDeadCount)
+    }
     refresh()
     window.addEventListener('offline-queue-changed', refresh)
     return () => window.removeEventListener('offline-queue-changed', refresh)
@@ -35,12 +39,13 @@ export function SyncIndicator() {
     return () => window.removeEventListener('sync-state-changed', handler)
   }, [])
 
-  // Mostra solo se offline o se ci sono pending da sincronizzare
+  // Mostra solo se offline o se ci sono pending/falliti da sincronizzare
   const showOffline = !online
   const showSyncing = online && syncing
   const showPending = online && !syncing && pendingCount > 0
+  const showDead = online && !syncing && pendingCount === 0 && deadCount > 0
 
-  if (!showOffline && !showSyncing && !showPending) return null
+  if (!showOffline && !showSyncing && !showPending && !showDead) return null
 
   const lastSync = getLastSyncAt()
 
@@ -52,8 +57,14 @@ export function SyncIndicator() {
       style={{ bottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}
     >
       <div className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm
-        ${showOffline ? 'bg-wood-800/90 text-cream-100' : 'bg-honey-500/90 text-wood-900'}`}
+        ${showOffline ? 'bg-wood-800/90 text-cream-100' : showDead ? 'bg-danger-500/90 text-cream-50' : 'bg-honey-500/90 text-wood-900'}`}
       >
+        {showDead && (
+          <>
+            <AlertTriangle size={11} aria-hidden="true" />
+            <span>{deadCount} modifica/e non sincronizzata/e</span>
+          </>
+        )}
         {showOffline && (
           <>
             <WifiOff size={11} aria-hidden="true" />

@@ -1,7 +1,7 @@
-import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching'
+import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching'
 import { clientsClaim } from 'workbox-core'
 import { NavigationRoute, registerRoute } from 'workbox-routing'
-import { CacheFirst, NetworkFirst, StaleWhileRevalidate } from 'workbox-strategies'
+import { CacheFirst, StaleWhileRevalidate } from 'workbox-strategies'
 import { ExpirationPlugin } from 'workbox-expiration'
 
 declare let self: ServiceWorkerGlobalScope & typeof globalThis
@@ -13,16 +13,8 @@ cleanupOutdatedCaches()
 // Precache tutti gli asset buildati (manifest iniettato da VitePWA a build time)
 precacheAndRoute(self.__WB_MANIFEST)
 
-// HTML / navigazione: network-first con fallback a cache → SPA funziona offline
-registerRoute(
-  new NavigationRoute(
-    new NetworkFirst({
-      cacheName: 'html-cache',
-      networkTimeoutSeconds: 3,
-      plugins: [new ExpirationPlugin({ maxEntries: 10, maxAgeSeconds: 86_400 })],
-    })
-  )
-)
+// SPA navigation: serve sempre il precachato index.html per qualsiasi route
+registerRoute(new NavigationRoute(createHandlerBoundToURL('/index.html')))
 
 // JS/CSS non precachati (edge case):
 registerRoute(
@@ -48,6 +40,24 @@ registerRoute(
   new CacheFirst({
     cacheName: 'fonts-cache',
     plugins: [new ExpirationPlugin({ maxEntries: 10, maxAgeSeconds: 365 * 86_400 })],
+  })
+)
+
+// Google Fonts CSS (googleapis.com) — stylesheet con URL font
+registerRoute(
+  ({ url }) => url.hostname === 'fonts.googleapis.com',
+  new StaleWhileRevalidate({
+    cacheName: 'google-fonts-stylesheets',
+    plugins: [new ExpirationPlugin({ maxEntries: 5, maxAgeSeconds: 365 * 86_400 })],
+  })
+)
+
+// Google Fonts binary files (gstatic.com) — immutabili, CacheFirst
+registerRoute(
+  ({ url }) => url.hostname === 'fonts.gstatic.com',
+  new CacheFirst({
+    cacheName: 'google-fonts-webfonts',
+    plugins: [new ExpirationPlugin({ maxEntries: 30, maxAgeSeconds: 365 * 86_400 })],
   })
 )
 

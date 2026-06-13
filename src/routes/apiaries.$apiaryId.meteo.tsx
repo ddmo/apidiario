@@ -1,6 +1,5 @@
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { ArrowLeft, Wind } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
 import { getAuthUser } from '@/lib/auth-guard'
 import { useApiary } from '@/features/apiaries/hooks/use-apiaries'
 import { useWeatherForecast, type ForecastDay } from '@/features/weather/hooks/use-weather-forecast'

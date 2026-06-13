@@ -2,7 +2,7 @@ import { createFileRoute, redirect, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { getAuthUser } from '@/lib/auth-guard'
-import { ArrowLeft, TreePine, Hexagon, ClipboardList, Syringe, Cloud, HardDrive, Mic, Users, Activity, TrendingUp } from 'lucide-react'
+import { ArrowLeft, TreePine, Hexagon, ClipboardList, Syringe, Cloud, HardDrive, Mic, Users, Activity, TrendingUp, type LucideIcon } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 function fmtBytes(bytes: number): string {
@@ -17,9 +17,9 @@ function fmtDate(iso: string | null): string {
   return new Date(iso).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 function StatCard({ icon: Icon, label, value, accent, sub }: {
-  icon: React.ComponentType<any>
+  icon: LucideIcon
   label: string
   value: number | null | undefined
   accent?: string

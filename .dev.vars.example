@@ -1,5 +1,9 @@
 # Cloudflare Worker secrets (copia in .dev.vars per sviluppo locale)
 # Per produzione: wrangler secret put OPENAI_API_KEY e OPENROUTER_API_KEY
+# SUPABASE_URL è in wrangler.jsonc (vars, pubblico).
+# SUPABASE_ANON_KEY è pubblica ma va impostata come secret/var anche in prod
+# (serve al worker per verificare il JWT del chiamante).
 
 OPENAI_API_KEY=sk-...
 OPENROUTER_API_KEY=sk-or-...
+SUPABASE_ANON_KEY=sb_publishable_...

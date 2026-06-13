@@ -27,7 +27,7 @@ export function useBloomObservations(apiaryId?: string, speciesId?: string) {
   return useQuery({
     queryKey: ['bloom-observations', apiaryId, speciesId],
     queryFn: async (): Promise<BloomObservation[]> => {
-      let query = supabase
+      const query = supabase
         .from('bloom_observations')
         .select('*')
         .eq('apiary_id', apiaryId!)

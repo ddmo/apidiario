@@ -1,5 +1,4 @@
 import { createFileRoute, Outlet, redirect, useRouterState } from '@tanstack/react-router'
-import { supabase } from '@/lib/supabase'
 import { getAuthUser } from '@/lib/auth-guard'
 import { BottomNav } from '@/components/layout/bottom-nav'
 import { SyncIndicator } from '@/components/layout/sync-indicator'

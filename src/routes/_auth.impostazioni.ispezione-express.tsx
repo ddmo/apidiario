@@ -13,7 +13,6 @@ export const Route = createFileRoute('/_auth/impostazioni/ispezione-express')({
   component: ExpressSettingsPage,
 })
 
-import { supabase } from '@/lib/supabase'
 import { getAuthUser } from '@/lib/auth-guard'
 
 function ExpressSettingsPage() {

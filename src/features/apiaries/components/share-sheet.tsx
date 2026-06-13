@@ -46,7 +46,7 @@ export function ShareSheet({ open, apiaryId, apiaryName, onClose }: ShareSheetPr
     if (error) {
       let errorMsg = 'Errore durante la condivisione'
       try {
-        const body = await (error as any).context?.json()
+        const body = await (error as { context?: { json(): Promise<{ error?: string }> } }).context?.json()
         errorMsg = body?.error ?? error.message
       } catch {
         errorMsg = error.message ?? errorMsg
