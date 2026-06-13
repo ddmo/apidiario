@@ -25,7 +25,7 @@ export async function registerSW(): Promise<ServiceWorkerRegistration | null> {
 }
 
 function db() {
-  return supabase.from('push_subscriptions' as any) as ReturnType<typeof supabase.from>
+  return supabase.from('push_subscriptions')
 }
 
 /** Subscribe the current user to push notifications. Stores subscription in DB. */
@@ -47,9 +47,13 @@ export async function subscribeToPush(): Promise<boolean> {
   }
 
   // Save to database
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return false
+
   const subJSON = sub.toJSON()
   const { error } = await db().upsert(
     {
+      user_id: user.id,
       endpoint: sub.endpoint,
       keys: subJSON.keys ?? {},
     },
@@ -70,8 +74,11 @@ export async function unsubscribeFromPush(): Promise<boolean> {
     await db().delete().eq('endpoint', sub.endpoint)
     await sub.unsubscribe()
   } else {
-    // No active subscription — clean up orphaned DB entries (RLS scopes to own user_id)
-    await db().delete().neq('id', '00000000-0000-0000-0000-000000000000')
+    // No active subscription — clean up orphaned DB entries for this user.
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      await db().delete().eq('user_id', user.id)
+    }
   }
 
   return true

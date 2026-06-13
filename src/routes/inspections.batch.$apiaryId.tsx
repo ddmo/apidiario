@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 import { ArrowRight, Check, ChevronLeft, Pencil, Trees, FileText } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { getAuthUser } from '@/lib/auth-guard'
 import { queryClient } from '@/lib/query-client'
 import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-toast'
@@ -26,8 +27,8 @@ export const Route = createFileRoute('/inspections/batch/$apiaryId')({
         : [] as string[],
   }),
   beforeLoad: async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) throw redirect({ to: '/login' })
+    const user = await getAuthUser()
+    if (!user) throw redirect({ to: '/login' })
   },
   component: BatchInspectionPage,
 })
@@ -603,7 +604,7 @@ function PerHiveEditSheet({
   function handleSave() {
     const override: Partial<InspectionFormState> = {}
     for (const key of form.dirtyFields) {
-      ;(override as any)[key] = form.state[key as keyof InspectionFormState]
+      ;(override as Partial<Record<keyof InspectionFormState, unknown>>)[key as keyof InspectionFormState] = form.state[key as keyof InspectionFormState]
     }
     onSave(override)
   }

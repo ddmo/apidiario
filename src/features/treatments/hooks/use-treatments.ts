@@ -86,7 +86,19 @@ export function useTreatmentsByApiary(apiaryId: string) {
 
       if (error) throw error
 
-      return (data as unknown[]).map((t: any) => ({
+      interface TreatmentRow {
+        id: string
+        product_name: string
+        start_date: string
+        end_date: string | null
+        blocks_melari: boolean
+        applies_to_all_hives: boolean
+        apiary_id: string
+        apiaries: { name: string }
+        performer?: { display_name: string | null } | null
+        treatment_hives?: unknown[]
+      }
+      return (data as unknown as TreatmentRow[]).map((t) => ({
         id: t.id,
         productName: t.product_name,
         startDate: t.start_date,
@@ -115,10 +127,15 @@ export function useTreatment(id: string) {
 
       if (error) throw error
 
-      const t = data as any
-      const apiary = t.apiaries as { name: string }
+      type TRow = typeof data & {
+        apiaries: { name: string }
+        profiles: { display_name: string } | { display_name: string }[] | null
+        treatment_hives: { hive_id: string; hives: { identifier: string } }[]
+      }
+      const t = data as TRow
+      const apiary = t.apiaries
       const profile = Array.isArray(t.profiles) ? t.profiles[0] : t.profiles
-      const hiveRows = (Array.isArray(t.treatment_hives) ? t.treatment_hives : []) as { hive_id: string; hives: { identifier: string } }[]
+      const hiveRows = Array.isArray(t.treatment_hives) ? t.treatment_hives : []
 
       return {
         id: t.id,
@@ -132,7 +149,7 @@ export function useTreatment(id: string) {
         notes: t.notes,
         apiaryId: t.apiary_id,
         apiaryName: apiary.name,
-        performedBy: t.performed_by,
+        performedBy: t.performed_by ?? '',
         performerName: profile?.display_name ?? '',
         hives: hiveRows.map((h) => ({ hiveId: h.hive_id, identifier: h.hives.identifier })),
         createdAt: t.created_at,
@@ -192,6 +209,7 @@ export function useCreateTreatment() {
       void queryClient.invalidateQueries({ queryKey: ['treatments'] })
       void logActivity(variables.userId, 'insert', 'treatment', data, `Trattamento "${variables.productName}" creato`)
     },
+    onError: (err) => { console.error('[useCreateTreatment] failed', err) },
   })
 }
 
@@ -247,6 +265,7 @@ export function useUpdateTreatment() {
         }
       })
     },
+    onError: (err) => { console.error('[useUpdateTreatment] failed', err) },
   })
 }
 
@@ -274,6 +293,7 @@ export function useDeleteTreatment() {
         }
       })
     },
+    onError: (err) => { console.error('[useDeleteTreatment] failed', err) },
   })
 }
 

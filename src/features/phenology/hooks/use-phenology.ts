@@ -23,8 +23,8 @@ export function usePhenologySpecies() {
     queryKey: ['phenology-species', 'v2'],
     queryFn: async (): Promise<PhenologySpecies[]> => {
       const { data, error } = await supabase
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .from('phenology_species' as any)
+         
+        .from('phenology_species')
         .select('*')
         .order('common_name_it')
       if (error) throw error

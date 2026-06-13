@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { queryClient } from '@/lib/query-client'
 import { uuid } from '@/lib/utils'
 import { logActivity } from '@/lib/activity-log'
-import type { Tables, TablesInsert } from '@/types/database'
+import type { Tables, TablesInsert, TablesUpdate } from '@/types/database'
 
 // Augmented row type — main_photo_path already in generated types.
 // hives embedded via PostgREST select, resolved to a count client-side.
@@ -191,6 +191,7 @@ export function useCreateApiary() {
       void queryClient.invalidateQueries({ queryKey: ['apiaries'] })
       void logActivity(variables.userId, 'insert', 'apiary', data.id, `Apiario "${variables.name}" creato`)
     },
+    onError: (err) => { console.error('[useCreateApiary] failed', err) },
   })
 }
 
@@ -219,17 +220,14 @@ export function useUpdateApiary() {
       photoFile,
       removePhoto,
     }) => {
-      const update: Record<string, unknown> = {
+      const update: TablesUpdate<'apiaries'> = {
         name,
         bda_codice_aziendale: bda_codice_aziendale ?? null,
         latitude: latitude ?? null,
         longitude: longitude ?? null,
         address: address ?? null,
         notes: notes ?? null,
-      }
-
-      if (removePhoto) {
-        update.main_photo_path = null
+        ...(removePhoto ? { main_photo_path: null } : {}),
       }
 
       if (photoFile) {
@@ -247,8 +245,7 @@ export function useUpdateApiary() {
 
       const { error } = await supabase
         .from('apiaries')
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .update(update as any)
+        .update(update)
         .eq('id', apiaryId)
 
       if (error) throw error
@@ -263,6 +260,7 @@ export function useUpdateApiary() {
         }
       })
     },
+    onError: (err) => { console.error('[useUpdateApiary] failed', err) },
   })
 }
 
@@ -292,6 +290,7 @@ export function useDeleteApiary() {
         }
       })
     },
+    onError: (err) => { console.error('[useDeleteApiary] failed', err) },
   })
 }
 
@@ -351,5 +350,6 @@ export function useRevokeApiaryAccess() {
       void queryClient.invalidateQueries({ queryKey: ['apiaryShares', variables.apiaryId] })
       void queryClient.invalidateQueries({ queryKey: ['apiaries'] })
     },
+    onError: (err) => { console.error('[useRevokeApiaryAccess] failed', err) },
   })
 }

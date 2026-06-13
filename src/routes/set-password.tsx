@@ -1,5 +1,6 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { supabase } from '@/lib/supabase'
+import { getAuthUser } from '@/lib/auth-guard'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useState } from 'react'
@@ -9,8 +10,8 @@ type Status = 'idle' | 'loading' | 'error' | 'success'
 
 export const Route = createFileRoute('/set-password')({
   beforeLoad: async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) {
+    const user = await getAuthUser()
+    if (!user) {
       throw redirect({ to: '/login' })
     }
   },

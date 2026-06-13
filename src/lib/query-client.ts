@@ -53,9 +53,39 @@ export async function setCachedUserId(userId: string): Promise<void> {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 0,                    // sempre fresco se online
-      gcTime: 1000 * 60 * 60 * 24,    // 24 ore (fallback offline in IndexedDB)
+      staleTime: 0,
+      gcTime: 1000 * 60 * 60 * 24,
       retry: 1,
+      // offlineFirst: serve cache IndexedDB immediatamente, tenta fetch in background,
+      // se offline resta sui dati cachati senza mostrare errore
+      networkMode: 'offlineFirst',
+    },
+    mutations: {
+      networkMode: 'offlineFirst',
     },
   },
+})
+
+const LAST_SYNC_KEY = 'apidiario-last-sync'
+
+export function getLastSyncAt(): number | null {
+  try {
+    const v = localStorage.getItem(LAST_SYNC_KEY)
+    return v ? Number(v) : null
+  } catch {
+    return null
+  }
+}
+
+// Aggiorna timestamp ogni volta che una query completa con successo
+queryClient.getQueryCache().subscribe((event) => {
+  if (
+    event.type === 'updated' &&
+    event.query.state.status === 'success' &&
+    event.query.state.dataUpdatedAt > 0
+  ) {
+    try {
+      localStorage.setItem(LAST_SYNC_KEY, event.query.state.dataUpdatedAt.toString())
+    } catch { /* ignore */ }
+  }
 })

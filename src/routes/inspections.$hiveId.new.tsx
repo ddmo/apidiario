@@ -1,7 +1,9 @@
-import { createFileRoute, redirect, useNavigate, useRouter } from '@tanstack/react-router'
+import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { getAuthUser } from '@/lib/auth-guard'
 import { queryClient } from '@/lib/query-client'
+import { offlineQueue } from '@/lib/offline-queue'
 import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-toast'
 import { InspectionScreen } from '@/features/inspections/inspection-screen'
@@ -12,17 +14,14 @@ import type { TablesInsert } from '@/types/database'
 
 export const Route = createFileRoute('/inspections/$hiveId/new')({
   beforeLoad: async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-    if (!session) throw redirect({ to: '/login' })
+    const user = await getAuthUser()
+    if (!user) throw redirect({ to: '/login' })
   },
   component: NewInspectionPage,
 })
 
 function NewInspectionPage() {
   const { hiveId } = Route.useParams()
-  const navigate = useNavigate()
   const router = useRouter()
   const { session } = useAuth()
   const { showToast } = useToast()
@@ -46,7 +45,7 @@ function NewInspectionPage() {
       const { data, error } = await supabase
         .from('apiaries')
         .select('id, name, latitude, longitude')
-        .eq('id', hive!.apiary_id)
+        .eq('id', hive?.apiary_id ?? '')
         .single()
       if (error) throw error
       return data
@@ -79,6 +78,7 @@ function NewInspectionPage() {
       const payload: TablesInsert<'inspections'> = {
         hive_id: hiveId,
         performed_by: session.user.id,
+        performed_at: new Date().toISOString(),
         queen_seen: formState.queen,
         brood_eggs: formState.hasBrood ? formState.brood.uova : false,
         brood_larvae: formState.hasBrood ? formState.brood.larve : false,
@@ -101,6 +101,17 @@ function NewInspectionPage() {
         temperature_c: weather?.temperature ?? null,
         weather_summary: weather?.summary ?? null,
       }
+
+      // Offline: accoda e ritorna null come indicatore
+      if (!navigator.onLine) {
+        await offlineQueue.add('createInspection', payload, [
+          ['lastInspection', hiveId],
+          ['inspections', hiveId],
+          ['hives'],
+        ])
+        return null
+      }
+
       const { data, error } = await supabase
         .from('inspections')
         .insert(payload)
@@ -109,14 +120,18 @@ function NewInspectionPage() {
       if (error) throw error
       return data.id
     },
-    onSuccess: (newId) => {
-      if (session?.user?.id) {
+    onSuccess: (savedId) => {
+      const isOffline = savedId === null
+      if (!isOffline && session?.user?.id) {
         logActivity(session.user.id, 'insert', 'inspection', hiveId, `Nuova ispezione per arnia ${hive?.identifier ?? hiveId}`)
       }
-      showToast('Ispezione salvata', 'success')
+      showToast(
+        isOffline ? 'Ispezione salvata offline — verrà sincronizzata' : 'Ispezione salvata',
+        'success',
+      )
       void queryClient.invalidateQueries({ queryKey: ['lastInspection', hiveId] })
       void queryClient.invalidateQueries({ queryKey: ['hives'] })
-      void navigate({ to: '/hives/$hiveId/inspections/$inspectionId', params: { hiveId, inspectionId: newId }, replace: true })
+      router.history.back()
     },
     onError: () => {
       showToast('Salvataggio fallito. Riprova.', 'error')
@@ -166,12 +181,13 @@ function NewInspectionPage() {
       isSaving={isSaving}
       weather={weather}
       onSave={async (formState, mode, commit) => {
-        const newId = await saveInspection({ formState, mode })
-        await commit(newId)
-        // Notify shared apiary members (fire‑and‑forget)
-        supabase.functions.invoke('send-push-notification', {
-          body: { inspection_id: newId },
-        }).catch(() => {})
+        const savedId = await saveInspection({ formState, mode })
+        if (savedId) {
+          await commit(savedId)
+          supabase.functions.invoke('send-push-notification', {
+            body: { inspection_id: savedId },
+          }).catch(() => {})
+        }
       }}
       onBack={() => router.history.back()}
     />

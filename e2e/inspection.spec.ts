@@ -2,7 +2,6 @@ import { test, expect } from './helpers'
 
 test.describe('single inspection', () => {
   let apiaryId: string
-  let hiveId: string
 
   test.beforeAll(async ({ browser }) => {
     const ctx = await browser.newContext({ storageState: 'e2e/.auth.json' })

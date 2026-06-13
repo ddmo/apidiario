@@ -1,5 +1,5 @@
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
-import { supabase } from '@/lib/supabase'
+import { getAuthUser } from '@/lib/auth-guard'
 import { useAuth } from '@/hooks/use-auth'
 import { useTreatment, useUpdateTreatment } from '@/features/treatments/hooks/use-treatments'
 import { TreatmentForm } from '@/features/treatments/components/treatment-form'
@@ -8,8 +8,8 @@ import { useToast } from '@/hooks/use-toast'
 
 export const Route = createFileRoute('/trattamenti/$treatmentId/edit')({
   beforeLoad: async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) throw redirect({ to: '/login' })
+    const user = await getAuthUser()
+    if (!user) throw redirect({ to: '/login' })
   },
   component: EditTreatmentPage,
 })

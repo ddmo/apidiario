@@ -4,6 +4,7 @@ import { RouterProvider } from '@tanstack/react-router'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { supabase } from '@/lib/supabase'
 import { queryClient, persister, clearPersistedCache, getCachedUserId, setCachedUserId } from '@/lib/query-client'
+import { initSyncManager } from '@/lib/sync-manager'
 import { router } from '@/router'
 import { applyTheme } from '@/lib/theme'
 import '@/app.css'
@@ -30,7 +31,6 @@ if ('serviceWorker' in navigator) {
 document.addEventListener('gesturestart', (e) => {
   const tag = (e.target as HTMLElement)?.tagName?.toLowerCase()
   if (tag === 'input' || tag === 'textarea') {
-    console.log('[gesturestart] su input — permesso per dettatura')
     return
   }
   e.preventDefault()
@@ -38,7 +38,6 @@ document.addEventListener('gesturestart', (e) => {
 document.addEventListener('gesturechange', (e) => {
   const tag = (e.target as HTMLElement)?.tagName?.toLowerCase()
   if (tag === 'input' || tag === 'textarea') {
-    console.log('[gesturechange] su input — permesso per dettatura')
     return
   }
   e.preventDefault()
@@ -51,10 +50,13 @@ document.addEventListener('touchmove', (e) => {
   }
 }, { passive: false })
 
-// Register push‑only service worker (no fetch handler — no caching issues)
+// Registra service worker (workbox precaching + push notifications)
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js')
 }
+
+// Avvia sync manager: drena la queue quando si torna online
+initSyncManager()
 
 // Suppress harmless Supabase webauthn interceptor error (gotrue-js bug)
 window.addEventListener('error', (e) => {

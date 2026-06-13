@@ -62,6 +62,7 @@ export function useCreateHarvest() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [HARVESTS_KEY] })
     },
+    onError: (err) => { console.error("[src/features/harvests/hooks/use-harvests.ts] mutation failed", err) },
   })
 }
 
@@ -76,6 +77,7 @@ export function useUpdateHarvest() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [HARVESTS_KEY] })
     },
+    onError: (err) => { console.error("[src/features/harvests/hooks/use-harvests.ts] mutation failed", err) },
   })
 }
 
@@ -90,5 +92,6 @@ export function useDeleteHarvest() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: [HARVESTS_KEY] })
     },
+    onError: (err) => { console.error("[src/features/harvests/hooks/use-harvests.ts] mutation failed", err) },
   })
 }

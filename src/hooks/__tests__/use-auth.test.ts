@@ -8,17 +8,17 @@ const mockSelect = vi.fn(() => ({ eq: mockEq }))
 const mockFrom = vi.fn(() => ({ select: mockSelect }))
 const mockUnsubscribe = vi.fn()
 const mockGetSession = vi.fn()
-const mockOnAuthStateChange = vi.fn(() => ({
+const mockOnAuthStateChange = vi.fn((_cb: (event: string, session: unknown) => void) => ({
   data: { subscription: { unsubscribe: mockUnsubscribe } },
 }))
 
 vi.mock('@/lib/supabase', () => ({
   supabase: {
     auth: {
-      getSession: (...args: unknown[]) => (mockGetSession as any)(...args),
-      onAuthStateChange: (...args: unknown[]) => (mockOnAuthStateChange as any)(...args),
+      getSession: () => mockGetSession(),
+      onAuthStateChange: (cb: (event: string, session: unknown) => void) => mockOnAuthStateChange(cb),
     },
-    from: (...args: unknown[]) => (mockFrom as any)(...args),
+    from: () => mockFrom(),
   },
 }))
 
@@ -85,7 +85,7 @@ describe('useAuth', () => {
     mockSingle.mockResolvedValue({ data: profile, error: null })
 
     // Grab the callback passed to onAuthStateChange
-    const handler = (mockOnAuthStateChange as any).mock.calls[0][0]
+    const handler = mockOnAuthStateChange.mock.calls[0]![0] as (event: string, session: unknown) => void
     act(() => handler('SIGNED_IN', newSession))
 
     await waitFor(() => {
@@ -104,7 +104,7 @@ describe('useAuth', () => {
       expect(result.current.session).not.toBeNull()
     })
 
-    const handler = (mockOnAuthStateChange as any).mock.calls[0][0]
+    const handler = mockOnAuthStateChange.mock.calls[0]![0] as (event: string, session: unknown) => void
     act(() => handler('SIGNED_OUT', null))
 
     expect(result.current.session).toBeNull()

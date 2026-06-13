@@ -25,6 +25,5 @@ export const INTERVENTION_OPTIONS = [
   'Tolto telaino',
   'Aggiunto telaino',
   'Cambio regina',
-  'Distruzione celle',
   'Nutrizione',
 ]

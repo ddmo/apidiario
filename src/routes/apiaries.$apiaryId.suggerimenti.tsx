@@ -1,16 +1,14 @@
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
+import { getAuthUser } from '@/lib/auth-guard'
 import { useApiary } from '@/features/apiaries/hooks/use-apiaries'
 import { useApiarySuggestions } from '@/features/suggestions/hooks/use-apiary-suggestions'
 import { HiveSuggestionCard } from '@/features/suggestions/components/hive-suggestion-card'
 
 export const Route = createFileRoute('/apiaries/$apiaryId/suggerimenti')({
   beforeLoad: async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-    if (!session) throw redirect({ to: '/login' })
+    const user = await getAuthUser()
+    if (!user) throw redirect({ to: '/login' })
   },
   component: SuggerimentiPage,
 })

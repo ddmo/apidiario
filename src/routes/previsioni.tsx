@@ -2,6 +2,7 @@ import { createFileRoute, redirect, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { useState, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
+import { getAuthUser } from '@/lib/auth-guard'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, MapPin, Flower2, ChevronDown, HelpCircle, X } from 'lucide-react'
@@ -19,8 +20,8 @@ import { logActivity } from '@/lib/activity-log'
 
 export const Route = createFileRoute('/previsioni')({
   beforeLoad: async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) throw redirect({ to: '/login' })
+    const user = await getAuthUser()
+    if (!user) throw redirect({ to: '/login' })
   },
   component: PrevisioniPage,
 })

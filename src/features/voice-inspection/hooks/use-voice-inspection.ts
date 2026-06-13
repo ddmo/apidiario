@@ -1,6 +1,9 @@
 import { useState, useRef, useCallback } from 'react'
+import { supabase } from '@/lib/supabase'
 import type { InspectionFormState } from '@/features/inspections/types'
 import type { VoiceInspectionStatus, VoiceInspectionResponse } from '../types'
+
+const MAX_RECORDING_MS = 60_000
 
 interface UseVoiceInspectionOpts {
   hiveId?: string
@@ -14,6 +17,8 @@ export function useVoiceInspection({ hiveId }: UseVoiceInspectionOpts = {}) {
   const mediaRecorder = useRef<MediaRecorder | null>(null)
   const chunks = useRef<Blob[]>([])
   const startTime = useRef<number>(0)
+  const maxDurationTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isTimeoutStop = useRef(false)
 
   const canRecord = typeof navigator.mediaDevices?.getUserMedia === 'function'
 
@@ -41,14 +46,27 @@ export function useVoiceInspection({ hiveId }: UseVoiceInspectionOpts = {}) {
 
       recorder.onstop = async () => {
         stream.getTracks().forEach((t) => t.stop())
+        if (maxDurationTimer.current) {
+          clearTimeout(maxDurationTimer.current)
+          maxDurationTimer.current = null
+        }
+        if (isTimeoutStop.current) {
+          isTimeoutStop.current = false
+          setError('Registrazione interrotta: limite di 1 minuto raggiunto. Riprova con un dettato più breve.')
+          setStatus('error')
+          return
+        }
         setStatus('processing')
-
         const blob = new Blob(chunks.current, { type: recorder.mimeType })
         await sendAudio(blob)
       }
 
       recorder.start()
       setStatus('recording')
+      maxDurationTimer.current = setTimeout(() => {
+        isTimeoutStop.current = true
+        mediaRecorder.current?.stop()
+      }, MAX_RECORDING_MS)
     } catch (err) {
       console.error('Failed to start recording', err)
       setError('Impossibile avviare la registrazione. Verifica il microfono.')
@@ -57,6 +75,10 @@ export function useVoiceInspection({ hiveId }: UseVoiceInspectionOpts = {}) {
   }, [canRecord, hiveId])
 
   const stopRecording = useCallback(() => {
+    if (maxDurationTimer.current) {
+      clearTimeout(maxDurationTimer.current)
+      maxDurationTimer.current = null
+    }
     mediaRecorder.current?.stop()
     if (status === 'recording') {
       // MediaRecorder.onstop will fire
@@ -69,8 +91,14 @@ export function useVoiceInspection({ hiveId }: UseVoiceInspectionOpts = {}) {
       formData.append('audio', audioBlob, 'recording.webm')
       formData.append('context', JSON.stringify({ hiveId }))
 
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        throw new Error('Sessione scaduta. Effettua di nuovo il login.')
+      }
+
       const res = await fetch('/api/voice-inspection', {
         method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
         body: formData,
       })
 

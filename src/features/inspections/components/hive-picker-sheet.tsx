@@ -117,7 +117,14 @@ export function HivePickerSheet({ open, onClose }: HivePickerSheetProps) {
 
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-2 pb-3 shrink-0 border-b border-cream-200">
-          <h2 className="text-base font-semibold text-wood-800">Seleziona arnie</h2>
+          <div>
+            <h2 className="text-base font-semibold text-wood-800">Seleziona arnie</h2>
+            <p className="text-xs text-wood-400 mt-0.5">
+              {selectedIds.size === 0
+                ? 'Nessuna selezionata'
+                : `${selectedIds.size} ${selectedIds.size === 1 ? 'arnia selezionata' : 'arnie selezionate'}`}
+            </p>
+          </div>
           <button
             type="button"
             aria-label="Chiudi"
@@ -213,21 +220,27 @@ export function HivePickerSheet({ open, onClose }: HivePickerSheetProps) {
             })}
         </div>
 
-        {/* Bottom bar */}
-        {selectedIds.size >= 1 && (
-          <div className="shrink-0 border-t border-cream-200 px-4 py-4 [padding-bottom:calc(1rem+env(safe-area-inset-bottom))]">
-            <button
-              type="button"
-              onClick={proceed}
-              className="w-full flex items-center justify-center gap-2 rounded-lg bg-honey-500 px-4 py-3 text-sm font-medium text-cream-50 hover:bg-honey-600 transition-colors"
-            >
-              <Check size={16} />
-              {selectedIds.size === 1
+        {/* Bottom bar — always visible */}
+        <div className="shrink-0 border-t border-cream-200 px-4 py-4 [padding-bottom:calc(1rem+env(safe-area-inset-bottom))]">
+          <button
+            type="button"
+            onClick={proceed}
+            disabled={selectedIds.size === 0}
+            className={cn(
+              'w-full flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium transition-colors',
+              selectedIds.size === 0
+                ? 'bg-cream-200 text-wood-400 cursor-not-allowed'
+                : 'bg-honey-500 text-cream-50 hover:bg-honey-600',
+            )}
+          >
+            <Check size={16} />
+            {selectedIds.size === 0
+              ? "Seleziona almeno un'arnia"
+              : selectedIds.size === 1
                 ? 'Ispezione singola'
                 : `Ispezione multipla (${selectedIds.size} arnie)`}
-            </button>
-          </div>
-        )}
+          </button>
+        </div>
       </div>
     </>
   )

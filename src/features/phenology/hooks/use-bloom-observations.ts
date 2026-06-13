@@ -27,7 +27,7 @@ export function useBloomObservations(apiaryId?: string, speciesId?: string) {
   return useQuery({
     queryKey: ['bloom-observations', apiaryId, speciesId],
     queryFn: async (): Promise<BloomObservation[]> => {
-      let query = supabase
+      const query = supabase
         .from('bloom_observations')
         .select('*')
         .eq('apiary_id', apiaryId!)
@@ -54,7 +54,7 @@ export function useUpsertBloomObservation(userId: string) {
         .eq('apiary_id', input.apiary_id)
         .eq('species_id', input.species_id)
         .eq('year', input.year)
-        .single()
+        .maybeSingle()
 
       if (existing) {
         const { error } = await supabase
@@ -89,5 +89,6 @@ export function useUpsertBloomObservation(userId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bloom-observations'] })
     },
+    onError: (err) => { console.error("[src/features/phenology/hooks/use-bloom-observations.ts] mutation failed", err) },
   })
 }

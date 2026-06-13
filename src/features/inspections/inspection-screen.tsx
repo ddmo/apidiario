@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import { ArrowLeft, MoreVertical, Sun, Trash2, Mic, Square, Loader2, Sparkles, AlertCircle, Speech } from 'lucide-react'
+import { ArrowLeft, MoreVertical, Sun, Trash2, Mic, Square, Loader2, Sparkles, AlertCircle, Speech, WifiOff } from 'lucide-react'
+import { useOnlineStatus } from '@/hooks/use-online-status'
 import { cn } from '@/lib/utils'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import { Button } from '@/components/ui/button'
@@ -294,8 +295,14 @@ export function InspectionScreen({
         )}
       </div>
 
-      {/* Submit bar */}
-      <FormSubmitBar onCancel={handleBack} onSave={handleSave} isSaving={isSaving} saveDisabled={!hasChanges} />
+      {/* Submit bar — locked while media is uploading to avoid saving incomplete files */}
+      <FormSubmitBar
+        onCancel={handleBack}
+        onSave={handleSave}
+        isSaving={isSaving}
+        saveDisabled={!hasChanges || mediaUploading}
+        saveLabel={mediaUploading ? 'Upload foto in corso…' : undefined}
+      />
 
       {/* Unsaved changes sheet */}
       <UnsavedChangesSheet
@@ -366,6 +373,29 @@ function VoiceModeView({
   onStop: () => void
   onReset: () => void
 }) {
+  const online = useOnlineStatus()
+
+  if (!online && status === 'idle') {
+    return (
+      <div className="flex flex-col items-center justify-center h-full px-8 py-16 select-none">
+        <div className="size-16 rounded-full bg-wood-100 flex items-center justify-center mb-4">
+          <WifiOff size={28} className="text-wood-400" />
+        </div>
+        <p className="text-base font-semibold text-wood-700">Non disponibile offline</p>
+        <p className="text-sm text-wood-400 text-center mt-1">
+          La trascrizione vocale richiede una connessione a internet
+        </p>
+        <button
+          type="button"
+          onClick={onReset}
+          className="mt-6 h-10 px-5 rounded-lg bg-cream-200 text-wood-700 text-sm font-medium hover:bg-cream-300 transition-colors"
+        >
+          Torna alla scheda
+        </button>
+      </div>
+    )
+  }
+
   if (status === 'success') {
     return (
       <div className="flex flex-col items-center justify-center h-full px-8 py-16 select-none">
@@ -425,7 +455,27 @@ function VoiceModeView({
   }
 
   // idle or recording
+  return <RecordingControls status={status} onStart={onStart} onStop={onStop} />
+}
+
+function RecordingControls({
+  status,
+  onStart,
+  onStop,
+}: {
+  status: VoiceStatus
+  onStart: () => void
+  onStop: () => void
+}) {
   const isRecording = status === 'recording'
+  const [elapsed, setElapsed] = useState(0)
+  useEffect(() => {
+    if (!isRecording) { setElapsed(0); return }
+    const id = setInterval(() => setElapsed((e) => e + 1), 1000)
+    return () => clearInterval(id)
+  }, [isRecording])
+  const fmtElapsed = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
+
   return (
     <div className="flex flex-col items-center justify-center h-full px-8 py-16 select-none">
       <button
@@ -452,6 +502,21 @@ function VoiceModeView({
           ? 'Tocca il pulsante per fermare'
           : 'Tocca il microfono e parla a voce alta'}
       </p>
+      {!isRecording && (
+        <p className="text-xs text-wood-400 mt-2">Massimo 60 secondi</p>
+      )}
+      {isRecording && (
+        <div className="mt-5 flex flex-col items-center gap-2 w-40">
+          <p className="text-xl font-mono tabular-nums text-wood-700">{fmtElapsed(elapsed)}</p>
+          <div className="w-full h-1 rounded-full bg-cream-200 overflow-hidden">
+            <div
+              className="h-full bg-danger-500 transition-all duration-1000"
+              style={{ width: `${Math.min((elapsed / 60) * 100, 100)}%` }}
+            />
+          </div>
+          <p className="text-xs text-wood-400">max 1:00</p>
+        </div>
+      )}
     </div>
   )
 }

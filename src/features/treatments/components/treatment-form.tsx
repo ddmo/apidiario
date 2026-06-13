@@ -56,6 +56,9 @@ export function TreatmentForm({ userId: _userId, prefillApiaryId, treatment, onS
 
   const [isDirty, setIsDirty] = useState(false)
   const [showUnsaved, setShowUnsaved] = useState(false)
+  const [apiaryError, setApiaryError] = useState('')
+  const [productError, setProductError] = useState('')
+  const [startDateError, setStartDateError] = useState('')
 
   const markDirty = () => setIsDirty(true)
 
@@ -77,16 +80,18 @@ export function TreatmentForm({ userId: _userId, prefillApiaryId, treatment, onS
   }
 
   function doSubmit() {
-    if (!apiaryId || !productName.trim() || !startDate) {
-      showToast('Compila apiario, prodotto e data inizio.', 'error')
-      return
-    }
+    let hasError = false
+    if (!apiaryId) { setApiaryError('Seleziona un apiario'); hasError = true } else { setApiaryError('') }
+    if (!productName.trim()) { setProductError('Inserisci il nome del prodotto'); hasError = true } else { setProductError('') }
+    if (!startDate) { setStartDateError('Inserisci la data di inizio'); hasError = true } else { setStartDateError('') }
+    if (hasError) return
+
     if (scope === 'specific' && hiveIds.length === 0) {
-      showToast('Seleziona almeno un\'arnia.', 'error')
+      showToast("Seleziona almeno un'arnia.", 'error')
       return
     }
     if (endDate && startDate > endDate) {
-      showToast('La data fine non può essere prima della data inizio.', 'error')
+      showToast('La data fine non può essere prima della data di inizio.', 'error')
       return
     }
 
@@ -135,8 +140,9 @@ export function TreatmentForm({ userId: _userId, prefillApiaryId, treatment, onS
             label="Apiario"
             options={apiaryOptions}
             value={apiaryId}
-            onChange={(e) => { setApiaryId(e.target.value); markDirty() }}
+            onChange={(e) => { setApiaryId(e.target.value); setApiaryError(''); markDirty() }}
             disabled={!!prefillApiaryId}
+            error={apiaryError || undefined}
           />
 
           {/* Ambito */}
@@ -190,7 +196,8 @@ export function TreatmentForm({ userId: _userId, prefillApiaryId, treatment, onS
             label="Prodotto"
             placeholder="es. Apivar, Api-Bioxal..."
             value={productName}
-            onChange={(e) => { setProductName(e.target.value); markDirty() }}
+            onChange={(e) => { setProductName(e.target.value); setProductError(''); markDirty() }}
+            error={productError || undefined}
             required
             maxLength={100}
           />
@@ -226,10 +233,15 @@ export function TreatmentForm({ userId: _userId, prefillApiaryId, treatment, onS
               id="treatment-start"
               type="date"
               value={startDate}
-              onChange={(e) => { setStartDate(e.target.value); markDirty() }}
+              onChange={(e) => { setStartDate(e.target.value); setStartDateError(''); markDirty() }}
               required
-              className="h-12 rounded-md border border-cream-200 bg-cream-50 px-4 text-base text-wood-700 transition-colors duration-150 focus:border-honey-500 focus:outline-none focus:ring-2 focus:ring-honey-500/20"
+              aria-invalid={!!startDateError}
+              aria-describedby={startDateError ? 'treatment-start-error' : undefined}
+              className={`h-12 rounded-md border bg-cream-50 px-4 text-base text-wood-700 transition-colors duration-150 focus:outline-none focus:ring-2 ${startDateError ? 'border-danger-500 focus:border-danger-500 focus:ring-danger-500/20' : 'border-cream-200 focus:border-honey-500 focus:ring-honey-500/20'}`}
             />
+            {startDateError && (
+              <p id="treatment-start-error" className="text-sm text-danger-500">{startDateError}</p>
+            )}
           </div>
           <div className="flex flex-col gap-1.5">
             <label htmlFor="treatment-end" className="text-sm font-medium text-wood-700">

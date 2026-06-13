@@ -2,6 +2,7 @@ import { useQuery, useMutation } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { uuid } from '@/lib/utils'
 import { queryClient } from '@/lib/query-client'
+import { offlineQueue } from '@/lib/offline-queue'
 import { logActivity } from '@/lib/activity-log'
 import { queenColorFromYear } from '../queen-color'
 import type { Database } from '@/types/database'
@@ -185,6 +186,7 @@ export function useCreateHive() {
         }
       })
     },
+    onError: (err) => { console.error('[useCreateHive] failed', err) },
   })
 }
 
@@ -353,7 +355,14 @@ export function useUpdateHive() {
         }
       })
     },
+    onError: (err) => { console.error('[useUpdateHive] failed', err) },
   })
+}
+
+const ACCESSORY_CAMEL: Record<string, keyof HiveListItem> = {
+  has_apiscampo:    'hasApiscampo',
+  has_propolis_net: 'hasPropolisNet',
+  has_pollen_trap:  'hasPollenTrap',
 }
 
 export function useToggleHiveAccessory() {
@@ -367,6 +376,17 @@ export function useToggleHiveAccessory() {
       field: 'has_apiscampo' | 'has_propolis_net' | 'has_pollen_trap'
       value: boolean
     }) => {
+      if (!navigator.onLine) {
+        // Optimistic cache update su tutti i query ['hives', *]
+        queryClient.setQueriesData<HiveListItem[]>(
+          { predicate: q => q.queryKey[0] === 'hives' },
+          old => Array.isArray(old)
+            ? old.map(h => h.id === hiveId ? { ...h, [ACCESSORY_CAMEL[field]!]: value } : h)
+            : old,
+        )
+        await offlineQueue.add('toggleHiveAccessory', { hiveId, field, value }, [['hives']])
+        return
+      }
       const update =
         field === 'has_apiscampo'    ? { has_apiscampo: value } :
         field === 'has_propolis_net' ? { has_propolis_net: value } :
@@ -377,18 +397,30 @@ export function useToggleHiveAccessory() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['hives'] })
     },
+    onError: (err) => { console.error('[useToggleHiveAccessory] failed', err) },
   })
 }
 
 export function useUpdateMelariCount() {
   return useMutation({
     mutationFn: async ({ hiveId, count }: { hiveId: string; count: number }) => {
+      if (!navigator.onLine) {
+        queryClient.setQueriesData<HiveListItem[]>(
+          { predicate: q => q.queryKey[0] === 'hives' },
+          old => Array.isArray(old)
+            ? old.map(h => h.id === hiveId ? { ...h, melariCount: count } : h)
+            : old,
+        )
+        await offlineQueue.add('updateMelariCount', { hiveId, count }, [['hives']])
+        return
+      }
       const { error } = await supabase.from('hives').update({ melari_count: count }).eq('id', hiveId)
       if (error) throw error
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['hives'] })
     },
+    onError: (err) => { console.error('[useUpdateMelariCount] failed', err) },
   })
 }
 
@@ -432,6 +464,7 @@ export function useUpsertQueen() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['hives'] })
     },
+    onError: (err) => { console.error("[src/features/hives/hooks/use-hives.ts] mutation failed", err) },
   })
 }
 
@@ -462,5 +495,6 @@ export function useDeleteHive() {
         }
       })
     },
+    onError: (err) => { console.error('[useDeleteHive] failed', err) },
   })
 }
