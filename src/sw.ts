@@ -13,8 +13,24 @@ cleanupOutdatedCaches()
 // Precache tutti gli asset buildati (manifest iniettato da VitePWA a build time)
 precacheAndRoute(self.__WB_MANIFEST)
 
-// SPA navigation: serve sempre il precachato index.html per qualsiasi route
-registerRoute(new NavigationRoute(createHandlerBoundToURL('/index.html')))
+// SPA navigation: serve sempre il precachato index.html per qualsiasi route.
+// Safari rifiuta risposte di navigazione con flag `redirected` (es. se il host
+// reindirizza /index.html): ricostruiamo una Response pulita per evitare
+// "Response served by service worker has redirections".
+const indexHandler = createHandlerBoundToURL('/index.html')
+registerRoute(
+  new NavigationRoute(async (params) => {
+    const response = await indexHandler(params)
+    // Ricostruisci sempre una Response priva del flag `redirected`: Safari
+    // rifiuta risposte di navigazione redirette servite dal SW.
+    const body = await response.blob()
+    return new Response(body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers,
+    })
+  })
+)
 
 // JS/CSS non precachati (edge case):
 registerRoute(
