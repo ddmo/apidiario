@@ -488,6 +488,7 @@ export type Database = {
           honey_frame_count: number | null
           id: string
           interventions: string[]
+          needs_intervention: boolean
           notes: string | null
           pathologies: Database["public"]["Enums"]["pathology"][] | null
           performed_at: string
@@ -521,6 +522,7 @@ export type Database = {
           honey_frame_count?: number | null
           id?: string
           interventions?: string[]
+          needs_intervention?: boolean
           notes?: string | null
           pathologies?: Database["public"]["Enums"]["pathology"][] | null
           performed_at?: string
@@ -554,6 +556,7 @@ export type Database = {
           honey_frame_count?: number | null
           id?: string
           interventions?: string[]
+          needs_intervention?: boolean
           notes?: string | null
           pathologies?: Database["public"]["Enums"]["pathology"][] | null
           performed_at?: string
@@ -771,7 +774,7 @@ export type Database = {
           end_reason: string | null
           hive_id: string
           id: string
-          marking_color: Database["public"]["Enums"]["queen_marking_color"]
+          is_marked: boolean
           notes: string | null
           origin: Database["public"]["Enums"]["queen_origin"]
           start_date: string
@@ -784,7 +787,7 @@ export type Database = {
           end_reason?: string | null
           hive_id: string
           id?: string
-          marking_color?: Database["public"]["Enums"]["queen_marking_color"]
+          is_marked?: boolean
           notes?: string | null
           origin?: Database["public"]["Enums"]["queen_origin"]
           start_date?: string
@@ -797,7 +800,7 @@ export type Database = {
           end_reason?: string | null
           hive_id?: string
           id?: string
-          marking_color?: Database["public"]["Enums"]["queen_marking_color"]
+          is_marked?: boolean
           notes?: string | null
           origin?: Database["public"]["Enums"]["queen_origin"]
           start_date?: string
@@ -1014,8 +1017,11 @@ export type Database = {
         Returns: undefined
       }
       get_active_user_counts: {
-        Args: Record<string, never>
-        Returns: { active_7d: number; active_30d: number }[]
+        Args: never
+        Returns: {
+          active_30d: number
+          active_7d: number
+        }[]
       }
       get_storage_usage: {
         Args: { bucket_name: string }
@@ -1025,18 +1031,21 @@ export type Database = {
         }[]
       }
       get_user_activity_stats: {
-        Args: Record<string, never>
+        Args: never
         Returns: {
-          user_id: string
           display_name: string
           inspection_count: number
-          last_inspection_at: string | null
-          last_active_at: string | null
+          last_active_at: string
+          last_inspection_at: string
+          user_id: string
         }[]
       }
       get_weekly_inspection_counts: {
         Args: { weeks_back?: number }
-        Returns: { week_start: string; count: number }[]
+        Returns: {
+          count: number
+          week_start: string
+        }[]
       }
       is_app_admin: { Args: never; Returns: boolean }
       storage_can_delete_apiary_media: {

@@ -11,6 +11,7 @@ interface HiveSchematicProps {
   hasPollenTrap: boolean
   hasActiveQueen: boolean | 'non_cercata'
   queenMarkingColor?: QueenMarkingColor | null
+  queenIsMarked?: boolean
 }
 
 const SVG_W  = 72
@@ -32,6 +33,7 @@ export function HiveSchematic({
   hasPollenTrap,
   hasActiveQueen,
   queenMarkingColor,
+  queenIsMarked,
 }: HiveSchematicProps) {
   const queenColor = queenColorHex(queenMarkingColor)
   const effectiveMelari = Math.min(melariCount, 2)
@@ -97,16 +99,19 @@ export function HiveSchematic({
       <rect x={NIDO_X} y={nidoY} width={NIDO_W} height={NIDO_H} fill="#5A4830" rx={2} />
 
       {/* Queen — crown + color dot centered as group */}
-      {hasActiveQueen === true && (
+      {/* Regina: ♛ + marcatura quando presente o non cercata (la marcatura è
+          dato della regina registrata, indipendente dall'ultima visita).
+          ⚠ solo quando esplicitamente non vista (possibile orfanità). */}
+      {hasActiveQueen !== false && (
         <text x={SVG_W / 2} y={nidoY + 20} textAnchor="middle" fontSize={18} fill="#E5A938">
-          ♛{queenColor && <tspan fill={queenColor} fontSize={11}> ●</tspan>}
+          ♛
+          {!queenIsMarked
+            ? <tspan fill="#A6916C" fontSize={11}> ○</tspan>
+            : queenColor && <tspan fill={queenColor} fontSize={11}> ●</tspan>}
         </text>
       )}
       {hasActiveQueen === false && (
-        <text x={SVG_W / 2} y={nidoY + 20} textAnchor="middle" fontSize={16} fill="#FAF6ED" opacity={0.85}>⚠</text>
-      )}
-      {hasActiveQueen === 'non_cercata' && (
-        <text x={SVG_W / 2} y={nidoY + 20} textAnchor="middle" fontSize={14} fill="#A6916C" fontFamily="Inter, system-ui, sans-serif">?</text>
+        <text x={SVG_W / 2} y={nidoY + 20} textAnchor="middle" fontSize={16} fill="#FAF6ED" opacity={0.85} fontFamily="Inter, system-ui, sans-serif">?</text>
       )}
 
       {/* Frame count */}

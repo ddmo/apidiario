@@ -61,7 +61,7 @@ function EditHivePage() {
     queryFn: async () => {
       const { data } = await supabase
         .from('queens')
-        .select('marking_color, birth_year')
+        .select('is_marked, birth_year')
         .eq('hive_id', hiveId)
         .is('end_date', null)
         .maybeSingle()

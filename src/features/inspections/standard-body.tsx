@@ -295,6 +295,23 @@ export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes
         />
       </section>
 
+      <section>
+        <SectionLabel>Necessario intervento</SectionLabel>
+        <button
+          type="button"
+          aria-pressed={state.needsIntervention}
+          onClick={() => onUpdate('needsIntervention', !state.needsIntervention)}
+          className={`w-full h-12 rounded-md border px-4 flex items-center justify-between transition-colors ${state.needsIntervention ? 'bg-danger-500/15 border-danger-500 text-wood-800' : 'bg-cream-50 border-cream-200 text-wood-500'}`}
+        >
+          <span className="text-sm font-medium">
+            {state.needsIntervention ? 'Intervento necessario' : 'Nessun intervento necessario'}
+          </span>
+          <span className={`h-6 w-10 rounded-full p-0.5 transition-colors duration-150 ${state.needsIntervention ? 'bg-danger-500' : 'bg-cream-200'}`}>
+            <span className={`block size-5 rounded-full bg-cream-50 transition-transform ${state.needsIntervention ? 'translate-x-4' : 'translate-x-0'}`} />
+          </span>
+        </button>
+      </section>
+
       {weather && (
         <section>
           <SectionLabel>Meteo</SectionLabel>
