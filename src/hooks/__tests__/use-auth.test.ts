@@ -5,7 +5,7 @@ import { useAuth } from '../use-auth'
 const mockSingle = vi.fn()
 const mockEq = vi.fn(() => ({ single: mockSingle }))
 const mockSelect = vi.fn(() => ({ eq: mockEq }))
-const mockFrom = vi.fn(() => ({ select: mockSelect }))
+const mockFrom = vi.fn((_table?: string) => ({ select: mockSelect }))
 const mockUnsubscribe = vi.fn()
 const mockGetSession = vi.fn()
 const mockOnAuthStateChange = vi.fn((_cb: (event: string, session: unknown) => void) => ({
@@ -18,7 +18,7 @@ vi.mock('@/lib/supabase', () => ({
       getSession: () => mockGetSession(),
       onAuthStateChange: (cb: (event: string, session: unknown) => void) => mockOnAuthStateChange(cb),
     },
-    from: () => mockFrom(),
+    from: (table: string) => mockFrom(table),
   },
 }))
 

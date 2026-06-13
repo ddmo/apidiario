@@ -31,7 +31,7 @@ describe('generateSuggestions', () => {
       pollen_importation: null,
       behavior: null, pathologies: null,
       varroa_count: null, varroa_count_method: null,
-      melari_count: 0, interventions: [],
+      melari_count: 0, interventions: [], needs_intervention: false,
       weather_summary: null, temperature_c: null,
       empty_frame_count: null,
     }
@@ -52,7 +52,7 @@ describe('generateSuggestions', () => {
       notes: null, has_queen_cells: true, queen_cells_removed: ['dry_cup'], queen_cell_types: [], queen_cells_remaining: [], pollen_importation: null,
       behavior: null, pathologies: ['varroa' as const],
       varroa_count: 5, varroa_count_method: 'caduta_naturale' as const,
-      melari_count: 0, interventions: [],
+      melari_count: 0, interventions: [], needs_intervention: false,
       weather_summary: null, temperature_c: null,
       empty_frame_count: null,
     }

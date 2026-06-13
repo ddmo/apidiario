@@ -29,7 +29,7 @@ interface HiveFormProps {
   onCancel: () => void
   apiaries?: { id: string; name: string }[]
   photoUrl?: string | null
-  queenData?: { marking_color: string | null; birth_year: number | null } | null
+  queenData?: { is_marked: boolean; birth_year: number | null } | null
   hive?: {
     id: string
     identifier: string
@@ -61,14 +61,14 @@ export function HiveForm({ apiaryId, apiaries, photoUrl, queenData, hive, onSucc
   const [selectedApiaryId, setSelectedApiaryId] = useState(apiaryId)
 
   // Queen
-  const [queenColor, setQueenColor] = useState<string>(queenData?.marking_color ?? '')
+  const [queenIsMarked, setQueenIsMarked] = useState<boolean>(queenData?.is_marked ?? false)
   const [queenBirthYear, setQueenBirthYear] = useState<string>(
     queenData?.birth_year ? String(queenData.birth_year) : ''
   )
 
   useEffect(() => {
     if (queenData) {
-      setQueenColor(queenData.marking_color ?? '')
+      setQueenIsMarked(queenData.is_marked ?? false)
       setQueenBirthYear(queenData.birth_year ? String(queenData.birth_year) : '')
     }
   }, [queenData])
@@ -169,7 +169,7 @@ export function HiveForm({ apiaryId, apiaries, photoUrl, queenData, hive, onSucc
           onSuccess: () => {
             upsertQueen({
               hiveId: hive.id,
-              markingColor: (queenColor || null) as "bianco" | "giallo" | "rosso" | "verde" | "blu" | "non_marcata" | null,
+              isMarked: queenIsMarked,
               birthYear: queenBirthYear ? parseInt(queenBirthYear, 10) || null : null,
             }, {
               onSuccess: () => {
@@ -339,16 +339,20 @@ export function HiveForm({ apiaryId, apiaries, photoUrl, queenData, hive, onSucc
               Regina
             </div>
             <div className="flex flex-col gap-3">
-              <Select
-                id="queen-color"
-                label="Colore marcatura"
-                options={[
-                  { value: '', label: 'Non impostato' },
-                  ...QUEEN_COLORS.map((c) => ({ value: c.value, label: `${c.label} (${c.yearEndings})` })),
-                ]}
-                value={queenColor}
-                onChange={(e) => { setQueenColor(e.target.value); markDirty() }}
-              />
+              {/* Regina marcata si/no */}
+              <button
+                type="button"
+                aria-pressed={queenIsMarked}
+                onClick={() => { setQueenIsMarked(!queenIsMarked); markDirty() }}
+                className={`w-full h-12 rounded-md border px-4 flex items-center justify-between transition-colors ${queenIsMarked ? 'bg-honey-300/60 border-honey-500 text-wood-800' : 'bg-cream-50 border-cream-200 text-wood-500'}`}
+              >
+                <span className="text-sm font-medium">
+                  {queenIsMarked ? 'Regina marcata' : 'Regina non marcata'}
+                </span>
+                <span className={`h-6 w-10 rounded-full p-0.5 transition-colors duration-150 ${queenIsMarked ? 'bg-honey-500' : 'bg-cream-200'}`}>
+                  <span className={`block size-5 rounded-full bg-cream-50 transition-transform ${queenIsMarked ? 'translate-x-4' : 'translate-x-0'}`} />
+                </span>
+              </button>
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="queen-birth-year" className="text-sm font-medium text-wood-700">
                   Anno di nascita
@@ -363,7 +367,7 @@ export function HiveForm({ apiaryId, apiaries, photoUrl, queenData, hive, onSucc
                   onChange={(e) => { setQueenBirthYear(e.target.value); markDirty() }}
                   className="h-12 rounded-md border border-cream-200 bg-cream-50 px-4 text-base text-wood-700 transition-colors duration-150 focus:border-honey-500 focus:outline-none focus:ring-2 focus:ring-honey-500/20"
                 />
-                {queenBirthYear && queenColor === '' && (() => {
+                {queenIsMarked && queenBirthYear && (() => {
                   const y = parseInt(queenBirthYear, 10)
                   if (isNaN(y)) return null
                   const derived = queenColorFromYear(y)
@@ -371,7 +375,7 @@ export function HiveForm({ apiaryId, apiaries, photoUrl, queenData, hive, onSucc
                   const label = QUEEN_COLORS.find((c) => c.value === derived)?.label
                   return (
                     <p className="text-xs text-wood-400">
-                      Colore calcolato dall'anno: <span className="inline-block size-2 rounded-full align-middle" style={{ backgroundColor: QUEEN_COLORS.find((c) => c.value === derived)?.hex }} /> {label}
+                      Colore marcatura (dall'anno): <span className="inline-block size-2 rounded-full align-middle" style={{ backgroundColor: QUEEN_COLORS.find((c) => c.value === derived)?.hex }} /> {label}
                     </p>
                   )
                 })()}

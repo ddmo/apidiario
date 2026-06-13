@@ -115,7 +115,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true, swarmingFeverSe
   }
 
   return (
-    <div className="relative overflow-hidden rounded-xl">
+    <div className={`relative overflow-hidden rounded-xl border ${hive.needsIntervention ? 'border-danger-500 border-2' : 'border-wood-300'}`}>
       {/* Reveal panel */}
       <div
         className="absolute inset-y-0 right-0 flex items-stretch"
@@ -162,7 +162,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true, swarmingFeverSe
         onTouchEnd={handleTouchEnd}
         onTransitionEnd={() => setAnimate(false)}
       >
-        <div className="bg-cream-100 border border-cream-200 shadow-xs">
+        <div className="bg-cream-100 shadow-xs">
           {showSchematic ? (
             <div className="px-3 py-2 flex gap-3">
               {/* Schematic */}
@@ -175,6 +175,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true, swarmingFeverSe
                   hasPollenTrap={hive.hasPollenTrap}
                   hasActiveQueen={hive.hasActiveQueen}
                   queenMarkingColor={hive.queenMarkingColor}
+                  queenIsMarked={hive.queenIsMarked}
                 />
               </div>
               <div className="flex-1 min-w-0 flex flex-col gap-1">

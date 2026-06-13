@@ -92,6 +92,7 @@ function EditInspectionPage() {
         varroa_count: isExpress || !formState.varroaCount ? null : Number(formState.varroaCount),
         varroa_count_method: isExpress || !formState.varroaCount ? null : formState.varroaMethod,
         interventions: isExpress ? [] : Array.from(formState.interventions),
+        needs_intervention: formState.needsIntervention,
       }
       const { error } = await supabase
         .from('inspections')
@@ -143,6 +144,7 @@ function EditInspectionPage() {
         varroaCount: inspection.varroa_count != null ? String(inspection.varroa_count) : '',
         varroaMethod: inspection.varroa_count_method ?? 'caduta_naturale',
         interventions: new Set(inspection.interventions ?? []),
+        needsIntervention: inspection.needs_intervention ?? false,
       }
     : undefined
 

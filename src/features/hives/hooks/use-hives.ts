@@ -24,6 +24,8 @@ export type HiveListItem = {
   hasPollenTrap: boolean
   hasActiveQueen: boolean | 'non_cercata'
   queenMarkingColor: QueenMarkingColor | null
+  queenIsMarked: boolean
+  needsIntervention: boolean
   lastInspection: { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number; emptyFrameCount: number; queenSeen: string | null } | null
   photoUrl: string | null
 }
@@ -39,7 +41,6 @@ export function useHivesByApiary(apiaryId: string) {
         )
         .eq('apiary_id', apiaryId)
         .is('archived_at', null)
-        .order('created_at', { ascending: true })
 
       if (hivesError) throw hivesError
       if (!hivesData.length) return []
@@ -63,18 +64,18 @@ export function useHivesByApiary(apiaryId: string) {
       const [{ data: inspData }, { data: queensData }] = await Promise.all([
         supabase
           .from('inspections')
-          .select('hive_id, performed_at, brood_frame_count, honey_frame_count, pollen_frame_count, empty_frame_count, queen_seen')
+          .select('hive_id, performed_at, brood_frame_count, honey_frame_count, pollen_frame_count, empty_frame_count, queen_seen, needs_intervention')
           .in('hive_id', hiveIds)
           .order('hive_id')
           .order('performed_at', { ascending: false }),
         supabase
           .from('queens')
-          .select('hive_id, marking_color, birth_year')
+          .select('hive_id, is_marked, birth_year')
           .in('hive_id', hiveIds)
           .is('end_date', null),
       ])
 
-      const lastInspMap = new Map<string, { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number; emptyFrameCount: number; queenSeen: string | null }>()
+      const lastInspMap = new Map<string, { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number; emptyFrameCount: number; queenSeen: string | null; needsIntervention: boolean }>()
       for (const insp of inspData ?? []) {
         if (!lastInspMap.has(insp.hive_id)) {
           lastInspMap.set(insp.hive_id, {
@@ -84,22 +85,26 @@ export function useHivesByApiary(apiaryId: string) {
             pollenFrameCount: insp.pollen_frame_count ?? 0,
             emptyFrameCount: insp.empty_frame_count ?? 0,
             queenSeen: insp.queen_seen ?? null,
+            needsIntervention: insp.needs_intervention ?? false,
           })
         }
       }
 
-      type QueenInfo = { marking_color: string | null; birth_year: number | null }
+      type QueenInfo = { is_marked: boolean; birth_year: number | null }
       const queenInfoMap = new Map<string, QueenInfo>()
       for (const q of queensData ?? []) {
-        queenInfoMap.set(q.hive_id, { marking_color: q.marking_color, birth_year: q.birth_year })
+        queenInfoMap.set(q.hive_id, { is_marked: q.is_marked, birth_year: q.birth_year })
       }
 
+      // Colore derivato dall'anno di nascita, solo se la regina è marcata.
       function getQueenColor(hiveId: string): QueenMarkingColor | null {
         const q = queenInfoMap.get(hiveId)
-        if (!q) return null
-        if (q.marking_color && q.marking_color !== 'non_marcata') return q.marking_color as QueenMarkingColor | null
+        if (!q || !q.is_marked) return null
         if (q.birth_year) return queenColorFromYear(q.birth_year)
         return null
+      }
+      function getQueenIsMarked(hiveId: string): boolean {
+        return queenInfoMap.get(hiveId)?.is_marked ?? false
       }
 
       return hivesData.map((h) => ({
@@ -120,7 +125,7 @@ export function useHivesByApiary(apiaryId: string) {
         hasApiscampo: h.has_apiscampo,
         hasPropolisNet: h.has_propolis_net,
         hasPollenTrap: h.has_pollen_trap,
-        hasActiveQueen: (() => {
+        hasActiveQueen: ((): boolean | 'non_cercata' => {
           const insp = lastInspMap.get(h.id)
           if (insp?.queenSeen === 'vista') return true
           if (insp?.queenSeen === 'non_cercata') return 'non_cercata'
@@ -128,9 +133,15 @@ export function useHivesByApiary(apiaryId: string) {
           return queenInfoMap.has(h.id)
         })(),
         queenMarkingColor: getQueenColor(h.id),
+        queenIsMarked: getQueenIsMarked(h.id),
+        needsIntervention: lastInspMap.get(h.id)?.needsIntervention ?? false,
         lastInspection: lastInspMap.get(h.id) ?? null,
         photoUrl: photoUrls.get(h.id) ?? null,
-      }))
+      })).sort((a, b) => {
+        // Arnie che necessitano intervento sempre per prime
+        if (a.needsIntervention !== b.needsIntervention) return a.needsIntervention ? -1 : 1
+        return a.identifier.localeCompare(b.identifier, 'it', { numeric: true, sensitivity: 'base' })
+      })
     },
     enabled: !!apiaryId,
   })
@@ -210,18 +221,18 @@ export function useAllHives() {
       const [{ data: inspData }, { data: queensData }] = await Promise.all([
         supabase
           .from('inspections')
-          .select('hive_id, performed_at, brood_frame_count, honey_frame_count, pollen_frame_count, empty_frame_count, queen_seen')
+          .select('hive_id, performed_at, brood_frame_count, honey_frame_count, pollen_frame_count, empty_frame_count, queen_seen, needs_intervention')
           .in('hive_id', hiveIds)
           .order('hive_id')
           .order('performed_at', { ascending: false }),
         supabase
           .from('queens')
-          .select('hive_id, marking_color, birth_year')
+          .select('hive_id, is_marked, birth_year')
           .in('hive_id', hiveIds)
           .is('end_date', null),
       ])
 
-      const lastInspMap = new Map<string, { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number; emptyFrameCount: number; queenSeen: string | null }>()
+      const lastInspMap = new Map<string, { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number; emptyFrameCount: number; queenSeen: string | null; needsIntervention: boolean }>()
       for (const insp of inspData ?? []) {
         if (!lastInspMap.has(insp.hive_id)) {
           lastInspMap.set(insp.hive_id, {
@@ -231,22 +242,26 @@ export function useAllHives() {
             pollenFrameCount: insp.pollen_frame_count ?? 0,
             emptyFrameCount: insp.empty_frame_count ?? 0,
             queenSeen: insp.queen_seen ?? null,
+            needsIntervention: insp.needs_intervention ?? false,
           })
         }
       }
 
-      type QueenInfo = { marking_color: string | null; birth_year: number | null }
+      type QueenInfo = { is_marked: boolean; birth_year: number | null }
       const queenInfoMap = new Map<string, QueenInfo>()
       for (const q of queensData ?? []) {
-        queenInfoMap.set(q.hive_id, { marking_color: q.marking_color, birth_year: q.birth_year })
+        queenInfoMap.set(q.hive_id, { is_marked: q.is_marked, birth_year: q.birth_year })
       }
 
+      // Colore derivato dall'anno di nascita, solo se la regina è marcata.
       function getQueenColor(hiveId: string): QueenMarkingColor | null {
         const q = queenInfoMap.get(hiveId)
-        if (!q) return null
-        if (q.marking_color && q.marking_color !== 'non_marcata') return q.marking_color as QueenMarkingColor | null
+        if (!q || !q.is_marked) return null
         if (q.birth_year) return queenColorFromYear(q.birth_year)
         return null
+      }
+      function getQueenIsMarked(hiveId: string): boolean {
+        return queenInfoMap.get(hiveId)?.is_marked ?? false
       }
 
       return hivesData.map((h) => ({
@@ -276,6 +291,8 @@ export function useAllHives() {
           return queenInfoMap.has(h.id)
         })(),
         queenMarkingColor: getQueenColor(h.id),
+        queenIsMarked: getQueenIsMarked(h.id),
+        needsIntervention: lastInspMap.get(h.id)?.needsIntervention ?? false,
         lastInspection: lastInspMap.get(h.id) ?? null,
         photoUrl: null,
       }))
@@ -428,11 +445,11 @@ export function useUpsertQueen() {
   return useMutation({
     mutationFn: async ({
       hiveId,
-      markingColor,
+      isMarked,
       birthYear,
     }: {
       hiveId: string
-      markingColor: QueenMarkingColor | null
+      isMarked: boolean
       birthYear: number | null
     }) => {
       const { data: existing } = await supabase
@@ -443,7 +460,7 @@ export function useUpsertQueen() {
         .maybeSingle()
 
       const payload = {
-        marking_color: markingColor ?? undefined,
+        is_marked: isMarked,
         birth_year: birthYear,
         start_date: existing ? undefined : new Date().toISOString().slice(0, 10),
       }
