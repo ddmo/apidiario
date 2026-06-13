@@ -51,8 +51,18 @@ document.addEventListener('touchmove', (e) => {
 }, { passive: false })
 
 // Registra service worker (workbox precaching + push notifications)
+// updateViaCache: 'none' → il browser non usa MAI la cache HTTP per lo script SW.
+// Senza questo, sw.js cachato (immutable) impedirebbe a iOS di rilevare nuove versioni.
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js')
+  navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).then((reg) => {
+    // iOS PWA da home: controlla aggiornamenti ogni volta che l'app torna in foreground.
+    // Se trova un nuovo SW, skipWaiting+clientsClaim → controllerchange → reload automatico.
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') void reg.update()
+    })
+    // Check anche all'avvio (oltre a quello implicito della register)
+    void reg.update()
+  }).catch(() => { /* registrazione SW fallita: app funziona comunque online */ })
 }
 
 // Avvia sync manager: drena la queue quando si torna online
