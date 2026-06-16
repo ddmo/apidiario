@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { getAuthUser } from '@/lib/auth-guard'
 import { useSuggestionFilters, useUpdateSuggestionFilters } from '@/features/suggestions/hooks/use-suggestion-filters'
 import {
-  ALL_SUGGESTION_FILTER_KEYS,
   SUGGESTION_CATEGORY_LABELS,
   SUGGESTION_FILTER_OPTIONS,
   type SuggestionFilterCategory,
