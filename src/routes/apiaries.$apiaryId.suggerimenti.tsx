@@ -55,7 +55,14 @@ function SuggerimentiPage() {
     [enabledFilters],
   )
 
-  const [viewMode, setViewMode] = useState<'hive' | 'grouped'>('hive')
+  const [viewMode, setViewMode] = useState<'hive' | 'grouped'>(
+    () => (localStorage.getItem('suggerimenti-view-mode') as 'hive' | 'grouped') ?? 'hive',
+  )
+
+  function changeViewMode(mode: 'hive' | 'grouped') {
+    localStorage.setItem('suggerimenti-view-mode', mode)
+    setViewMode(mode)
+  }
 
   const filtered = useMemo(
     () =>
@@ -90,7 +97,7 @@ function SuggerimentiPage() {
         <button
           type="button"
           aria-label={viewMode === 'hive' ? 'Vista per avviso' : 'Vista per arnia'}
-          onClick={() => setViewMode((m) => (m === 'hive' ? 'grouped' : 'hive'))}
+          onClick={() => changeViewMode(viewMode === 'hive' ? 'grouped' : 'hive')}
           className="size-11 flex items-center justify-center text-wood-500 hover:text-wood-800 hover:bg-cream-100 rounded-md transition-colors"
         >
           {viewMode === 'hive' ? <Layers size={20} strokeWidth={1.75} /> : <LayoutList size={20} strokeWidth={1.75} />}

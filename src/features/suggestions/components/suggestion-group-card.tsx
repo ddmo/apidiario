@@ -17,17 +17,15 @@ export function SuggestionGroupCard({ group }: SuggestionGroupCardProps) {
   return (
     <div className="bg-cream-100 border border-cream-200 rounded-xl overflow-hidden">
       <div className="py-2.5 px-3">
-        <div className="flex items-start gap-2.5">
-          <SeverityBadge severity={suggestion.severity} className="mt-0.5" />
-          <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-medium text-wood-800 leading-snug">
-              {suggestion.title}
-            </h4>
-            <p className="text-sm text-wood-500 leading-relaxed mt-0.5">
-              {suggestion.description}
-            </p>
-          </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <SeverityBadge severity={suggestion.severity} />
+          <h4 className="text-sm font-medium text-wood-800 leading-snug">
+            {suggestion.title}
+          </h4>
         </div>
+        <p className="text-sm text-wood-500 leading-relaxed mt-1">
+          {suggestion.description}
+        </p>
 
         <div className="mt-2.5 flex flex-wrap gap-1.5">
           {hives.map((hive) => (
