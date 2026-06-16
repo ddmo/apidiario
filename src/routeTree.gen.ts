@@ -38,6 +38,8 @@ import { Route as HivesHiveIdEditRouteImport } from './routes/hives.$hiveId.edit
 import { Route as ApiariesApiaryIdSuggerimentiRouteImport } from './routes/apiaries.$apiaryId.suggerimenti'
 import { Route as ApiariesApiaryIdMeteoRouteImport } from './routes/apiaries.$apiaryId.meteo'
 import { Route as ApiariesApiaryIdEditRouteImport } from './routes/apiaries.$apiaryId.edit'
+import { Route as AuthImpostazioniSuggerimentiRouteImport } from './routes/_auth.impostazioni.suggerimenti'
+import { Route as AuthImpostazioniPreferenzeRouteImport } from './routes/_auth.impostazioni.preferenze'
 import { Route as AuthImpostazioniIspezioneExpressRouteImport } from './routes/_auth.impostazioni.ispezione-express'
 import { Route as AuthApiariesApiaryIdRouteImport } from './routes/_auth.apiaries.$apiaryId'
 import { Route as HivesHiveIdInspectionsInspectionIdRouteImport } from './routes/hives.$hiveId.inspections.$inspectionId'
@@ -192,6 +194,18 @@ const ApiariesApiaryIdEditRoute = ApiariesApiaryIdEditRouteImport.update({
   path: '/apiaries/$apiaryId/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthImpostazioniSuggerimentiRoute =
+  AuthImpostazioniSuggerimentiRouteImport.update({
+    id: '/impostazioni/suggerimenti',
+    path: '/impostazioni/suggerimenti',
+    getParentRoute: () => AuthRoute,
+  } as any)
+const AuthImpostazioniPreferenzeRoute =
+  AuthImpostazioniPreferenzeRouteImport.update({
+    id: '/impostazioni/preferenze',
+    path: '/impostazioni/preferenze',
+    getParentRoute: () => AuthRoute,
+  } as any)
 const AuthImpostazioniIspezioneExpressRoute =
   AuthImpostazioniIspezioneExpressRouteImport.update({
     id: '/impostazioni/ispezione-express',
@@ -244,6 +258,8 @@ export interface FileRoutesByFullPath {
   '/trattamenti/new': typeof TrattamentiNewRoute
   '/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
   '/impostazioni/ispezione-express': typeof AuthImpostazioniIspezioneExpressRoute
+  '/impostazioni/preferenze': typeof AuthImpostazioniPreferenzeRoute
+  '/impostazioni/suggerimenti': typeof AuthImpostazioniSuggerimentiRoute
   '/apiaries/$apiaryId/edit': typeof ApiariesApiaryIdEditRoute
   '/apiaries/$apiaryId/meteo': typeof ApiariesApiaryIdMeteoRoute
   '/apiaries/$apiaryId/suggerimenti': typeof ApiariesApiaryIdSuggerimentiRoute
@@ -279,6 +295,8 @@ export interface FileRoutesByTo {
   '/': typeof AuthIndexRoute
   '/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
   '/impostazioni/ispezione-express': typeof AuthImpostazioniIspezioneExpressRoute
+  '/impostazioni/preferenze': typeof AuthImpostazioniPreferenzeRoute
+  '/impostazioni/suggerimenti': typeof AuthImpostazioniSuggerimentiRoute
   '/apiaries/$apiaryId/edit': typeof ApiariesApiaryIdEditRoute
   '/apiaries/$apiaryId/meteo': typeof ApiariesApiaryIdMeteoRoute
   '/apiaries/$apiaryId/suggerimenti': typeof ApiariesApiaryIdSuggerimentiRoute
@@ -316,6 +334,8 @@ export interface FileRoutesById {
   '/_auth/': typeof AuthIndexRoute
   '/_auth/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
   '/_auth/impostazioni/ispezione-express': typeof AuthImpostazioniIspezioneExpressRoute
+  '/_auth/impostazioni/preferenze': typeof AuthImpostazioniPreferenzeRoute
+  '/_auth/impostazioni/suggerimenti': typeof AuthImpostazioniSuggerimentiRoute
   '/apiaries/$apiaryId/edit': typeof ApiariesApiaryIdEditRoute
   '/apiaries/$apiaryId/meteo': typeof ApiariesApiaryIdMeteoRoute
   '/apiaries/$apiaryId/suggerimenti': typeof ApiariesApiaryIdSuggerimentiRoute
@@ -353,6 +373,8 @@ export interface FileRouteTypes {
     | '/trattamenti/new'
     | '/apiaries/$apiaryId'
     | '/impostazioni/ispezione-express'
+    | '/impostazioni/preferenze'
+    | '/impostazioni/suggerimenti'
     | '/apiaries/$apiaryId/edit'
     | '/apiaries/$apiaryId/meteo'
     | '/apiaries/$apiaryId/suggerimenti'
@@ -388,6 +410,8 @@ export interface FileRouteTypes {
     | '/'
     | '/apiaries/$apiaryId'
     | '/impostazioni/ispezione-express'
+    | '/impostazioni/preferenze'
+    | '/impostazioni/suggerimenti'
     | '/apiaries/$apiaryId/edit'
     | '/apiaries/$apiaryId/meteo'
     | '/apiaries/$apiaryId/suggerimenti'
@@ -424,6 +448,8 @@ export interface FileRouteTypes {
     | '/_auth/'
     | '/_auth/apiaries/$apiaryId'
     | '/_auth/impostazioni/ispezione-express'
+    | '/_auth/impostazioni/preferenze'
+    | '/_auth/impostazioni/suggerimenti'
     | '/apiaries/$apiaryId/edit'
     | '/apiaries/$apiaryId/meteo'
     | '/apiaries/$apiaryId/suggerimenti'
@@ -669,6 +695,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiariesApiaryIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_auth/impostazioni/suggerimenti': {
+      id: '/_auth/impostazioni/suggerimenti'
+      path: '/impostazioni/suggerimenti'
+      fullPath: '/impostazioni/suggerimenti'
+      preLoaderRoute: typeof AuthImpostazioniSuggerimentiRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/impostazioni/preferenze': {
+      id: '/_auth/impostazioni/preferenze'
+      path: '/impostazioni/preferenze'
+      fullPath: '/impostazioni/preferenze'
+      preLoaderRoute: typeof AuthImpostazioniPreferenzeRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/impostazioni/ispezione-express': {
       id: '/_auth/impostazioni/ispezione-express'
       path: '/impostazioni/ispezione-express'
@@ -718,6 +758,8 @@ interface AuthRouteChildren {
   AuthIndexRoute: typeof AuthIndexRoute
   AuthApiariesApiaryIdRoute: typeof AuthApiariesApiaryIdRoute
   AuthImpostazioniIspezioneExpressRoute: typeof AuthImpostazioniIspezioneExpressRoute
+  AuthImpostazioniPreferenzeRoute: typeof AuthImpostazioniPreferenzeRoute
+  AuthImpostazioniSuggerimentiRoute: typeof AuthImpostazioniSuggerimentiRoute
   AuthHivesHiveIdInspectionsRoute: typeof AuthHivesHiveIdInspectionsRoute
 }
 
@@ -732,6 +774,8 @@ const AuthRouteChildren: AuthRouteChildren = {
   AuthIndexRoute: AuthIndexRoute,
   AuthApiariesApiaryIdRoute: AuthApiariesApiaryIdRoute,
   AuthImpostazioniIspezioneExpressRoute: AuthImpostazioniIspezioneExpressRoute,
+  AuthImpostazioniPreferenzeRoute: AuthImpostazioniPreferenzeRoute,
+  AuthImpostazioniSuggerimentiRoute: AuthImpostazioniSuggerimentiRoute,
   AuthHivesHiveIdInspectionsRoute: AuthHivesHiveIdInspectionsRoute,
 }
 

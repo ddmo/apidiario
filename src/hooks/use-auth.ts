@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import type { Tables } from '@/types/database'
@@ -7,44 +8,31 @@ type Profile = Tables<'profiles'>
 
 export function useAuth() {
   const [session, setSession] = useState<Session | null>(null)
-  const [profile, setProfile] = useState<Profile | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [sessionLoading, setSessionLoading] = useState(true)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
-      if (session) {
-        fetchProfile(session.user.id)
-      } else {
-        setLoading(false)
-      }
+      setSessionLoading(false)
     })
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
       setSession(session)
-      if (session) {
-        fetchProfile(session.user.id)
-      } else {
-        setProfile(null)
-        setLoading(false)
-      }
+      setSessionLoading(false)
     })
 
     return () => subscription.unsubscribe()
   }, [])
 
-  async function fetchProfile(userId: string) {
-    try {
-      const { data } = await supabase.from('profiles').select('*').eq('id', userId).single()
-      setProfile(data)
-    } catch {
-      setProfile(null)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const { data: profile = null, isLoading: profileLoading } = useQuery<Profile | null>({
+    queryKey: ['profile', session?.user?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from('profiles').select('*').eq('id', session!.user.id).single()
+      return data ?? null
+    },
+    enabled: !!session?.user?.id,
+    staleTime: 10 * 60 * 1000,
+  })
 
-  return { session, profile, loading }
+  return { session, profile, loading: sessionLoading || profileLoading }
 }

@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, redirect, useRouterState } from '@tanstack/react-router'
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { getAuthUser } from '@/lib/auth-guard'
 import { BottomNav } from '@/components/layout/bottom-nav'
 import { SyncIndicator } from '@/components/layout/sync-indicator'
@@ -12,11 +12,9 @@ export const Route = createFileRoute('/_auth')({
 })
 
 function AuthLayout() {
-  const routeId = useRouterState({ select: (s) => s.location.pathname })
-
   return (
     <div className="flex flex-col h-dvh">
-      <main key={routeId} className="flex-1 min-h-0 max-w-lg mx-auto w-full animate-fade-in">
+      <main className="flex-1 min-h-0 max-w-lg mx-auto w-full">
         <Outlet />
       </main>
       <SyncIndicator />

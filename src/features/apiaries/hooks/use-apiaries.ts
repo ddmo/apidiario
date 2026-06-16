@@ -103,6 +103,7 @@ export function useApiaries() {
       }))
     },
     enabled: !!session?.user?.id,
+    staleTime: 5 * 60 * 1000,
   })
 }
 

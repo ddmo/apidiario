@@ -3,9 +3,8 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
 import { getPushStatus, subscribeToPush, unsubscribeFromPush } from '@/lib/push-notifications'
-import { Shield, LogOut, Sun, Moon, Monitor, User, Flower2, Activity, BarChart3, Bell, BellOff, Trees, Wheat, Clock, RefreshCw, Lock, X, SlidersHorizontal } from 'lucide-react'
+import { Shield, LogOut, User, Flower2, Activity, BarChart3, Bell, BellOff, Trees, Wheat, Clock, RefreshCw, Lock, X, SlidersHorizontal } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { setThemeMode, getThemeMode, type ThemeMode } from '@/lib/theme'
 import { t } from '@/i18n/it'
 
 export const Route = createFileRoute('/_auth/piu')({
@@ -15,9 +14,7 @@ export const Route = createFileRoute('/_auth/piu')({
 function PiuPage() {
   const navigate = useNavigate()
   const { session, profile } = useAuth()
-  const [isAdmin, setIsAdmin] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
-  const [themeMode, setThemeLocal] = useState<ThemeMode>(getThemeMode())
   const [pushSupported, setPushSupported] = useState(false)
   const [pushSubscribed, setPushSubscribed] = useState(false)
   const [pushToggling, setPushToggling] = useState(false)
@@ -36,13 +33,17 @@ function PiuPage() {
     staleTime: 0,
   })
 
-  function handleThemeChange(mode: ThemeMode) {
-    setThemeLocal(mode)
-    setThemeMode(mode)
-  }
+  const { data: isAdmin = false } = useQuery({
+    queryKey: ['isAdmin', session?.user?.id],
+    queryFn: async () => {
+      const { data } = await supabase.rpc('is_app_admin')
+      return !!data
+    },
+    enabled: !!session?.user?.id,
+    staleTime: 10 * 60 * 1000,
+  })
 
   useEffect(() => {
-    supabase.rpc('is_app_admin').then(({ data }) => setIsAdmin(!!data))
     getPushStatus().then((s) => {
       setPushSupported(s.supported)
       setPushSubscribed(s.subscribed)
@@ -205,41 +206,12 @@ function PiuPage() {
           <p className="text-xs uppercase tracking-wider font-semibold text-wood-500 mt-2 mb-1">App</p>
 
           <Link
-            to="/impostazioni/ispezione-express"
+            to="/impostazioni/preferenze"
             className="flex items-center gap-3 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3 text-wood-800 hover:bg-cream-200 transition-colors"
           >
             <SlidersHorizontal size={20} className="text-honey-600 shrink-0" />
-            <span className="text-sm font-medium">Personalizza vista Express</span>
+            <span className="text-sm font-medium">Preferenze</span>
           </Link>
-
-          {/* Theme selector */}
-          <div className="flex flex-col gap-2 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3">
-            <span className="text-sm font-medium text-wood-700">Tema</span>
-            <div className="flex gap-1.5">
-              {([
-                { mode: 'light' as const, icon: Sun, label: 'Chiaro' },
-                { mode: 'system' as const, icon: Monitor, label: 'Sistema' },
-                { mode: 'dark' as const, icon: Moon, label: 'Scuro' },
-              ]).map(({ mode, icon: Icon, label }) => {
-                const active = themeMode === mode
-                return (
-                  <button
-                    key={mode}
-                    type="button"
-                    onClick={() => handleThemeChange(mode)}
-                    className={`flex-1 flex items-center justify-center gap-1.5 h-10 rounded-md text-sm font-medium transition-colors ${
-                      active
-                        ? 'bg-honey-500 text-cream-50'
-                        : 'text-wood-500 hover:bg-cream-200'
-                    }`}
-                  >
-                    <Icon size={16} strokeWidth={1.75} />
-                    <span>{label}</span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
 
           {/* Push notification toggle */}
           {pushSupported && (

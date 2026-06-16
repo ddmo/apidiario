@@ -1,7 +1,6 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { ArrowLeft, Plus, Trash2, Wheat } from 'lucide-react'
 import { useHarvests, useDeleteHarvest } from '@/features/harvests/hooks/use-harvests'
-import { Fab } from '@/components/ui/fab'
 import { SwipeableRow } from '@/components/ui/swipeable-row'
 import { useToast } from '@/hooks/use-toast'
 import type { HarvestListItem } from '@/features/harvests/types'
@@ -33,25 +32,31 @@ function groupByYear(items: HarvestListItem[]): [string, HarvestListItem[]][] {
 }
 
 function RaccoltiPage() {
-  const navigate = useNavigate()
   const { data: harvests, isLoading } = useHarvests()
   const { mutate: deleteHarvest } = useDeleteHarvest()
   const { showToast } = useToast()
   const groups = harvests ? groupByYear(harvests) : []
 
   return (
-    <main className="min-h-dvh flex flex-col bg-cream-50">
-      <header className="shrink-0 bg-cream-50 border-b border-cream-200 pl-1 pr-2 h-14 flex items-center gap-1">
+    <div className="fixed inset-0 bg-cream-50 flex flex-col z-10">
+      <header className="shrink-0 bg-cream-50/95 backdrop-blur-sm border-b border-cream-200 px-2 h-14 flex items-center gap-2">
         <Link
           to="/piu"
+          aria-label="Indietro"
           className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
         >
           <ArrowLeft size={22} strokeWidth={1.75} />
         </Link>
-        <img src="/icons/icon-no-bg.svg" alt="" className="h-14 w-14 shrink-0" />
         <h1 className="font-display text-2xl font-medium text-wood-800 tracking-tight flex-1 px-1">
           Raccolti
         </h1>
+        <Link
+          to="/raccolti/new"
+          aria-label="Nuovo raccolto"
+          className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
+        >
+          <Plus size={22} strokeWidth={1.75} />
+        </Link>
       </header>
 
       <div className="flex-1 px-4 py-6 overflow-y-auto">
@@ -67,13 +72,6 @@ function RaccoltiPage() {
               <p className="text-xs text-wood-400 max-w-[240px]">
                 Registra il primo raccolto per tenere traccia della produzione di miele.
               </p>
-              <Link
-                to="/raccolti/new"
-                className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-honey-500 px-4 py-2 text-sm font-medium text-cream-50 hover:bg-honey-600 transition-colors"
-              >
-                <Plus size={16} />
-                Nuovo raccolto
-              </Link>
             </div>
           )}
 
@@ -132,12 +130,6 @@ function RaccoltiPage() {
           })}
         </div>
       </div>
-
-      <Fab
-        icon={<Plus size={24} />}
-        label="Nuovo raccolto"
-        onClick={() => void navigate({ to: '/raccolti/new' })}
-      />
-    </main>
+    </div>
   )
 }

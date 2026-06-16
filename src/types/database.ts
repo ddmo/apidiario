@@ -982,16 +982,19 @@ export type Database = {
       user_inspection_preferences: {
         Row: {
           express_fields: Json
+          suggestion_filters: Json | null
           updated_at: string
           user_id: string
         }
         Insert: {
           express_fields?: Json
+          suggestion_filters?: Json | null
           updated_at?: string
           user_id: string
         }
         Update: {
           express_fields?: Json
+          suggestion_filters?: Json | null
           updated_at?: string
           user_id?: string
         }

@@ -1,8 +1,7 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { ArrowLeft, Plus, Bell } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Fab } from '@/components/ui/fab'
 import { useReminders, useCompletedReminders, useCompleteReminder, useDeleteReminder } from '@/features/reminders/hooks/use-reminders'
 import { ReminderCard } from '@/features/reminders/components/reminder-card'
 
@@ -11,7 +10,6 @@ export const Route = createFileRoute('/_auth/promemoria')({
 })
 
 function PromemoriaPage() {
-  const navigate = useNavigate()
   const { data: reminders, isLoading } = useReminders()
   const { data: completed } = useCompletedReminders()
   const completeReminder = useCompleteReminder()
@@ -34,18 +32,25 @@ function PromemoriaPage() {
   }
 
   return (
-    <main className="min-h-dvh flex flex-col bg-cream-50">
-      <header className="shrink-0 bg-cream-50 border-b border-cream-200 pl-1 pr-2 h-14 flex items-center gap-1">
+    <div className="fixed inset-0 bg-cream-50 flex flex-col z-10">
+      <header className="shrink-0 bg-cream-50/95 backdrop-blur-sm border-b border-cream-200 px-2 h-14 flex items-center gap-2">
         <Link
           to="/piu"
+          aria-label="Indietro"
           className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
         >
           <ArrowLeft size={22} strokeWidth={1.75} />
         </Link>
-        <img src="/icons/icon-no-bg.svg" alt="" className="h-14 w-14 shrink-0" />
         <h1 className="font-display text-2xl font-medium text-wood-800 tracking-tight flex-1 px-1">
           Promemoria
         </h1>
+        <Link
+          to="/promemoria/new"
+          aria-label="Nuovo promemoria"
+          className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
+        >
+          <Plus size={22} strokeWidth={1.75} />
+        </Link>
       </header>
 
       <div className="flex-1 px-4 py-6 overflow-y-auto">
@@ -59,15 +64,8 @@ function PromemoriaPage() {
               <Bell size={40} className="text-wood-300" />
               <p className="text-sm text-wood-500">Nessun promemoria in sospeso</p>
               <p className="text-xs text-wood-400 max-w-[240px]">
-                Aggiungi un promemoria per non dimenticare trattamenti, ispezioni o altre attivit&agrave;.
+                Aggiungi un promemoria per non dimenticare trattamenti, ispezioni o altre attività.
               </p>
-              <Link
-                to="/promemoria/new"
-                className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-honey-500 px-4 py-2 text-sm font-medium text-cream-50 hover:bg-honey-600 transition-colors"
-              >
-                <Plus size={16} />
-                Nuovo promemoria
-              </Link>
             </div>
           )}
 
@@ -81,35 +79,26 @@ function PromemoriaPage() {
           ))}
 
           {completed && completed.length > 0 && (
-            <>
-              <div className="border-t border-cream-200 pt-4 mt-2">
-                <h2 className="text-sm font-medium text-wood-400 mb-3">Completati</h2>
-                <div className="flex flex-col gap-2 opacity-60">
-                  {completed.map((r) => (
-                    <div
-                      key={r.id}
-                      className="rounded-xl border border-cream-200 bg-cream-100 px-4 py-3"
-                    >
-                      <p className="text-sm text-wood-500 line-through">{r.title}</p>
-                      <p className="text-xs text-wood-300 mt-0.5">
-                        Completato il {new Date(r.completed_at!).toLocaleDateString('it-IT')}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+            <div className="border-t border-cream-200 pt-4 mt-2">
+              <h2 className="text-sm font-medium text-wood-400 mb-3">Completati</h2>
+              <div className="flex flex-col gap-2 opacity-60">
+                {completed.map((r) => (
+                  <div
+                    key={r.id}
+                    className="rounded-xl border border-cream-200 bg-cream-100 px-4 py-3"
+                  >
+                    <p className="text-sm text-wood-500 line-through">{r.title}</p>
+                    <p className="text-xs text-wood-300 mt-0.5">
+                      Completato il {new Date(r.completed_at!).toLocaleDateString('it-IT')}
+                    </p>
+                  </div>
+                ))}
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>
 
-      <Fab
-        icon={<Plus size={24} />}
-        label="Nuovo promemoria"
-        onClick={() => void navigate({ to: '/promemoria/new' })}
-      />
-
-      {/* Delete confirmation */}
       {deleteId && (
         <>
           <div
@@ -123,7 +112,7 @@ function PromemoriaPage() {
             </div>
             <div className="px-5 pt-3 pb-4">
               <h2 className="text-lg font-semibold text-wood-800 mb-1">Elimina promemoria</h2>
-              <p className="text-sm text-wood-500 leading-relaxed">Non potrai pi&ugrave; recuperarlo.</p>
+              <p className="text-sm text-wood-500 leading-relaxed">Non potrai più recuperarlo.</p>
             </div>
             <div className="px-4 flex flex-col gap-2" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
               <button
@@ -140,6 +129,6 @@ function PromemoriaPage() {
           </div>
         </>
       )}
-    </main>
+    </div>
   )
 }
