@@ -17,7 +17,12 @@ export function useSuggestionFilters(): string[] | undefined {
         .eq('user_id', session.user.id)
         .maybeSingle()
       if (row?.suggestion_filters && Array.isArray(row.suggestion_filters)) {
-        return row.suggestion_filters as string[]
+        const saved = new Set(row.suggestion_filters as string[])
+        // any key added after the user last saved gets enabled by default
+        for (const key of ALL_SUGGESTION_FILTER_KEYS) {
+          if (!saved.has(key)) saved.add(key)
+        }
+        return [...saved]
       }
       return ALL_SUGGESTION_FILTER_KEYS
     },

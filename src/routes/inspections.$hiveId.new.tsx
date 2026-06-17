@@ -98,6 +98,7 @@ function NewInspectionPage() {
         varroa_count: isExpress || !formState.varroaCount ? null : Number(formState.varroaCount),
         varroa_count_method: isExpress || !formState.varroaCount ? null : formState.varroaMethod,
         interventions: isExpress ? [] : Array.from(formState.interventions),
+        pending_interventions: isExpress ? [] : Array.from(formState.pendingInterventions),
         needs_intervention: formState.needsIntervention,
         temperature_c: weather?.temperature ?? null,
         weather_summary: weather?.summary ?? null,

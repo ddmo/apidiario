@@ -4,7 +4,7 @@ import { queenNotSeen, suspectedOrphan, queenFailing, queenConfirmedByEggs } fro
 import { swarmingRoyalCellsFollowup, swarmingProneRaceSpring, swarmingFever } from './rules/swarming'
 import { pathologyFollowup, varroaTreatmentWindow, varroaCountMissingInSeason } from './rules/health'
 import { weakPopulation, lowHoneyStoresPreWinter, lowPollenSpring } from './rules/stores'
-import { pollenTrapCheck, propolisNetCheck } from './rules/equipment'
+import { pollenTrapCheck, propolisNetCheck, superAddPending } from './rules/equipment'
 import { melariCheck } from './rules/harvest'
 import { overdueInspectionActiveSeason, firstInspectionNeeded, remindersDue } from './rules/schedule'
 import { postSwarmQueenCheck } from './rules/season'
@@ -30,6 +30,7 @@ export const rules: Rule[] = [
   // Equipment
   pollenTrapCheck,
   propolisNetCheck,
+  superAddPending,
   // Harvest
   melariCheck,
   // Schedule

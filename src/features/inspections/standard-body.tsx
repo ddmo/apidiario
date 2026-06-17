@@ -10,7 +10,7 @@ import { PathologyChip } from './components/pathology-chip'
 import { InspectionNoteField } from './components/inspection-note-field'
 import { InspectionMediaPicker } from './components/inspection-media-picker'
 import { SegmentedControl } from '@/components/ui/segmented-control'
-import { PATHOLOGY_OPTIONS, VARROA_METHOD_OPTIONS, INTERVENTION_OPTIONS } from './constants'
+import { PATHOLOGY_OPTIONS, VARROA_METHOD_OPTIONS, INTERVENTION_OPTIONS, PENDING_INTERVENTION_OPTIONS } from './constants'
 import type { InspectionFormState, PathologyType, VoiceNote } from './types'
 
 const POPULATION_OPTIONS = [
@@ -72,6 +72,12 @@ export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes
     const next = new Set(state.interventions)
     if (next.has(i)) { next.delete(i) } else { next.add(i) }
     onUpdate('interventions', next)
+  }
+
+  const togglePendingIntervention = (i: string) => {
+    const next = new Set(state.pendingInterventions)
+    if (next.has(i)) { next.delete(i) } else { next.add(i) }
+    onUpdate('pendingInterventions', next)
   }
 
   return (
@@ -260,6 +266,22 @@ export function StandardBody({ state, dirtyFields, onUpdate, weather, voiceNotes
           onChange={(e) => onUpdate('otherInterventions', e.target.value)}
           className="w-full bg-cream-50 border border-cream-200 rounded-md px-4 py-2.5 text-sm text-wood-700 placeholder:text-wood-400 focus:border-honey-500 focus:outline-none focus:ring-2 focus:ring-honey-500/20 resize-none"
         />
+      </section>
+
+      <section>
+        <SectionLabel>Interventi da eseguire</SectionLabel>
+        <div className="flex flex-wrap gap-2">
+          {PENDING_INTERVENTION_OPTIONS.map((i) => (
+            <PathologyChip
+              key={i}
+              label={i}
+              selected={state.pendingInterventions.has(i)}
+              onClick={() => togglePendingIntervention(i)}
+              dirty={d('pendingInterventions')}
+              tone="honey"
+            />
+          ))}
+        </div>
       </section>
 
       {!disableVoiceAndMedia && (

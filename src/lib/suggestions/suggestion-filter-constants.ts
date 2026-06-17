@@ -86,6 +86,10 @@ export const SUGGESTION_FILTER_OPTIONS: SuggestionFilterOption[] = [
     whenDescription: "Sempre presente quando l'arnia ha una rete per propoli installata.",
   },
   {
+    key: 'super-add-pending', label: 'Aggiungere/Sostituire melario', category: 'equipment',
+    whenDescription: "Nell'ultima ispezione è stato segnato 'Aggiungere/Sostituire melario' tra gli interventi da eseguire.",
+  },
+  {
     key: 'melari-check', label: 'Controllo melari', category: 'harvest',
     whenDescription: "Quando l'arnia ha almeno un melario installato.",
   },

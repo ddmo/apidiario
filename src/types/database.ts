@@ -491,6 +491,7 @@ export type Database = {
           needs_intervention: boolean
           notes: string | null
           pathologies: Database["public"]["Enums"]["pathology"][] | null
+          pending_interventions: string[]
           performed_at: string
           performed_by: string | null
           pollen_frame_count: number | null
@@ -525,6 +526,7 @@ export type Database = {
           needs_intervention?: boolean
           notes?: string | null
           pathologies?: Database["public"]["Enums"]["pathology"][] | null
+          pending_interventions?: string[]
           performed_at?: string
           performed_by?: string | null
           pollen_frame_count?: number | null
@@ -559,6 +561,7 @@ export type Database = {
           needs_intervention?: boolean
           notes?: string | null
           pathologies?: Database["public"]["Enums"]["pathology"][] | null
+          pending_interventions?: string[]
           performed_at?: string
           performed_by?: string | null
           pollen_frame_count?: number | null

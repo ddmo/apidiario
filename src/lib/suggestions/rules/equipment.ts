@@ -23,3 +23,18 @@ export const propolisNetCheck: Rule = (ctx) => {
     reason: 'has_propolis_net = true',
   }
 }
+
+export const superAddPending: Rule = (ctx) => {
+  const insp = ctx.lastInspection
+  if (!insp) return null
+  const pending: string[] = (insp as unknown as { pending_interventions?: string[] }).pending_interventions ?? []
+  if (!pending.includes('Aggiungere/Sostituire melario')) return null
+  return {
+    id: 'super-add-pending',
+    severity: 'warning',
+    category: 'equipment',
+    title: 'Aggiungere/Sostituire melario',
+    description: "Nell'ultima ispezione è stato segnato come intervento da eseguire. Verifica e intervieni.",
+    reason: 'pending_interventions include "Aggiungere/Sostituire melario"',
+  }
+}

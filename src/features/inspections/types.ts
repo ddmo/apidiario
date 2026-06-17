@@ -59,6 +59,7 @@ export type InspectionFormState = {
   behavior: BehaviorType
   interventions: Set<string>
   otherInterventions: string
+  pendingInterventions: Set<string>
   needsIntervention: boolean
 }
 
@@ -79,5 +80,6 @@ export const DEFAULT_STATE: InspectionFormState = {
   behavior: 'calmo',
   interventions: new Set(),
   otherInterventions: '',
+  pendingInterventions: new Set(),
   needsIntervention: false,
 }

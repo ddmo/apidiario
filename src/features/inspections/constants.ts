@@ -27,3 +27,7 @@ export const INTERVENTION_OPTIONS = [
   'Cambio regina',
   'Nutrizione',
 ]
+
+export const PENDING_INTERVENTION_OPTIONS = [
+  'Aggiungere/Sostituire melario',
+]
