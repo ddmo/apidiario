@@ -23,7 +23,7 @@ const INSP = {
   notes: null, has_queen_cells: false, queen_cells_removed: [], queen_cell_types: [], queen_cells_remaining: [], pollen_importation: null,
   behavior: null, pathologies: null,
   varroa_count: null, varroa_count_method: null,
-  melari_count: 0, interventions: [], needs_intervention: false,
+  melari_count: 0, interventions: [], pending_interventions: [], needs_intervention: false,
   weather_summary: null, temperature_c: null,
   empty_frame_count: null,
 }
