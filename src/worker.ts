@@ -19,7 +19,7 @@ const MAX_AUDIO_BYTES = 10 * 1024 * 1024 // 10 MB
 // garanzia forte — gli isolate Cloudflare sono effimeri e multipli — ma
 // taglia i loop di abuso da singolo client senza richiedere KV/DO.
 const RATE_WINDOW_MS = 60_000
-const RATE_MAX = 10
+const RATE_MAX = 5
 const rateHits = new Map<string, number[]>()
 
 function rateLimited(userId: string): boolean {
