@@ -276,7 +276,7 @@ describe.skipIf(!apiKey)('extractInspection — integrazione DeepSeek', () => {
   })
 
   it.each(CORPUS)('$name', async ({ text, check }) => {
-    const result = await extractInspection(apiKey!, text)
+    const { result } = await extractInspection(apiKey!, text)
     expect(validateResult(result), `validateResult failed: ${JSON.stringify(result)}`).toBe(true)
     expect(result.transcript.length).toBeGreaterThan(0)
     check(result)

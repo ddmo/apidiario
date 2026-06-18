@@ -209,6 +209,39 @@ export type Database = {
           },
         ]
       }
+      api_usage_log: {
+        Row: {
+          id: string
+          user_id: string
+          created_at: string
+          service: 'whisper' | 'deepseek'
+          audio_seconds: number | null
+          tokens_in: number | null
+          tokens_out: number | null
+          cost_usd: number
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          created_at?: string
+          service: 'whisper' | 'deepseek'
+          audio_seconds?: number | null
+          tokens_in?: number | null
+          tokens_out?: number | null
+          cost_usd: number
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          created_at?: string
+          service?: 'whisper' | 'deepseek'
+          audio_seconds?: number | null
+          tokens_in?: number | null
+          tokens_out?: number | null
+          cost_usd?: number
+        }
+        Relationships: []
+      }
       app_admins: {
         Row: {
           created_at: string
@@ -1051,6 +1084,15 @@ export type Database = {
         Returns: {
           count: number
           week_start: string
+        }[]
+      }
+      get_api_cost_by_user: {
+        Args: never
+        Returns: {
+          user_id: string
+          display_name: string
+          call_count: number
+          cost_usd: number
         }[]
       }
       is_app_admin: { Args: never; Returns: boolean }

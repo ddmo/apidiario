@@ -34,8 +34,8 @@ function rateLimited(userId: string): boolean {
   return false
 }
 
-// Verifica il JWT chiamante contro Supabase Auth. Ritorna lo user id o null.
-async function verifyUser(env: Env, authHeader: string | null): Promise<string | null> {
+// Verifica il JWT chiamante contro Supabase Auth. Ritorna { userId, token } o null.
+async function verifyUser(env: Env, authHeader: string | null): Promise<{ userId: string; token: string } | null> {
   if (!authHeader?.startsWith('Bearer ')) return null
   const token = authHeader.slice(7)
   try {
@@ -47,13 +47,17 @@ async function verifyUser(env: Env, authHeader: string | null): Promise<string |
     })
     if (!res.ok) return null
     const user = await res.json() as { id?: string }
-    return user.id ?? null
+    return user.id ? { userId: user.id, token } : null
   } catch {
     return null
   }
 }
 
-async function transcribeAudio(apiKey: string, audio: ArrayBuffer, mimeType: string): Promise<string> {
+async function transcribeAudio(
+  apiKey: string,
+  audio: ArrayBuffer,
+  mimeType: string,
+): Promise<{ text: string; durationSeconds: number }> {
   const ext = mimeType.includes('mp4') ? 'm4a' : mimeType.includes('webm') ? 'webm' : 'webm'
   const filename = `audio.${ext}`
   const blob = new Blob([audio], { type: mimeType })
@@ -75,7 +79,11 @@ async function transcribeAudio(apiKey: string, audio: ArrayBuffer, mimeType: str
     throw new Error(`Transcription error ${res.status}: ${body}`)
   }
 
-  const data = await res.json() as { text: string; segments?: Array<{ no_speech_prob: number }> }
+  const data = await res.json() as {
+    text: string
+    duration?: number
+    segments?: Array<{ no_speech_prob: number }>
+  }
 
   // no_speech_prob > 0.8 means Whisper is hallucinating, not transcribing real speech
   const maxNoSpeechProb = Math.max(0, ...(data.segments ?? []).map((s) => s.no_speech_prob))
@@ -83,7 +91,33 @@ async function transcribeAudio(apiKey: string, audio: ArrayBuffer, mimeType: str
     throw new Error('Nessun parlato rilevato. Parla chiaramente nel microfono.')
   }
 
-  return data.text
+  return { text: data.text, durationSeconds: data.duration ?? 0 }
+}
+
+function logUsage(
+  env: Env,
+  token: string,
+  userId: string,
+  entries: Array<{
+    service: 'whisper' | 'deepseek'
+    audio_seconds?: number
+    tokens_in?: number
+    tokens_out?: number
+    cost_usd: number
+  }>,
+): void {
+  const rows = entries.map((e) => ({ ...e, user_id: userId }))
+  // fire-and-forget: non blocca la risposta, fallimento silenzioso
+  void fetch(`${env.SUPABASE_URL}/rest/v1/api_usage_log`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      apikey: env.SUPABASE_ANON_KEY,
+      'Content-Type': 'application/json',
+      Prefer: 'return=minimal',
+    },
+    body: JSON.stringify(rows),
+  }).catch(() => { /* logging failure must not affect the response */ })
 }
 
 export default {
@@ -102,10 +136,11 @@ export default {
     }
 
     // Auth: solo utenti autenticati possono spendere le API key OpenAI/OpenRouter.
-    const userId = await verifyUser(env, request.headers.get('Authorization'))
-    if (!userId) {
+    const auth = await verifyUser(env, request.headers.get('Authorization'))
+    if (!auth) {
       return Response.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
+    const { userId, token } = auth
 
     if (rateLimited(userId)) {
       return Response.json(
@@ -144,17 +179,26 @@ export default {
         return Response.json({ success: false, error: 'Audio troppo breve. Parla per almeno qualche secondo.' }, { status: 400 })
       }
 
-      const transcript = (await transcribeAudio(env.OPENAI_API_KEY, audioBuffer, mimeType)).trim()
+      const { text, durationSeconds } = await transcribeAudio(env.OPENAI_API_KEY, audioBuffer, mimeType)
+      const transcript = text.trim()
 
       if (!transcript || !isTranscriptValid(transcript)) {
         return Response.json({ success: false, error: 'Audio non intelligibile. Riprova parlando chiaramente.' }, { status: 400 })
       }
 
-      const result = await extractInspection(env.OPENROUTER_API_KEY, transcript)
+      // Whisper: $0.006 per minute
+      const whisperCostUsd = (durationSeconds / 60) * 0.006
+
+      const { result, usage } = await extractInspection(env.OPENROUTER_API_KEY, transcript)
 
       if (!validateResult(result)) {
         return Response.json({ success: false, error: 'Invalid response from extractor', transcript }, { status: 500 })
       }
+
+      logUsage(env, token, userId, [
+        { service: 'whisper', audio_seconds: durationSeconds, cost_usd: whisperCostUsd },
+        { service: 'deepseek', tokens_in: usage.promptTokens, tokens_out: usage.completionTokens, cost_usd: usage.costUsd },
+      ])
 
       const data = { ...result } as Partial<typeof result>
       delete data.transcript

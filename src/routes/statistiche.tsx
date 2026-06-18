@@ -2,8 +2,13 @@ import { createFileRoute, redirect, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { getAuthUser } from '@/lib/auth-guard'
-import { ArrowLeft, TreePine, Hexagon, ClipboardList, Syringe, Cloud, HardDrive, Mic, Users, Activity, TrendingUp, type LucideIcon } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { ArrowLeft, TreePine, Hexagon, ClipboardList, Syringe, Cloud, HardDrive, Mic, Users, Activity, TrendingUp, DollarSign, type LucideIcon } from 'lucide-react'
+import { useAuth } from '@/hooks/use-auth'
+
+function fmtUsd(value: number): string {
+  if (value < 0.001) return '< $0.001'
+  return `$${value.toFixed(3)}`
+}
 
 function fmtBytes(bytes: number): string {
   if (bytes === 0) return '0 B'
@@ -46,11 +51,17 @@ export const Route = createFileRoute('/statistiche')({
 })
 
 function StatistichePage() {
-  const [isAdmin, setIsAdmin] = useState(false)
+  const { session } = useAuth()
 
-  useEffect(() => {
-    supabase.rpc('is_app_admin').then(({ data }) => setIsAdmin(!!data))
-  }, [])
+  const { data: isAdmin = false } = useQuery({
+    queryKey: ['isAdmin', session?.user?.id],
+    queryFn: async () => {
+      const { data } = await supabase.rpc('is_app_admin')
+      return !!data
+    },
+    enabled: !!session?.user?.id,
+    staleTime: 10 * 60 * 1000,
+  })
 
   // ── Aggregate counts ──────────────────────────────────────────
   const { data: apiaryCount } = useQuery({
@@ -189,6 +200,39 @@ function StatistichePage() {
     staleTime: 5 * 60 * 1000,
   })
 
+  // ── Costi API personali ───────────────────────────────────────
+  const { data: personalCosts } = useQuery({
+    queryKey: ['stats', 'personal-costs', session?.user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('api_usage_log')
+        .select('service, cost_usd, audio_seconds')
+      if (!data) return null
+      const whisper = data.filter((r) => r.service === 'whisper')
+      const deepseek = data.filter((r) => r.service === 'deepseek')
+      return {
+        totalCost: data.reduce((s, r) => s + (r.cost_usd ?? 0), 0),
+        whisperCost: whisper.reduce((s, r) => s + (r.cost_usd ?? 0), 0),
+        whisperMinutes: whisper.reduce((s, r) => s + (r.audio_seconds ?? 0), 0) / 60,
+        deepseekCost: deepseek.reduce((s, r) => s + (r.cost_usd ?? 0), 0),
+        callCount: data.length / 2, // whisper + deepseek per call
+      }
+    },
+    enabled: !!session?.user?.id,
+    staleTime: 5 * 60 * 1000,
+  })
+
+  // ── Admin-only: costi API per utente ─────────────────────────
+  const { data: apiCostByUser } = useQuery({
+    queryKey: ['stats', 'api-cost-by-user'],
+    queryFn: async () => {
+      const { data } = await supabase.rpc('get_api_cost_by_user')
+      return data ?? []
+    },
+    enabled: isAdmin,
+    staleTime: 5 * 60 * 1000,
+  })
+
   return (
     <main className="min-h-dvh flex flex-col bg-cream-50">
       <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2">
@@ -234,6 +278,36 @@ function StatistichePage() {
                     {' · 20 MB max per file'}
                   </p>
                 </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ── Costi API personali ── */}
+          <section>
+            <h2 className="text-xs font-semibold text-wood-400 uppercase tracking-wider mb-3">Trascrizione vocale</h2>
+            <div className="rounded-lg bg-cream-100 overflow-hidden divide-y divide-cream-200">
+              <div className="flex items-center justify-between px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <DollarSign size={16} className="text-wood-500 shrink-0" />
+                  <span className="text-sm text-wood-700">Costo totale</span>
+                </div>
+                <span className="text-sm font-semibold text-wood-800 tabular-nums">
+                  {personalCosts != null ? fmtUsd(personalCosts.totalCost) : '…'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between px-4 py-3">
+                <span className="text-sm text-wood-500">Whisper (trascrizione)</span>
+                <span className="text-sm text-wood-600 tabular-nums">
+                  {personalCosts != null
+                    ? `${fmtUsd(personalCosts.whisperCost)} · ${personalCosts.whisperMinutes.toFixed(1)} min`
+                    : '…'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between px-4 py-3">
+                <span className="text-sm text-wood-500">DeepSeek (estrazione)</span>
+                <span className="text-sm text-wood-600 tabular-nums">
+                  {personalCosts != null ? fmtUsd(personalCosts.deepseekCost) : '…'}
+                </span>
               </div>
             </div>
           </section>
@@ -321,6 +395,44 @@ function StatistichePage() {
                         <td className="px-4 py-2.5 text-wood-800 font-medium truncate max-w-[140px]">{u.display_name}</td>
                         <td className="px-3 py-2.5 text-right tabular-nums text-wood-600">{u.inspection_count}</td>
                         <td className="px-4 py-2.5 text-right text-xs text-wood-400 whitespace-nowrap">{fmtDate(u.last_active_at)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+
+          {/* ── Admin: costi API per utente ── */}
+          {isAdmin && apiCostByUser && apiCostByUser.length > 0 && (
+            <section>
+              <h2 className="text-xs font-semibold text-wood-400 uppercase tracking-wider mb-3">
+                <span className="inline-flex items-center gap-1.5">
+                  <DollarSign size={13} />
+                  Costi API (piattaforma)
+                </span>
+              </h2>
+              <div className="rounded-lg bg-cream-100 overflow-hidden mb-3">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-cream-200">
+                  <span className="text-sm font-semibold text-wood-700">Totale piattaforma</span>
+                  <span className="text-sm font-semibold text-wood-800 tabular-nums">
+                    {fmtUsd(apiCostByUser.reduce((s, r) => s + (r.cost_usd ?? 0), 0))}
+                  </span>
+                </div>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-cream-200">
+                      <th className="text-left text-xs font-semibold text-wood-400 px-4 py-2">Utente</th>
+                      <th className="text-right text-xs font-semibold text-wood-400 px-3 py-2">Chiamate</th>
+                      <th className="text-right text-xs font-semibold text-wood-400 px-4 py-2">Costo</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {apiCostByUser.map((u, i) => (
+                      <tr key={u.user_id} className={i < apiCostByUser.length - 1 ? 'border-b border-cream-200' : ''}>
+                        <td className="px-4 py-2.5 text-wood-800 font-medium truncate max-w-[140px]">{u.display_name}</td>
+                        <td className="px-3 py-2.5 text-right tabular-nums text-wood-600">{u.call_count}</td>
+                        <td className="px-4 py-2.5 text-right tabular-nums text-wood-600 whitespace-nowrap">{fmtUsd(u.cost_usd ?? 0)}</td>
                       </tr>
                     ))}
                   </tbody>

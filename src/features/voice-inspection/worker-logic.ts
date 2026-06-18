@@ -120,7 +120,20 @@ export function validateResult(result: unknown): result is InspectionResult {
   return true
 }
 
-export async function extractInspection(apiKey: string, transcript: string): Promise<InspectionResult> {
+export interface ExtractionUsage {
+  promptTokens: number
+  completionTokens: number
+  costUsd: number
+}
+
+// DeepSeek-Chat pricing on OpenRouter (input $0.14/1M, output $0.28/1M)
+const DEEPSEEK_COST_IN_PER_TOKEN = 0.14 / 1_000_000
+const DEEPSEEK_COST_OUT_PER_TOKEN = 0.28 / 1_000_000
+
+export async function extractInspection(
+  apiKey: string,
+  transcript: string,
+): Promise<{ result: InspectionResult; usage: ExtractionUsage }> {
   const messages: ChatMessage[] = [
     { role: 'system', content: basePrompt() },
     { role: 'user', content: `Trascrizione ispezione:\n${transcript}` },
@@ -148,10 +161,18 @@ export async function extractInspection(apiKey: string, transcript: string): Pro
 
   const data = await res.json() as {
     choices: Array<{ message: { content: string } }>
+    usage?: { prompt_tokens?: number; completion_tokens?: number }
   }
 
   const content = data.choices?.[0]?.message?.content
   if (!content) throw new Error('Extractor returned empty response')
 
-  return JSON.parse(content) as InspectionResult
+  const promptTokens = data.usage?.prompt_tokens ?? 0
+  const completionTokens = data.usage?.completion_tokens ?? 0
+  const costUsd = promptTokens * DEEPSEEK_COST_IN_PER_TOKEN + completionTokens * DEEPSEEK_COST_OUT_PER_TOKEN
+
+  return {
+    result: JSON.parse(content) as InspectionResult,
+    usage: { promptTokens, completionTokens, costUsd },
+  }
 }
