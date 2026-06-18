@@ -50,6 +50,7 @@ export default defineConfig({
         theme_color: '#D97706',
         background_color: '#fafaf5',
         display: 'standalone',
+        orientation: 'portrait',
         start_url: '/',
         icons: [
           { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
