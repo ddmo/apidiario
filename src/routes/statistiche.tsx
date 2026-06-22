@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { getAuthUser } from '@/lib/auth-guard'
 import { ArrowLeft, TreePine, Hexagon, ClipboardList, Syringe, Cloud, HardDrive, Mic, Users, Activity, TrendingUp, DollarSign, type LucideIcon } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
+import { ApiaryReportSection } from '@/features/reports/components/apiary-report-section'
 
 function fmtUsd(value: number): string {
   if (value < 0.001) return '< $0.001'
@@ -200,28 +201,6 @@ function StatistichePage() {
     staleTime: 5 * 60 * 1000,
   })
 
-  // ── Costi API personali ───────────────────────────────────────
-  const { data: personalCosts } = useQuery({
-    queryKey: ['stats', 'personal-costs', session?.user?.id],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('api_usage_log')
-        .select('service, cost_usd, audio_seconds')
-      if (!data) return null
-      const whisper = data.filter((r) => r.service === 'whisper')
-      const deepseek = data.filter((r) => r.service === 'deepseek')
-      return {
-        totalCost: data.reduce((s, r) => s + (r.cost_usd ?? 0), 0),
-        whisperCost: whisper.reduce((s, r) => s + (r.cost_usd ?? 0), 0),
-        whisperMinutes: whisper.reduce((s, r) => s + (r.audio_seconds ?? 0), 0) / 60,
-        deepseekCost: deepseek.reduce((s, r) => s + (r.cost_usd ?? 0), 0),
-        callCount: data.length / 2, // whisper + deepseek per call
-      }
-    },
-    enabled: !!session?.user?.id,
-    staleTime: 5 * 60 * 1000,
-  })
-
   // ── Admin-only: costi API per utente ─────────────────────────
   const { data: apiCostByUser } = useQuery({
     queryKey: ['stats', 'api-cost-by-user'],
@@ -249,6 +228,8 @@ function StatistichePage() {
 
       <div className="flex-1 px-4 py-6 overflow-y-auto">
         <div className="max-w-lg mx-auto space-y-8">
+
+          <ApiaryReportSection />
 
           {/* ── Dati globali ── */}
           <section>
@@ -278,36 +259,6 @@ function StatistichePage() {
                     {' · 20 MB max per file'}
                   </p>
                 </div>
-              </div>
-            </div>
-          </section>
-
-          {/* ── Costi API personali ── */}
-          <section>
-            <h2 className="text-xs font-semibold text-wood-400 uppercase tracking-wider mb-3">Trascrizione vocale</h2>
-            <div className="rounded-lg bg-cream-100 overflow-hidden divide-y divide-cream-200">
-              <div className="flex items-center justify-between px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <DollarSign size={16} className="text-wood-500 shrink-0" />
-                  <span className="text-sm text-wood-700">Costo totale</span>
-                </div>
-                <span className="text-sm font-semibold text-wood-800 tabular-nums">
-                  {personalCosts != null ? fmtUsd(personalCosts.totalCost) : '…'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between px-4 py-3">
-                <span className="text-sm text-wood-500">Whisper (trascrizione)</span>
-                <span className="text-sm text-wood-600 tabular-nums">
-                  {personalCosts != null
-                    ? `${fmtUsd(personalCosts.whisperCost)} · ${personalCosts.whisperMinutes.toFixed(1)} min`
-                    : '…'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between px-4 py-3">
-                <span className="text-sm text-wood-500">DeepSeek (estrazione)</span>
-                <span className="text-sm text-wood-600 tabular-nums">
-                  {personalCosts != null ? fmtUsd(personalCosts.deepseekCost) : '…'}
-                </span>
               </div>
             </div>
           </section>

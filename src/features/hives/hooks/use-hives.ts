@@ -22,7 +22,7 @@ export type HiveListItem = {
   hasApiscampo: boolean
   hasPropolisNet: boolean
   hasPollenTrap: boolean
-  hasActiveQueen: boolean | 'non_cercata'
+  hasActiveQueen: boolean
   queenMarkingColor: QueenMarkingColor | null
   queenIsMarked: boolean
   needsIntervention: boolean
@@ -64,7 +64,7 @@ export function useHivesByApiary(apiaryId: string) {
       const [{ data: inspData }, { data: queensData }] = await Promise.all([
         supabase
           .from('inspections')
-          .select('hive_id, performed_at, brood_frame_count, honey_frame_count, pollen_frame_count, empty_frame_count, queen_seen, needs_intervention')
+          .select('hive_id, performed_at, brood_frame_count, honey_frame_count, pollen_frame_count, empty_frame_count, queen_seen, brood_eggs, needs_intervention')
           .in('hive_id', hiveIds)
           .order('hive_id')
           .order('performed_at', { ascending: false }),
@@ -75,7 +75,7 @@ export function useHivesByApiary(apiaryId: string) {
           .is('end_date', null),
       ])
 
-      const lastInspMap = new Map<string, { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number; emptyFrameCount: number; queenSeen: string | null; needsIntervention: boolean }>()
+      const lastInspMap = new Map<string, { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number; emptyFrameCount: number; queenSeen: string | null; broodEggs: boolean; needsIntervention: boolean }>()
       for (const insp of inspData ?? []) {
         if (!lastInspMap.has(insp.hive_id)) {
           lastInspMap.set(insp.hive_id, {
@@ -85,6 +85,7 @@ export function useHivesByApiary(apiaryId: string) {
             pollenFrameCount: insp.pollen_frame_count ?? 0,
             emptyFrameCount: insp.empty_frame_count ?? 0,
             queenSeen: insp.queen_seen ?? null,
+            broodEggs: insp.brood_eggs ?? false,
             needsIntervention: insp.needs_intervention ?? false,
           })
         }
@@ -125,12 +126,12 @@ export function useHivesByApiary(apiaryId: string) {
         hasApiscampo: h.has_apiscampo,
         hasPropolisNet: h.has_propolis_net,
         hasPollenTrap: h.has_pollen_trap,
-        hasActiveQueen: ((): boolean | 'non_cercata' => {
+        hasActiveQueen: ((): boolean => {
           const insp = lastInspMap.get(h.id)
-          if (insp?.queenSeen === 'vista') return true
-          if (insp?.queenSeen === 'non_cercata') return 'non_cercata'
-          if (insp?.queenSeen === 'non_vista') return false
-          return queenInfoMap.has(h.id)
+          if (!insp) return queenInfoMap.has(h.id)
+          if (insp.queenSeen === 'vista') return true
+          // Non vista / non cercata: le uova fresche provano che la regina era attiva di recente.
+          return insp.broodEggs
         })(),
         queenMarkingColor: getQueenColor(h.id),
         queenIsMarked: getQueenIsMarked(h.id),
@@ -221,7 +222,7 @@ export function useAllHives() {
       const [{ data: inspData }, { data: queensData }] = await Promise.all([
         supabase
           .from('inspections')
-          .select('hive_id, performed_at, brood_frame_count, honey_frame_count, pollen_frame_count, empty_frame_count, queen_seen, needs_intervention')
+          .select('hive_id, performed_at, brood_frame_count, honey_frame_count, pollen_frame_count, empty_frame_count, queen_seen, brood_eggs, needs_intervention')
           .in('hive_id', hiveIds)
           .order('hive_id')
           .order('performed_at', { ascending: false }),
@@ -232,7 +233,7 @@ export function useAllHives() {
           .is('end_date', null),
       ])
 
-      const lastInspMap = new Map<string, { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number; emptyFrameCount: number; queenSeen: string | null; needsIntervention: boolean }>()
+      const lastInspMap = new Map<string, { performedAt: string; broodFrameCount: number; honeyFrameCount: number; pollenFrameCount: number; emptyFrameCount: number; queenSeen: string | null; broodEggs: boolean; needsIntervention: boolean }>()
       for (const insp of inspData ?? []) {
         if (!lastInspMap.has(insp.hive_id)) {
           lastInspMap.set(insp.hive_id, {
@@ -242,6 +243,7 @@ export function useAllHives() {
             pollenFrameCount: insp.pollen_frame_count ?? 0,
             emptyFrameCount: insp.empty_frame_count ?? 0,
             queenSeen: insp.queen_seen ?? null,
+            broodEggs: insp.brood_eggs ?? false,
             needsIntervention: insp.needs_intervention ?? false,
           })
         }
@@ -283,12 +285,12 @@ export function useAllHives() {
         hasApiscampo: h.has_apiscampo,
         hasPropolisNet: h.has_propolis_net,
         hasPollenTrap: h.has_pollen_trap,
-        hasActiveQueen: (() => {
+        hasActiveQueen: ((): boolean => {
           const insp = lastInspMap.get(h.id)
-          if (insp?.queenSeen === 'vista') return true
-          if (insp?.queenSeen === 'non_cercata') return 'non_cercata'
-          if (insp?.queenSeen === 'non_vista') return false
-          return queenInfoMap.has(h.id)
+          if (!insp) return queenInfoMap.has(h.id)
+          if (insp.queenSeen === 'vista') return true
+          // Non vista / non cercata: le uova fresche provano che la regina era attiva di recente.
+          return insp.broodEggs
         })(),
         queenMarkingColor: getQueenColor(h.id),
         queenIsMarked: getQueenIsMarked(h.id),

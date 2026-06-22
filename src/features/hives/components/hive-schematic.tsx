@@ -9,7 +9,7 @@ interface HiveSchematicProps {
   hasApiscampo: boolean
   hasPropolisNet: boolean
   hasPollenTrap: boolean
-  hasActiveQueen: boolean | 'non_cercata'
+  hasActiveQueen: boolean
   queenMarkingColor?: QueenMarkingColor | null
   queenIsMarked?: boolean
 }
@@ -99,10 +99,10 @@ export function HiveSchematic({
       <rect x={NIDO_X} y={nidoY} width={NIDO_W} height={NIDO_H} fill="#5A4830" rx={2} />
 
       {/* Queen — crown + color dot centered as group */}
-      {/* Regina: ♛ + marcatura quando presente o non cercata (la marcatura è
-          dato della regina registrata, indipendente dall'ultima visita).
-          ⚠ solo quando esplicitamente non vista (possibile orfanità). */}
-      {hasActiveQueen !== false && (
+      {/* Regina: ♛ + marcatura quando vista, o quando non vista/non cercata ma
+          con uova fresche in covata (prova indiretta di regina attiva).
+          ⚠ solo quando non vista/non cercata E senza uova. */}
+      {hasActiveQueen && (
         <text x={SVG_W / 2} y={nidoY + 20} textAnchor="middle" fontSize={18} fill="#E5A938">
           ♛
           {!queenIsMarked
@@ -110,7 +110,7 @@ export function HiveSchematic({
             : queenColor && <tspan fill={queenColor} fontSize={11}> ●</tspan>}
         </text>
       )}
-      {hasActiveQueen === false && (
+      {!hasActiveQueen && (
         <text x={SVG_W / 2} y={nidoY + 20} textAnchor="middle" fontSize={16} fill="#FAF6ED" opacity={0.85} fontFamily="Inter, system-ui, sans-serif">?</text>
       )}
 

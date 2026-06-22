@@ -1,0 +1,18 @@
+export const PDF_COLORS = {
+  cream50: '#FAF6ED',
+  cream100: '#EDE3CE',
+  cream200: '#E0D2B5',
+  wood300: '#C9B896',
+  wood400: '#A6916C',
+  wood500: '#7A6444',
+  wood600: '#5A4830',
+  wood700: '#3F311F',
+  wood800: '#2A2014',
+  honey300: '#F0C77A',
+  honey400: '#E5A938',
+  honey500: '#C7891A',
+  honey600: '#A06D14',
+  honey700: '#76500F',
+  success500: '#6E8347',
+  danger500: '#B0492E',
+} as const
