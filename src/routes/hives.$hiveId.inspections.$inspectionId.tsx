@@ -188,6 +188,7 @@ function EditInspectionPage() {
       initialMode={initialMode}
       hasPrefill={false}
       prefillDate={inspectionDate}
+      performedAt={inspection?.performed_at}
       isLoadingHistory={false}
       isSaving={isSaving}
       isDeleting={isDeleting}

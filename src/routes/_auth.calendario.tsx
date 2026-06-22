@@ -1,14 +1,17 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
-import { ChevronLeft, ChevronRight, List, Calendar, Syringe, Search } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { ChevronLeft, ChevronRight, List, Calendar, Syringe } from 'lucide-react'
 import { z } from 'zod'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
 import { t } from '@/i18n/it'
+import { PATHOLOGY_LABELS } from '@/features/inspections/constants'
+import type { PathologyType } from '@/features/inspections/types'
 
 const calendarioSearchSchema = z.object({
   view: z.enum(['grid', 'list']).catch('grid').default('grid'),
+  date: z.string().optional(),
 })
 
 export const Route = createFileRoute('/_auth/calendario')({
@@ -27,6 +30,10 @@ type InspectionEvent = {
   apiaryName: string
   performedBy: string | null
   performerDisplayName: string | null
+  queenSeen: string | null
+  population: string | null
+  notes: string | null
+  pathologies: PathologyType[]
 }
 
 type TreatmentEvent = {
@@ -80,7 +87,7 @@ function useInspectionEvents(year: number, month: number) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('inspections')
-        .select('id, performed_at, hive_id, performed_by, hives!inner(identifier, apiary_id, apiaries!inner(name)), profiles(display_name)')
+        .select('id, performed_at, hive_id, performed_by, queen_seen, population, notes, pathologies, hives!inner(identifier, apiary_id, apiaries!inner(name)), profiles(display_name)')
         .gte('performed_at', start)
         .lt('performed_at', end)
         .order('performed_at', { ascending: true })
@@ -98,6 +105,10 @@ function useInspectionEvents(year: number, month: number) {
           apiaryName: (apiary as { name: string } | null)?.name ?? '?',
           performedBy: row.performed_by as string | null,
           performerDisplayName: (profile as { display_name: string } | null)?.display_name ?? null,
+          queenSeen: row.queen_seen,
+          population: row.population,
+          notes: row.notes,
+          pathologies: row.pathologies ?? [],
         } satisfies InspectionEvent
       })
     },
@@ -131,15 +142,81 @@ function buildGrid(year: number, month: number) {
   return rows
 }
 
+type CalendarEvent =
+  | { kind: 'inspection'; id: string; hiveId: string; apiaryId: string; hiveIdentifier: string; apiaryName: string; performedBy: string | null; performerDisplayName: string | null; date: string; time: string; queenSeen: string | null; population: string | null; notes: string | null; pathologies: PathologyType[] }
+  | { kind: 'treatment'; id: string; productName: string; apiaryId: string; apiaryName: string; performedBy: string | null; performerDisplayName: string | null; blocksMelari: boolean; date: string; subKind: 'start' | 'end' }
+
+function ArrowIcon() {
+  return (
+    <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="text-wood-300 shrink-0">
+      <path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function InspectionEventCard({ ev, showPerformer, className }: { ev: Extract<CalendarEvent, { kind: 'inspection' }>; showPerformer: boolean; className?: string }) {
+  const queenLabel = `Regina ${(t.inspection.queenSeen as Record<string, string>)[ev.queenSeen ?? ''] ?? ev.queenSeen ?? 'non cercata'}`.toLowerCase()
+  const popLabel = (t.inspection.population as Record<string, string>)[ev.population ?? ''] ?? ev.population ?? 'Media'
+  const queenColor = ev.queenSeen === 'vista' ? 'text-success-600 font-medium' : ev.queenSeen === 'non_vista' ? 'text-danger-500 font-medium' : 'text-wood-500'
+
+  return (
+    <Link
+      to="/hives/$hiveId/inspections/$inspectionId"
+      params={{ hiveId: ev.hiveId, inspectionId: ev.id }}
+      className={['flex items-center justify-between gap-3 bg-cream-100 border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-200 transition-colors', className].filter(Boolean).join(' ')}
+    >
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-semibold text-honey-600 truncate">{ev.hiveIdentifier} · {ev.apiaryName}</p>
+        {ev.performerDisplayName && showPerformer && (
+          <p className="text-xs text-wood-400 leading-tight">da {ev.performerDisplayName}</p>
+        )}
+        <p className="text-sm leading-snug mt-0.5">
+          <span className={queenColor}>{queenLabel}</span>
+          {' - '}
+          <span className="text-wood-700">Famiglia {popLabel.toLowerCase()}</span>
+        </p>
+        {ev.notes && (
+          <p className="text-xs text-wood-400 mt-0.5 line-clamp-2">{ev.notes}</p>
+        )}
+        {ev.pathologies.length > 0 && (
+          <div className="flex gap-1 mt-1 flex-wrap">
+            {ev.pathologies.map((p) => (
+              <span key={p} className="text-[10px] bg-danger-100 text-danger-500 px-1.5 py-0.5 rounded-sm font-medium">
+                {PATHOLOGY_LABELS[p] ?? p}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+      <ArrowIcon />
+    </Link>
+  )
+}
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 function CalendarioPage() {
   const today = new Date()
   const navigate = useNavigate()
-  const { view: viewMode } = Route.useSearch()
-  const [year, setYear] = useState(today.getFullYear())
-  const [month, setMonth] = useState(today.getMonth())
-  const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  const { view: viewMode, date: dateParam } = Route.useSearch()
+  const initialSelected = dateParam ?? null
+  const initialDate = initialSelected ? new Date(initialSelected + 'T12:00:00') : today
+  const [year, setYear] = useState(initialDate.getFullYear())
+  const [month, setMonth] = useState(initialDate.getMonth())
+  const [selectedDate, setSelectedDate] = useState<string | null>(initialSelected)
+
+  useEffect(() => {
+    const next = dateParam ?? null
+    if (next !== selectedDate) {
+      setSelectedDate(next)
+      if (next) {
+        const d = new Date(next + 'T12:00:00')
+        setYear(d.getFullYear())
+        setMonth(d.getMonth())
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateParam])
 
   const { session } = useAuth()
   const userId = session?.user?.id
@@ -151,10 +228,6 @@ function CalendarioPage() {
   function showPerformer(performedBy: string | null | undefined): boolean {
     return !!performedBy && performedBy !== userId
   }
-
-  type CalendarEvent =
-    | { kind: 'inspection'; id: string; hiveId: string; apiaryId: string; hiveIdentifier: string; apiaryName: string; performedBy: string | null; performerDisplayName: string | null; date: string; time: string }
-    | { kind: 'treatment'; id: string; productName: string; apiaryId: string; apiaryName: string; performedBy: string | null; performerDisplayName: string | null; blocksMelari: boolean; date: string; subKind: 'start' | 'end' }
 
   // Merge both event types into a single "YYYY-MM-DD" → CalendarEvent[] map
   const eventsByDay: Record<string, CalendarEvent[]> = {}
@@ -173,6 +246,10 @@ function CalendarioPage() {
       performerDisplayName: ev.performerDisplayName,
       date: ev.performed_at,
       time: new Date(ev.performed_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }),
+      queenSeen: ev.queenSeen,
+      population: ev.population,
+      notes: ev.notes,
+      pathologies: ev.pathologies,
     })
   }
 
@@ -216,15 +293,20 @@ function CalendarioPage() {
   const grid = buildGrid(year, month)
   const todayIso = isoDate(today)
 
+  function selectDate(iso: string | null) {
+    setSelectedDate(iso)
+    navigate({ to: '.', search: (prev) => ({ ...prev, date: iso ?? undefined }), replace: true })
+  }
+
   function prevMonth() {
     if (month === 0) { setMonth(11); setYear(y => y - 1) }
     else setMonth(m => m - 1)
-    setSelectedDate(null)
+    selectDate(null)
   }
   function nextMonth() {
     if (month === 11) { setMonth(0); setYear(y => y + 1) }
     else setMonth(m => m + 1)
-    setSelectedDate(null)
+    selectDate(null)
   }
 
   const selectedEvents = selectedDate ? (eventsByDay[selectedDate] ?? []) : []
@@ -254,8 +336,8 @@ function CalendarioPage() {
             <button
               type="button"
               onClick={() => {
-                navigate({ to: '.', search: { view: viewMode === 'grid' ? 'list' : 'grid' }, replace: true })
                 setSelectedDate(null)
+                navigate({ to: '.', search: (prev) => ({ ...prev, view: viewMode === 'grid' ? 'list' : 'grid', date: undefined }), replace: true })
               }}
               className={[
                 'size-8 flex items-center justify-center rounded-md transition-colors',
@@ -307,7 +389,7 @@ function CalendarioPage() {
                         <button
                           key={ci}
                           type="button"
-                          onClick={() => setSelectedDate(isSelected ? null : iso)}
+                          onClick={() => selectDate(isSelected ? null : iso)}
                           className="flex flex-col items-center py-1.5 gap-0.5"
                         >
                           <span
@@ -355,25 +437,7 @@ function CalendarioPage() {
                     {selectedEvents.map((ev) =>
                       ev.kind === 'inspection' ? (
                         <li key={`i-${ev.id}`}>
-                          <Link
-                            to="/hives/$hiveId/inspections/$inspectionId"
-                            params={{ hiveId: ev.hiveId, inspectionId: ev.id }}
-                            className="flex items-center justify-between bg-cream-100 border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-200 transition-colors"
-                          >
-                            <div className="flex items-center gap-2.5">
-                              <Search size={16} strokeWidth={1.75} className="text-honey-600 shrink-0" />
-                              <div>
-                                <p className="text-sm font-semibold text-wood-800">Ispezionata arnia {ev.hiveIdentifier}</p>
-                                <p className="text-xs text-honey-600">{ev.apiaryName}</p>
-                                {ev.performerDisplayName && showPerformer(ev.performedBy) && (
-                                  <p className="text-xs text-wood-400 mt-0.5">da {ev.performerDisplayName}</p>
-                                )}
-                              </div>
-                            </div>
-                            <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="text-wood-300 shrink-0">
-                              <path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                          </Link>
+                          <InspectionEventCard ev={ev} showPerformer={showPerformer(ev.performedBy)} />
                         </li>
                       ) : (
                         <li key={`t-${ev.id}`}>
@@ -432,25 +496,7 @@ function CalendarioPage() {
                         {dayEvents.map((ev) =>
                           ev.kind === 'inspection' ? (
                             <li key={`i-${ev.id}`}>
-                              <Link
-                                to="/hives/$hiveId/inspections/$inspectionId"
-                                params={{ hiveId: ev.hiveId, inspectionId: ev.id }}
-                                className="flex items-center justify-between bg-cream-100 border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-200 transition-colors shadow-sm"
-                              >
-                                <div className="flex items-center gap-2.5">
-                                  <Search size={16} strokeWidth={1.75} className="text-honey-600 shrink-0" />
-                                  <div>
-                                    <p className="text-sm font-semibold text-wood-800">Ispezionata arnia {ev.hiveIdentifier}</p>
-                                    <p className="text-xs text-wood-400">{ev.apiaryName}</p>
-                                    {ev.performerDisplayName && showPerformer(ev.performedBy) && (
-                                      <p className="text-xs text-wood-300">da {ev.performerDisplayName}</p>
-                                    )}
-                                  </div>
-                                </div>
-                                <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="text-wood-300 shrink-0">
-                                  <path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                              </Link>
+                              <InspectionEventCard ev={ev} showPerformer={showPerformer(ev.performedBy)} className="shadow-sm" />
                             </li>
                           ) : (
                             <li key={`t-${ev.id}`}>

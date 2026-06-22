@@ -33,6 +33,7 @@ interface InspectionScreenProps {
   initialMode?: InspectionMode
   hasPrefill: boolean
   prefillDate?: string
+  performedAt?: string
   isLoadingHistory?: boolean
   isSaving?: boolean
   isDeleting?: boolean
@@ -50,6 +51,7 @@ export function InspectionScreen({
   initialMode,
   hasPrefill,
   prefillDate,
+  performedAt,
   isLoadingHistory = false,
   isSaving = false,
   isDeleting = false,
@@ -109,8 +111,7 @@ export function InspectionScreen({
   const [showMenu, setShowMenu] = useState(false)
   const [showDeleteSheet, setShowDeleteSheet] = useState(false)
 
-  const now = new Date()
-  const datetime = now.toLocaleString('it-IT', {
+  const datetime = (performedAt ? new Date(performedAt) : new Date()).toLocaleString('it-IT', {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
