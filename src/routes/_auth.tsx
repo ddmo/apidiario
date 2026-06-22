@@ -13,7 +13,7 @@ export const Route = createFileRoute('/_auth')({
 
 function AuthLayout() {
   return (
-    <div className="flex flex-col h-dvh">
+    <div className="flex flex-col h-dvh" style={{ '--bottom-nav-h': '64px' } as React.CSSProperties}>
       <main className="flex-1 min-h-0 max-w-lg mx-auto w-full">
         <Outlet />
       </main>

@@ -65,7 +65,7 @@ function ToastItem({ message, variant, onDismiss }: ToastItemProps) {
         'animate-in fade-in slide-in-from-bottom-2 duration-200',
         STYLES[variant],
       )}
-      style={{ bottom: 'calc(80px + env(safe-area-inset-bottom))' }}
+      style={{ bottom: 'calc(var(--bottom-nav-h, 0px) + 16px + env(safe-area-inset-bottom))' }}
     >
       <Icon size={18} className={cn('shrink-0', ICON_STYLES[variant])} aria-hidden="true" />
       <span className="text-sm font-medium flex-1">{message}</span>

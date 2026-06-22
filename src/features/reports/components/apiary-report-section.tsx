@@ -50,6 +50,14 @@ export function ApiaryReportSection() {
       if (error) throw error
       if (!data) throw new Error('Dati report non disponibili')
 
+      // react-pdf decodifica immagini (mappa/foto) usando l'API Buffer di Node,
+      // assente nel browser — Vite non la polyfilla di default. Iniettiamo solo
+      // qui (chunk lazy), così il resto dell'app non la porta in dote.
+      if (!('Buffer' in window)) {
+        const { Buffer } = await import('buffer')
+        ;(window as unknown as { Buffer: typeof Buffer }).Buffer = Buffer
+      }
+
       // Lazy: @react-pdf/renderer è pesante (~2.8MB), va caricato solo on-demand
       // per non gonfiare il bundle principale dell'app (e il precache del SW).
       const [{ pdf }, { ApiaryReportDocument }] = await Promise.all([
@@ -62,7 +70,12 @@ export function ApiaryReportSection() {
 
       if (mode === 'view') {
         const url = URL.createObjectURL(blob)
-        window.open(url, '_blank')
+        const a = document.createElement('a')
+        a.href = url
+        a.download = fileName
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
         setTimeout(() => URL.revokeObjectURL(url), 60_000)
       } else {
         const pdfBase64 = arrayBufferToBase64(await blob.arrayBuffer())
