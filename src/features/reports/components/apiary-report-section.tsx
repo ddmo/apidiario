@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { pdf } from '@react-pdf/renderer'
 import { Eye, Mail } from 'lucide-react'
 import { Select } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
@@ -8,7 +7,6 @@ import { supabase } from '@/lib/supabase'
 import { useApiaries } from '@/features/apiaries/hooks/use-apiaries'
 import { useToast } from '@/hooks/use-toast'
 import { useApiaryReportData } from '../hooks/use-apiary-report-data'
-import { ApiaryReportDocument } from '../pdf/apiary-report-document'
 
 type DeliveryMode = 'view' | 'email'
 
@@ -51,6 +49,13 @@ export function ApiaryReportSection() {
       const { data, error } = await refetch()
       if (error) throw error
       if (!data) throw new Error('Dati report non disponibili')
+
+      // Lazy: @react-pdf/renderer è pesante (~2.8MB), va caricato solo on-demand
+      // per non gonfiare il bundle principale dell'app (e il precache del SW).
+      const [{ pdf }, { ApiaryReportDocument }] = await Promise.all([
+        import('@react-pdf/renderer'),
+        import('../pdf/apiary-report-document'),
+      ])
 
       const blob = await pdf(<ApiaryReportDocument data={data} />).toBlob()
       const fileName = `report-${slugify(data.apiaryName)}-${new Date().toISOString().slice(0, 10)}.pdf`
