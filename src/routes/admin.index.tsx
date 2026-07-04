@@ -3,7 +3,8 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import {
   Users, Activity, ClipboardList, TreePine,
-  Hexagon, Syringe, TrendingUp, DollarSign, type LucideIcon,
+  Hexagon, Syringe, TrendingUp, DollarSign, Database,
+  HardDrive, Wifi, Zap, AlertTriangle, type LucideIcon,
 } from 'lucide-react'
 
 export const Route = createFileRoute('/admin/')({
@@ -20,6 +21,59 @@ function fmtDate(iso: string | null): string {
 function fmtUsd(v: number): string {
   if (v < 0.001) return '< $0.001'
   return `$${v.toFixed(3)}`
+}
+
+function fmtBytes(bytes: number): string {
+  if (bytes === 0) return '0 B'
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), 3)
+  const v = bytes / Math.pow(1024, i)
+  return `${v.toFixed(i === 0 ? 0 : 1)} ${['B', 'KB', 'MB', 'GB'][i]}`
+}
+
+// ── Usage bar ──────────────────────────────────────────────────────────────
+
+function UsageBar({
+  icon: Icon, label, used, limit, fmt,
+}: {
+  icon: LucideIcon
+  label: string
+  used: number | null
+  limit: number
+  fmt: (n: number) => string
+}) {
+  const pct = used != null ? Math.min(Math.round((used / limit) * 100), 100) : null
+  const warn = pct != null && pct >= 80
+  const crit = pct != null && pct >= 95
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Icon size={15} strokeWidth={1.75} className={crit ? 'text-red-500' : warn ? 'text-amber-500' : 'text-stone-400'} />
+          <span className="text-sm font-medium text-stone-700">{label}</span>
+        </div>
+        <span className="text-xs text-stone-500 tabular-nums">
+          {used != null ? `${fmt(used)} / ${fmt(limit)}` : '—'}
+        </span>
+      </div>
+      <div className="h-2 rounded-full bg-stone-100 overflow-hidden">
+        {pct != null && (
+          <div
+            className={`h-full rounded-full transition-all ${crit ? 'bg-red-500' : warn ? 'bg-amber-500' : 'bg-green-500'}`}
+            style={{ width: `${pct}%` }}
+          />
+        )}
+      </div>
+      {pct != null && (
+        <div className="flex items-center gap-1">
+          {crit && <AlertTriangle size={12} className="text-red-500" />}
+          <span className={`text-xs ${crit ? 'text-red-600 font-medium' : warn ? 'text-amber-600' : 'text-stone-400'}`}>
+            {pct}%{crit ? ' — considera upgrade' : warn ? ' — vicino al limite' : ''}
+          </span>
+        </div>
+      )}
+    </div>
+  )
 }
 
 // ── KPI card ───────────────────────────────────────────────────────────────
@@ -163,6 +217,27 @@ function AdminDashboard() {
 
   const totalApiCost = (apiCostByUser ?? []).reduce((s: number, r: { cost_usd?: number }) => s + (r.cost_usd ?? 0), 0)
 
+  const { data: supabaseUsage } = useQuery({
+    queryKey: ['admin', 'supabase-usage'],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke('admin-supabase-usage')
+      if (error) throw error
+      return data as {
+        limits: Record<string, number>
+        usage: {
+          db_size_bytes: number | null
+          storage_bytes: number | null
+          auth_user_count: number | null
+          bandwidth_bytes: number | null
+          edge_invocations: number | null
+          mau: number | null
+        }
+        management_configured: boolean
+      }
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+
   return (
     <div className="px-6 py-8 max-w-5xl">
       <h1 className="text-2xl font-semibold text-stone-800 mb-6">Dashboard</h1>
@@ -304,6 +379,62 @@ function AdminDashboard() {
           </div>
         </section>
       )}
+
+      {/* ── Piano Supabase ── */}
+      <section className="mb-8">
+        <h2 className="text-xs font-semibold text-stone-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+          <Database size={13} />
+          Piano Supabase (Free tier)
+        </h2>
+        <div className="bg-white rounded-xl border border-stone-200 px-5 py-5 flex flex-col gap-5">
+          <UsageBar
+            icon={Database}
+            label="Database"
+            used={supabaseUsage?.usage.db_size_bytes ?? null}
+            limit={supabaseUsage?.limits.db_size_bytes ?? 500 * 1024 * 1024}
+            fmt={fmtBytes}
+          />
+          <UsageBar
+            icon={HardDrive}
+            label="Storage"
+            used={supabaseUsage?.usage.storage_bytes ?? null}
+            limit={supabaseUsage?.limits.storage_bytes ?? 1024 * 1024 * 1024}
+            fmt={fmtBytes}
+          />
+          <UsageBar
+            icon={Users}
+            label="Utenti registrati (proxy MAU)"
+            used={supabaseUsage?.usage.auth_user_count ?? null}
+            limit={supabaseUsage?.limits.mau ?? 50_000}
+            fmt={(n) => n.toLocaleString('it-IT')}
+          />
+          {supabaseUsage?.management_configured ? (
+            <>
+              <UsageBar
+                icon={Wifi}
+                label="Bandwidth (mese corrente)"
+                used={supabaseUsage.usage.bandwidth_bytes}
+                limit={supabaseUsage.limits.bandwidth_bytes ?? 5 * 1024 * 1024 * 1024}
+                fmt={fmtBytes}
+              />
+              <UsageBar
+                icon={Zap}
+                label="Edge Function invocations"
+                used={supabaseUsage.usage.edge_invocations}
+                limit={supabaseUsage.limits.edge_invocations ?? 500_000}
+                fmt={(n) => n.toLocaleString('it-IT')}
+              />
+            </>
+          ) : (
+            <div className="rounded-lg bg-stone-50 border border-stone-200 px-4 py-3 text-xs text-stone-500">
+              <strong className="text-stone-600">Bandwidth e invocazioni Edge Function non disponibili.</strong>
+              {' '}Aggiungi i secret <code className="font-mono bg-stone-100 px-1 rounded">SUPABASE_MANAGEMENT_KEY</code> e{' '}
+              <code className="font-mono bg-stone-100 px-1 rounded">SUPABASE_PROJECT_REF</code> alla Edge Function{' '}
+              <code className="font-mono bg-stone-100 px-1 rounded">admin-supabase-usage</code> per sbloccare queste metriche.
+            </div>
+          )}
+        </div>
+      </section>
     </div>
   )
 }
