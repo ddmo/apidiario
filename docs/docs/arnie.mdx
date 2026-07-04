@@ -20,10 +20,13 @@ Compila i campi principali:
 |---|---|
 | **Identificativo** | Nome o numero dell'arnia (es. "Arnia Alfa", "A3") |
 | **Apiario** | Apiario di appartenenza |
-| **Tipo arnia** | Langstroth, Dadant, Warré, ecc. |
-| **Razza api** | Ligustica, Carnica, Buckfast, ecc. |
+| **Tipo arnia** | Dadant-Blatt, Langstroth, Top-Bar / Kenya, Altro |
+| **Razza api** | Ligustica, Buckfast, Carnica, Sicula, Ibrida, Sconosciuta |
 | **Data installazione** | Quando hai posizionato l'arnia |
 | **Note di origine** | Provenienza (sciame naturale, nucleo, pacchetto...) |
+| **Favi nido** | Numero di favi nel nido (default 10) |
+| **Regina marcata** | Indica se la regina è segnata con un colore |
+| **Anno nascita regina** | Anno di nascita della regina (determina il colore di marcatura) |
 
 ![Form nuova arnia compilato](/img/screenshots/06-nuova-arnia-compilata.png)
 
@@ -33,9 +36,11 @@ Premi **Salva arnia** per confermare.
 
 La pagina dell'apiario mostra tutte le arnie con le informazioni essenziali a colpo d'occhio:
 
-- **Stato regina** — icona verde (regina presente), rossa (assente), grigia (incerta) o **?** (non verificata)
-- **Numero telai** — nido e melario
-- **Ultima ispezione** — data e giorni trascorsi
+- **Grafico arnia** — rappresentazione visiva di nido, melari e accessori; mostra **♛** (corona) se la regina è attiva, oppure **?** se lo stato è incerto
+- **Numero telai** — indicato nel grafico con "X telai"
+- **Melari** — selettore 0–3 per aggiornare il numero di melari al volo
+- **Accessori** — pulsanti per apiscampo, rete propoli, trappola polline
+- **Ultima ispezione** — data in formato relativo (es. "3 giorni fa")
 
 ![Elenco arnie nell'apiario](/img/screenshots/07-elenco-arnie.png)
 
@@ -59,8 +64,8 @@ Dal dettaglio arnia premi l'icona **matita** per modificare i dati anagrafici (n
 
 ## Il simbolo "?" sulla regina
 
-Il punto interrogativo accanto all'icona regina appare quando:
+Il **?** nel grafico dell'arnia appare quando:
 - nell'ultima ispezione la regina **non è stata vista** e **non è stata cercata**
 - **e** non ci sono uova fresche nel nido (che attesterebbero comunque la presenza di una regina attiva)
 
-In tutti gli altri casi l'icona è definitiva: verde (vista o uova presenti) oppure rossa (assente confermata).
+In tutti gli altri casi il grafico mostra **♛** (corona dorata): la regina è considerata attiva se è stata vista direttamente, oppure se sono presenti uova fresche anche quando non cercata.
