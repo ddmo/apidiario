@@ -81,8 +81,8 @@ serve(async (req) => {
     mau: number | null
   } = { bandwidth_bytes: null, edge_invocations: null, mau: null }
 
-  const mgmtKey = Deno.env.get('SUPABASE_MANAGEMENT_KEY')
-  const projectRef = Deno.env.get('SUPABASE_PROJECT_REF')
+  const mgmtKey = Deno.env.get('MGMT_API_KEY')
+  const projectRef = Deno.env.get('PROJECT_REF')
 
   if (mgmtKey && projectRef) {
     try {

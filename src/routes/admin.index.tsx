@@ -428,8 +428,8 @@ function AdminDashboard() {
           ) : (
             <div className="rounded-lg bg-stone-50 border border-stone-200 px-4 py-3 text-xs text-stone-500">
               <strong className="text-stone-600">Bandwidth e invocazioni Edge Function non disponibili.</strong>
-              {' '}Aggiungi i secret <code className="font-mono bg-stone-100 px-1 rounded">SUPABASE_MANAGEMENT_KEY</code> e{' '}
-              <code className="font-mono bg-stone-100 px-1 rounded">SUPABASE_PROJECT_REF</code> alla Edge Function{' '}
+              {' '}Aggiungi i secret <code className="font-mono bg-stone-100 px-1 rounded">MGMT_API_KEY</code> e{' '}
+              <code className="font-mono bg-stone-100 px-1 rounded">PROJECT_REF</code> alla Edge Function{' '}
               <code className="font-mono bg-stone-100 px-1 rounded">admin-supabase-usage</code> per sbloccare queste metriche.
             </div>
           )}
