@@ -13,7 +13,9 @@ import { Route as StatisticheRouteImport } from './routes/statistiche'
 import { Route as SetPasswordRouteImport } from './routes/set-password'
 import { Route as PrevisioniRouteImport } from './routes/previsioni'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/_auth'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AuthIndexRouteImport } from './routes/_auth.index'
 import { Route as TrattamentiNewRouteImport } from './routes/trattamenti.new'
 import { Route as RaccoltiNewRouteImport } from './routes/raccolti.new'
@@ -66,9 +68,19 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AuthIndexRoute = AuthIndexRouteImport.update({
   id: '/',
@@ -101,14 +113,14 @@ const ApiariesNewRoute = ApiariesNewRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
-  id: '/admin/users',
-  path: '/admin/users',
-  getParentRoute: () => rootRouteImport,
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminAttivitaRoute = AdminAttivitaRouteImport.update({
-  id: '/admin/attivita',
-  path: '/admin/attivita',
-  getParentRoute: () => rootRouteImport,
+  id: '/attivita',
+  path: '/attivita',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AuthTrattamentiRoute = AuthTrattamentiRouteImport.update({
   id: '/trattamenti',
@@ -238,6 +250,7 @@ const AuthHivesHiveIdInspectionsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthIndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
   '/previsioni': typeof PrevisioniRoute
   '/set-password': typeof SetPasswordRoute
@@ -256,6 +269,7 @@ export interface FileRoutesByFullPath {
   '/promemoria/new': typeof PromemoriaNewRoute
   '/raccolti/new': typeof RaccoltiNewRoute
   '/trattamenti/new': typeof TrattamentiNewRoute
+  '/admin/': typeof AdminIndexRoute
   '/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
   '/impostazioni/ispezione-express': typeof AuthImpostazioniIspezioneExpressRoute
   '/impostazioni/preferenze': typeof AuthImpostazioniPreferenzeRoute
@@ -293,6 +307,7 @@ export interface FileRoutesByTo {
   '/raccolti/new': typeof RaccoltiNewRoute
   '/trattamenti/new': typeof TrattamentiNewRoute
   '/': typeof AuthIndexRoute
+  '/admin': typeof AdminIndexRoute
   '/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
   '/impostazioni/ispezione-express': typeof AuthImpostazioniIspezioneExpressRoute
   '/impostazioni/preferenze': typeof AuthImpostazioniPreferenzeRoute
@@ -313,6 +328,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteWithChildren
+  '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
   '/previsioni': typeof PrevisioniRoute
   '/set-password': typeof SetPasswordRoute
@@ -332,6 +348,7 @@ export interface FileRoutesById {
   '/raccolti/new': typeof RaccoltiNewRoute
   '/trattamenti/new': typeof TrattamentiNewRoute
   '/_auth/': typeof AuthIndexRoute
+  '/admin/': typeof AdminIndexRoute
   '/_auth/apiaries/$apiaryId': typeof AuthApiariesApiaryIdRoute
   '/_auth/impostazioni/ispezione-express': typeof AuthImpostazioniIspezioneExpressRoute
   '/_auth/impostazioni/preferenze': typeof AuthImpostazioniPreferenzeRoute
@@ -353,6 +370,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/login'
     | '/previsioni'
     | '/set-password'
@@ -371,6 +389,7 @@ export interface FileRouteTypes {
     | '/promemoria/new'
     | '/raccolti/new'
     | '/trattamenti/new'
+    | '/admin/'
     | '/apiaries/$apiaryId'
     | '/impostazioni/ispezione-express'
     | '/impostazioni/preferenze'
@@ -408,6 +427,7 @@ export interface FileRouteTypes {
     | '/raccolti/new'
     | '/trattamenti/new'
     | '/'
+    | '/admin'
     | '/apiaries/$apiaryId'
     | '/impostazioni/ispezione-express'
     | '/impostazioni/preferenze'
@@ -427,6 +447,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_auth'
+    | '/admin'
     | '/login'
     | '/previsioni'
     | '/set-password'
@@ -446,6 +467,7 @@ export interface FileRouteTypes {
     | '/raccolti/new'
     | '/trattamenti/new'
     | '/_auth/'
+    | '/admin/'
     | '/_auth/apiaries/$apiaryId'
     | '/_auth/impostazioni/ispezione-express'
     | '/_auth/impostazioni/preferenze'
@@ -466,12 +488,11 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
+  AdminRoute: typeof AdminRouteWithChildren
   LoginRoute: typeof LoginRoute
   PrevisioniRoute: typeof PrevisioniRoute
   SetPasswordRoute: typeof SetPasswordRoute
   StatisticheRoute: typeof StatisticheRoute
-  AdminAttivitaRoute: typeof AdminAttivitaRoute
-  AdminUsersRoute: typeof AdminUsersRoute
   ApiariesNewRoute: typeof ApiariesNewRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
   PromemoriaNewRoute: typeof PromemoriaNewRoute
@@ -520,12 +541,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_auth': {
       id: '/_auth'
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/_auth/': {
       id: '/_auth/'
@@ -571,17 +606,17 @@ declare module '@tanstack/react-router' {
     }
     '/admin/users': {
       id: '/admin/users'
-      path: '/admin/users'
+      path: '/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AdminUsersRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/attivita': {
       id: '/admin/attivita'
-      path: '/admin/attivita'
+      path: '/attivita'
       fullPath: '/admin/attivita'
       preLoaderRoute: typeof AdminAttivitaRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/_auth/trattamenti': {
       id: '/_auth/trattamenti'
@@ -781,14 +816,27 @@ const AuthRouteChildren: AuthRouteChildren = {
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
+interface AdminRouteChildren {
+  AdminAttivitaRoute: typeof AdminAttivitaRoute
+  AdminUsersRoute: typeof AdminUsersRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAttivitaRoute: AdminAttivitaRoute,
+  AdminUsersRoute: AdminUsersRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
+  AdminRoute: AdminRouteWithChildren,
   LoginRoute: LoginRoute,
   PrevisioniRoute: PrevisioniRoute,
   SetPasswordRoute: SetPasswordRoute,
   StatisticheRoute: StatisticheRoute,
-  AdminAttivitaRoute: AdminAttivitaRoute,
-  AdminUsersRoute: AdminUsersRoute,
   ApiariesNewRoute: ApiariesNewRoute,
   AuthCallbackRoute: AuthCallbackRoute,
   PromemoriaNewRoute: PromemoriaNewRoute,
