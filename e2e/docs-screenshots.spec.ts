@@ -15,7 +15,7 @@ async function screenshot(page: Parameters<typeof test>[2] extends (args: { page
   })
 }
 
-test.use({ viewport: { width: 390, height: 844 } }) // iPhone 14 Pro
+test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3 }) // iPhone 14 Pro @3x
 
 test.describe('screenshots documentazione', () => {
   test('01 - home con apiari', async ({ page }) => {
