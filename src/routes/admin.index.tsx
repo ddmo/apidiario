@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase'
 import {
   Users, Activity, ClipboardList, TreePine,
   Hexagon, Syringe, TrendingUp, DollarSign, Database,
-  HardDrive, Wifi, Zap, AlertTriangle, type LucideIcon,
+  HardDrive, Wifi, Zap, AlertTriangle, Radio, MessageSquare, type LucideIcon,
 } from 'lucide-react'
 
 export const Route = createFileRoute('/admin/')({
@@ -228,9 +228,11 @@ function AdminDashboard() {
           db_size_bytes: number | null
           storage_bytes: number | null
           auth_user_count: number | null
+          realtime_connections: number | null
           bandwidth_bytes: number | null
           edge_invocations: number | null
           mau: number | null
+          realtime_messages: number | null
         }
         management_configured: boolean
       }
@@ -403,11 +405,21 @@ function AdminDashboard() {
           />
           <UsageBar
             icon={Users}
-            label="Utenti registrati (proxy MAU)"
+            label="Utenti totali (proxy MAU)"
             used={supabaseUsage?.usage.auth_user_count ?? null}
             limit={supabaseUsage?.limits.mau ?? 50_000}
             fmt={(n) => n.toLocaleString('it-IT')}
           />
+          <UsageBar
+            icon={Radio}
+            label="Realtime connections (correnti)"
+            used={supabaseUsage?.usage.realtime_connections ?? null}
+            limit={supabaseUsage?.limits.realtime_connections ?? 200}
+            fmt={(n) => n.toLocaleString('it-IT')}
+          />
+
+          <div className="border-t border-stone-100" />
+
           {supabaseUsage?.management_configured ? (
             <>
               <UsageBar
@@ -419,18 +431,32 @@ function AdminDashboard() {
               />
               <UsageBar
                 icon={Zap}
-                label="Edge Function invocations"
+                label="Edge Function invocations (mese)"
                 used={supabaseUsage.usage.edge_invocations}
                 limit={supabaseUsage.limits.edge_invocations ?? 500_000}
+                fmt={(n) => n.toLocaleString('it-IT')}
+              />
+              <UsageBar
+                icon={Users}
+                label="MAU reali (mese corrente)"
+                used={supabaseUsage.usage.mau}
+                limit={supabaseUsage.limits.mau ?? 50_000}
+                fmt={(n) => n.toLocaleString('it-IT')}
+              />
+              <UsageBar
+                icon={MessageSquare}
+                label="Realtime messages (mese)"
+                used={supabaseUsage.usage.realtime_messages}
+                limit={supabaseUsage.limits.realtime_messages ?? 2_000_000}
                 fmt={(n) => n.toLocaleString('it-IT')}
               />
             </>
           ) : (
             <div className="rounded-lg bg-stone-50 border border-stone-200 px-4 py-3 text-xs text-stone-500">
-              <strong className="text-stone-600">Bandwidth e invocazioni Edge Function non disponibili.</strong>
+              <strong className="text-stone-600">Bandwidth, Edge invocations, MAU reali e Realtime messages non disponibili.</strong>
               {' '}Aggiungi i secret <code className="font-mono bg-stone-100 px-1 rounded">MGMT_API_KEY</code> e{' '}
               <code className="font-mono bg-stone-100 px-1 rounded">PROJECT_REF</code> alla Edge Function{' '}
-              <code className="font-mono bg-stone-100 px-1 rounded">admin-supabase-usage</code> per sbloccare queste metriche.
+              <code className="font-mono bg-stone-100 px-1 rounded">admin-supabase-usage</code> per sbloccarle.
             </div>
           )}
         </div>
