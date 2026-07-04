@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "apidiario",
+  "name": "apidiario-site",
   "main": "src/worker.ts",
   "compatibility_date": "2026-05-09",
   "observability": {
