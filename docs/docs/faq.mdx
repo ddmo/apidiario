@@ -1,11 +1,47 @@
 ---
 id: faq
-title: faq
-sidebar_position: 99
+title: FAQ
+sidebar_position: 8
 ---
 
-# faq
+# Domande frequenti
 
-:::info In costruzione
-Questa sezione è in lavorazione. Torna presto!
-:::
+## L'app funziona senza connessione internet?
+
+Parzialmente. Apidiario è una PWA con service worker: i dati già caricati restano accessibili anche offline (in sola lettura). Le modifiche (nuove ispezioni, trattamenti) richiedono connessione per essere salvate sul server.
+
+## Come installo l'app sul telefono?
+
+**iPhone (Safari):** apri il sito → premi l'icona di condivisione → "Aggiungi alla schermata Home".
+
+**Android (Chrome):** apri il sito → menu ⋮ → "Aggiungi alla schermata Home" o "Installa app".
+
+Una volta installata, l'app si avvia a schermo intero come un'app nativa.
+
+## Posso condividere un apiario con un altro utente?
+
+Sì. Dalla schermata principale, **scorri a sinistra** sulla riga dell'apiario da condividere: appare il pulsante **Condividi** (arancione). Inserisci l'email dell'utente con cui vuoi condividere. L'utente invitato potrà vedere e modificare i dati dell'apiario.
+
+## I miei dati sono al sicuro?
+
+I dati sono salvati su Supabase (PostgreSQL) con accesso protetto da autenticazione. Ogni utente vede esclusivamente i propri dati. Le foto vengono archiviate in uno storage separato con le stesse policy di accesso.
+
+## Posso esportare i miei dati?
+
+L'esportazione dati diretta è in sviluppo. Per ora puoi generare i **report PDF** che contengono un riepilogo completo delle ispezioni stagionali per ogni apiario.
+
+## Il meteo non appare per il mio apiario. Perché?
+
+Il meteo viene caricato in base alla posizione geografica dell'apiario (latitudine e longitudine). Assicurati di aver inserito la posizione quando hai creato o modificato l'apiario — puoi usare il pulsante di geolocalizzazione o inserire le coordinate manualmente. Se la posizione è corretta e il meteo non appare, verifica la connessione internet.
+
+## Come funziona il conteggio varroa?
+
+Puoi registrare il conteggio varroa durante un'ispezione, indicando il numero di acari rilevati e il metodo usato (lavaggio alcolico, tavola conta-caduta, ecc.). Il sistema non calcola automaticamente la soglia di intervento — questa dipende dalla stagione e dal metodo; valuta sempre il dato in contesto.
+
+## Posso usare Apidiario su PC o tablet?
+
+Sì. Apidiario è ottimizzato per mobile ma funziona su qualsiasi browser moderno (Chrome, Firefox, Safari, Edge). Su tablet il layout si adatta automaticamente.
+
+## Ho trovato un bug. Come lo segnalo?
+
+Scrivici all'indirizzo email di supporto indicato sulla pagina del sito. I report con screenshot e una descrizione dei passaggi per riprodurre il problema ci aiutano molto a diagnosticarlo rapidamente.

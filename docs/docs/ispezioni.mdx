@@ -1,11 +1,81 @@
 ---
 id: ispezioni
-title: ispezioni
-sidebar_position: 99
+title: Ispezioni
+sidebar_position: 4
 ---
 
-# ispezioni
+# Ispezioni
 
-:::info In costruzione
-Questa sezione è in lavorazione. Torna presto!
+Le ispezioni sono il cuore del diario: ogni visita alle arnie diventa una scheda strutturata con dati su covata, regina, scorte e salute della famiglia.
+
+## Storico ispezioni di un'arnia
+
+Dalla scheda di un'arnia, scorri verso sinistra e premi **Ispezioni** per vedere lo storico completo.
+
+![Storico ispezioni di un'arnia](/img/screenshots/09-storico-ispezioni.png)
+
+Ogni voce mostra data, stato regina, forza famiglia e comportamento.
+
+## Registrare una nuova ispezione
+
+Premi **+ Nuova ispezione** dallo storico, oppure il pulsante di ispezione rapida dalla scheda arnia nell'apiario.
+
+### Dati generali
+
+Nella prima sezione compila i dati principali: data, temperatura, stato della regina.
+
+![Form nuova ispezione — dati generali](/img/screenshots/10-nuova-ispezione.png)
+
+| Campo | Valori possibili |
+|---|---|
+| **Data** | Data dell'ispezione |
+| **Regina vista** | Vista / Non vista / Non cercata |
+| **Celle reali** | Se presenti, indica tipo e quantità |
+| **Forza famiglia** | Debole / Media / Forte |
+| **Comportamento** | Calmo / Nervoso / Aggressivo |
+
+### Covata e scorte
+
+Scorri in basso per registrare i dettagli di covata e telai.
+
+![Form nuova ispezione — covata e scorte](/img/screenshots/11-nuova-ispezione-covata.png)
+
+| Campo | Descrizione |
+|---|---|
+| **Uova** | Presenza di uova fresche (prova di regina attiva) |
+| **Larve** | Larve di varie età |
+| **Covata opercolata** | Telai con covata matura |
+| **Telai covata** | Numero di telai con covata |
+| **Telai miele** | Telai con scorte di miele |
+| **Telai polline** | Telai con polline |
+| **Telai vuoti** | Telai liberi nel nido |
+| **Varroa** | Conteggio e metodo di rilevamento |
+| **Patologie** | Sacbrood, Nosema, Calcificazione, ecc. |
+
+### Note e interventi
+
+In fondo al form puoi indicare interventi effettuati durante la visita (es. aggiunto melario, tolte celle reali) e lasciare note libere.
+
+## Dettaglio ispezione
+
+Ogni ispezione salvata ha una scheda di dettaglio con tutti i dati registrati.
+
+![Dettaglio ispezione](/img/screenshots/12-dettaglio-ispezione.png)
+
+## Ispezione batch
+
+L'ispezione batch permette di registrare un sopralluogo a **tutte le arnie di un apiario in sequenza**, senza tornare alla schermata principale tra un'arnia e l'altra.
+
+![Ispezione batch — selezione arnie](/img/screenshots/13-ispezione-batch.png)
+
+Seleziona le arnie da ispezionare, poi naviga tra i form con i pulsanti Avanti/Indietro. Al termine, tutte le ispezioni vengono salvate in blocco.
+
+:::tip
+Usa l'ispezione batch quando visiti l'apiario completo: è più rapida e riduce gli errori di data.
 :::
+
+## Il simbolo "?" sulla regina
+
+Quando l'ultima ispezione riporta "Non vista / Non cercata" **e** non ci sono uova, l'icona regina mostra **?** anziché verde o rossa. Indica che lo stato della regina è incerto — da verificare alla prossima visita.
+
+Se invece ci sono uova, la regina è considerata attiva anche se non è stata vista direttamente.

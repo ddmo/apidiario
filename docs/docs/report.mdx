@@ -1,11 +1,48 @@
 ---
 id: report
-title: report
-sidebar_position: 99
+title: Report PDF
+sidebar_position: 7
 ---
 
-# report
+# Report PDF
 
-:::info In costruzione
-Questa sezione è in lavorazione. Torna presto!
+Apidiario genera un report PDF completo per ogni apiario, con grafici, dati meteo, fioriture e riepilogo delle ispezioni stagionali.
+
+## Contenuto del report
+
+Il report copre la stagione corrente (aprile–ottobre) e include:
+
+- **Dati apiario**: nome, posizione, numero di arnie
+- **Meteo stagionale**: temperatura min/max, precipitazioni, vento settimana per settimana
+- **Fioriture**: timeline delle specie osservate nell'apiario (grafico Gantt)
+- **Andamento forza famiglia**: grafico a gradini per ogni arnia
+- **Andamento comportamento**: calmo / nervoso / aggressivo nel tempo
+- **Ispezioni**: tabella riepilogativa con queen status, covata, varroa
+- **Interventi e patologie**: riepilogo degli interventi registrati
+
+## Generare il report
+
+Dalla sezione **Statistiche**, scorri fino alla card **Report**. Seleziona l'apiario e scegli un'azione:
+
+| Opzione | Azione |
+|---|---|
+| **Visualizza** | Scarica il PDF sul dispositivo |
+| **Invia per email** | Invia il PDF all'indirizzo email del tuo account |
+
+Premi il pulsante per avviare la generazione. Il processo richiede alcuni secondi (il PDF viene generato direttamente nel browser).
+
+:::tip
+La prima generazione è più lenta perché scarica il motore PDF (~1.5MB). Le generazioni successive nella stessa sessione sono istantanee.
+:::
+
+## Download su mobile
+
+Su iOS e Android il PDF viene scaricato automaticamente come file allegato. Se il browser chiede conferma, premi **Apri** o **Salva**.
+
+## Invio email
+
+Il PDF viene inviato all'indirizzo email associato al tuo account Apidiario. Controlla anche la cartella spam se non lo ricevi entro qualche minuto.
+
+:::info
+La dimensione massima del PDF inviabile per email è **15 MB**. Report con molte foto allegate potrebbero superare questo limite — in quel caso usa l'opzione Visualizza per scaricarlo direttamente.
 :::
