@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase'
 import {
   Users, Activity, ClipboardList, TreePine,
   Hexagon, Syringe, TrendingUp, DollarSign, Database,
-  HardDrive, Wifi, Zap, AlertTriangle, Radio, MessageSquare, type LucideIcon,
+  HardDrive, AlertTriangle, Radio, type LucideIcon,
 } from 'lucide-react'
 
 export const Route = createFileRoute('/admin/')({
@@ -217,7 +217,7 @@ function AdminDashboard() {
 
   const totalApiCost = (apiCostByUser ?? []).reduce((s: number, r: { cost_usd?: number }) => s + (r.cost_usd ?? 0), 0)
 
-  const { data: supabaseUsage } = useQuery({
+  const { data: supabaseUsage, error: supabaseUsageError } = useQuery({
     queryKey: ['admin', 'supabase-usage'],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('admin-supabase-usage')
@@ -229,15 +229,13 @@ function AdminDashboard() {
           storage_bytes: number | null
           auth_user_count: number | null
           realtime_connections: number | null
-          bandwidth_bytes: number | null
-          edge_invocations: number | null
-          mau: number | null
-          realtime_messages: number | null
         }
-        management_configured: boolean
+        prometheus_status: number | null
+        prometheus_error: string | null
       }
     },
     staleTime: 5 * 60 * 1000,
+    retry: 1,
   })
 
   return (
@@ -388,6 +386,12 @@ function AdminDashboard() {
           <Database size={13} />
           Piano Supabase (Free tier)
         </h2>
+        {supabaseUsageError && (
+          <div className="mb-3 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-xs text-red-700">
+            Errore: {String(supabaseUsageError)}
+          </div>
+        )}
+
         <div className="bg-white rounded-xl border border-stone-200 px-5 py-5 flex flex-col gap-5">
           <UsageBar
             icon={Database}
@@ -407,7 +411,7 @@ function AdminDashboard() {
             icon={Users}
             label="Utenti totali (proxy MAU)"
             used={supabaseUsage?.usage.auth_user_count ?? null}
-            limit={supabaseUsage?.limits.mau ?? 50_000}
+            limit={supabaseUsage?.limits.auth_user_count ?? 50_000}
             fmt={(n) => n.toLocaleString('it-IT')}
           />
           <UsageBar
@@ -418,47 +422,20 @@ function AdminDashboard() {
             fmt={(n) => n.toLocaleString('it-IT')}
           />
 
-          <div className="border-t border-stone-100" />
-
-          {supabaseUsage?.management_configured ? (
-            <>
-              <UsageBar
-                icon={Wifi}
-                label="Bandwidth (mese corrente)"
-                used={supabaseUsage.usage.bandwidth_bytes}
-                limit={supabaseUsage.limits.bandwidth_bytes ?? 5 * 1024 * 1024 * 1024}
-                fmt={fmtBytes}
-              />
-              <UsageBar
-                icon={Zap}
-                label="Edge Function invocations (mese)"
-                used={supabaseUsage.usage.edge_invocations}
-                limit={supabaseUsage.limits.edge_invocations ?? 500_000}
-                fmt={(n) => n.toLocaleString('it-IT')}
-              />
-              <UsageBar
-                icon={Users}
-                label="MAU reali (mese corrente)"
-                used={supabaseUsage.usage.mau}
-                limit={supabaseUsage.limits.mau ?? 50_000}
-                fmt={(n) => n.toLocaleString('it-IT')}
-              />
-              <UsageBar
-                icon={MessageSquare}
-                label="Realtime messages (mese)"
-                used={supabaseUsage.usage.realtime_messages}
-                limit={supabaseUsage.limits.realtime_messages ?? 2_000_000}
-                fmt={(n) => n.toLocaleString('it-IT')}
-              />
-            </>
-          ) : (
-            <div className="rounded-lg bg-stone-50 border border-stone-200 px-4 py-3 text-xs text-stone-500">
-              <strong className="text-stone-600">Bandwidth, Edge invocations, MAU reali e Realtime messages non disponibili.</strong>
-              {' '}Aggiungi i secret <code className="font-mono bg-stone-100 px-1 rounded">MGMT_API_KEY</code> e{' '}
-              <code className="font-mono bg-stone-100 px-1 rounded">PROJECT_REF</code> alla Edge Function{' '}
-              <code className="font-mono bg-stone-100 px-1 rounded">admin-supabase-usage</code> per sbloccarle.
-            </div>
+          {supabaseUsage?.prometheus_error && (
+            <p className="text-xs text-amber-700 bg-amber-50 rounded px-3 py-2">
+              Prometheus HTTP {supabaseUsage.prometheus_status}: {supabaseUsage.prometheus_error}
+            </p>
           )}
+
+          <div className="border-t border-stone-100 pt-1">
+            <p className="text-[11px] text-stone-400">
+              Egress, MAU reali, Edge invocations e Realtime messages non sono disponibili via API pubblica.{' '}
+              <a href="https://supabase.com/dashboard/project/efssoqczhzwzutnpvndh/settings/billing" target="_blank" rel="noreferrer" className="underline underline-offset-2 hover:text-stone-600">
+                Controlla su Supabase Dashboard.
+              </a>
+            </p>
+          </div>
         </div>
       </section>
     </div>
