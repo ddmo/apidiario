@@ -22,6 +22,7 @@ import { Route as RaccoltiNewRouteImport } from './routes/raccolti.new'
 import { Route as PromemoriaNewRouteImport } from './routes/promemoria.new'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ApiariesNewRouteImport } from './routes/apiaries.new'
+import { Route as AdminUtilizzoRouteImport } from './routes/admin.utilizzo'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminAttivitaRouteImport } from './routes/admin.attivita'
 import { Route as AuthTrattamentiRouteImport } from './routes/_auth.trattamenti'
@@ -111,6 +112,11 @@ const ApiariesNewRoute = ApiariesNewRouteImport.update({
   id: '/apiaries/new',
   path: '/apiaries/new',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminUtilizzoRoute = AdminUtilizzoRouteImport.update({
+  id: '/utilizzo',
+  path: '/utilizzo',
+  getParentRoute: () => AdminRoute,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
@@ -264,6 +270,7 @@ export interface FileRoutesByFullPath {
   '/trattamenti': typeof AuthTrattamentiRoute
   '/admin/attivita': typeof AdminAttivitaRoute
   '/admin/users': typeof AdminUsersRoute
+  '/admin/utilizzo': typeof AdminUtilizzoRoute
   '/apiaries/new': typeof ApiariesNewRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/promemoria/new': typeof PromemoriaNewRoute
@@ -301,6 +308,7 @@ export interface FileRoutesByTo {
   '/trattamenti': typeof AuthTrattamentiRoute
   '/admin/attivita': typeof AdminAttivitaRoute
   '/admin/users': typeof AdminUsersRoute
+  '/admin/utilizzo': typeof AdminUtilizzoRoute
   '/apiaries/new': typeof ApiariesNewRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/promemoria/new': typeof PromemoriaNewRoute
@@ -342,6 +350,7 @@ export interface FileRoutesById {
   '/_auth/trattamenti': typeof AuthTrattamentiRoute
   '/admin/attivita': typeof AdminAttivitaRoute
   '/admin/users': typeof AdminUsersRoute
+  '/admin/utilizzo': typeof AdminUtilizzoRoute
   '/apiaries/new': typeof ApiariesNewRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/promemoria/new': typeof PromemoriaNewRoute
@@ -384,6 +393,7 @@ export interface FileRouteTypes {
     | '/trattamenti'
     | '/admin/attivita'
     | '/admin/users'
+    | '/admin/utilizzo'
     | '/apiaries/new'
     | '/auth/callback'
     | '/promemoria/new'
@@ -421,6 +431,7 @@ export interface FileRouteTypes {
     | '/trattamenti'
     | '/admin/attivita'
     | '/admin/users'
+    | '/admin/utilizzo'
     | '/apiaries/new'
     | '/auth/callback'
     | '/promemoria/new'
@@ -461,6 +472,7 @@ export interface FileRouteTypes {
     | '/_auth/trattamenti'
     | '/admin/attivita'
     | '/admin/users'
+    | '/admin/utilizzo'
     | '/apiaries/new'
     | '/auth/callback'
     | '/promemoria/new'
@@ -603,6 +615,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/apiaries/new'
       preLoaderRoute: typeof ApiariesNewRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/utilizzo': {
+      id: '/admin/utilizzo'
+      path: '/utilizzo'
+      fullPath: '/admin/utilizzo'
+      preLoaderRoute: typeof AdminUtilizzoRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/admin/users': {
       id: '/admin/users'
@@ -819,12 +838,14 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 interface AdminRouteChildren {
   AdminAttivitaRoute: typeof AdminAttivitaRoute
   AdminUsersRoute: typeof AdminUsersRoute
+  AdminUtilizzoRoute: typeof AdminUtilizzoRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAttivitaRoute: AdminAttivitaRoute,
   AdminUsersRoute: AdminUsersRoute,
+  AdminUtilizzoRoute: AdminUtilizzoRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 

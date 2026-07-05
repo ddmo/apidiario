@@ -1,29 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useActivityLog } from '@/features/admin/hooks/use-activity-log'
+import { actionLabels, actionBadgeColors, entityLabels } from '@/features/admin/activity-labels'
 
 export const Route = createFileRoute('/admin/attivita')({
   component: AdminActivityLogPage,
 })
-
-const actionLabels: Record<string, string> = {
-  insert: 'Inserimento',
-  update: 'Modifica',
-  delete: 'Eliminazione',
-}
-
-const actionColors: Record<string, string> = {
-  insert: 'bg-green-100 text-green-700',
-  delete: 'bg-red-100 text-red-600',
-  update: 'bg-amber-100 text-amber-700',
-}
-
-const entityLabels: Record<string, string> = {
-  apiary: 'apiario',
-  hive: 'arnia',
-  treatment: 'trattamento',
-  bloom_observation: 'fioritura',
-  inspection: 'ispezione',
-}
 
 function AdminActivityLogPage() {
   const { data: entries, isLoading, error } = useActivityLog()
@@ -51,7 +32,7 @@ function AdminActivityLogPage() {
               className={`px-4 py-3 ${i < entries.length - 1 ? 'border-b border-stone-100' : ''}`}
             >
               <div className="flex items-center gap-2 mb-1">
-                <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${actionColors[entry.action] ?? 'bg-stone-100 text-stone-500'}`}>
+                <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${actionBadgeColors[entry.action] ?? 'bg-stone-100 text-stone-500'}`}>
                   {actionLabels[entry.action] ?? entry.action}
                 </span>
                 <span className="text-xs text-stone-400">

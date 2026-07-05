@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, redirect, Link, useRouterState } from '@tanstack/react-router'
 import { supabase } from '@/lib/supabase'
-import { LayoutDashboard, Users, Activity, LogOut, ExternalLink, Menu, X } from 'lucide-react'
+import { LayoutDashboard, Users, Activity, BarChart3, LogOut, ExternalLink, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 
 export const Route = createFileRoute('/admin')({
@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { to: '/admin' as const, label: 'Dashboard', icon: LayoutDashboard },
   { to: '/admin/users' as const, label: 'Utenti', icon: Users },
   { to: '/admin/attivita' as const, label: 'Attività', icon: Activity },
+  { to: '/admin/utilizzo' as const, label: 'Utilizzo', icon: BarChart3 },
 ]
 
 function AdminLayout() {
