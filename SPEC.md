@@ -1,6 +1,6 @@
 # SPEC.md — App di Gestione Apiari
 
-> **Stato**: in sviluppo · **Versione**: 0.3 · **Nome app**: Apidiario
+> **Stato**: in produzione (mobile) · layout tablet/desktop in progettazione · **Versione documento**: 0.4 (app build corrente: v0.21.0) · **Nome app**: Apidiario
 
 ---
 
@@ -37,6 +37,9 @@ L'app deve servire bene un apicoltore con 10 arnie e scalare senza ridisegno fin
 | — | Activity log | ✅ admin: log insert/update/delete con timestamp e utente |
 | — | Tema scuro/chiaro | ✅ toggle in Più, persistenza preferenza |
 | — | Admin utenti | ✅ gestione utenti, inviti, eliminazione |
+| — | Admin: dashboard utilizzo app | ✅ trend giornaliero, breakdown per tipo/azione, classifica utenti, filtro per utente (`/admin/utilizzo`) |
+| — | Admin: monitoraggio Supabase | ✅ metriche Prometheus (DB size, storage, utenti, realtime connections) su free tier |
+| — | Admin: costo API (Whisper + DeepSeek) | ✅ tracking chiamate e costo per utente |
 
 **Home dell'app (post-login)**: lista apiari. Ogni riga apiario ha swipe-to-reveal per condividere, modificare, eliminare.
 
@@ -46,6 +49,8 @@ L'app deve servire bene un apicoltore con 10 arnie e scalare senza ridisegno fin
 2. **Visivo prima che testuale.** Stati delle arnie comunicati con icone e colori; testo libero solo dove inevitabile (note, dettatura vocale).
 3. **Pochi tap.** Una "ispezione standard" si completa in massimo 60 secondi.
 4. **Default intelligenti.** I form precompilano dai dati dell'ultima ispezione; l'utente conferma o modifica.
+
+**Nuovo (in corso):** l'uso mobile sul campo resta il caso d'uso primario e non va compromesso. In parallelo si sta progettando un layout tablet/desktop per l'uso da scrivania (pianificazione, revisione dati, gestione più apiari insieme) — vedi §11.
 
 ## 3. Personas e ruoli
 
@@ -389,7 +394,8 @@ La condivisione avviene solo verso utenti già registrati. Accesso tramite Edge 
 - Query apiari/arnie/ispezioni cached con TanStack Query (staleTime configurato per tipo).
 
 ### 8.2 Offline
-- ⬜ **Non implementato.** Tutte le operazioni richiedono connessione. Non c'è persistenza locale (Dexie installato come dipendenza ma non utilizzato). L'app NON funziona offline.
+- 🟡 **Parziale.** L'app è una PWA installabile: service worker (`src/sw.ts`, Workbox via `vite-plugin-pwa` strategia `injectManifest`) precacha l'app shell e gli asset statici, e cachea immagini/font/foto Supabase Storage (`StaleWhileRevalidate`/`CacheFirst`). I dati applicativi (apiari, arnie, ispezioni...) sono persistiti lato client con `@tanstack/react-query-persist-client` su IndexedDB, quindi l'ultima vista rimane consultabile offline.
+- **Non implementato**: scrittura offline. Non c'è outbox/coda di sincronizzazione: creare o modificare dati richiede connessione attiva. Dexie resta installato come dipendenza ma non utilizzato.
 
 ### 8.3 Sicurezza e privacy
 - Autenticazione: email + OTP a 6 cifre via Supabase Auth
@@ -417,7 +423,7 @@ La condivisione avviene solo verso utenti già registrati. Accesso tramite Edge 
 - **Notifiche push**: Web Push API + VAPID + Service Worker minimale
 - **Motore suggerimenti**: custom rules engine lato client
 - **Hosting frontend**: Cloudflare Workers (wrangler deploy, non Pages)
-- **PWA**: ⛔ disabilitata. Service worker presente solo per push notifications (nessun fetch handler). Nessun manifest, nessuna precache, nessuna installabilità.
+- **PWA**: ✅ abilitata. `vite-plugin-pwa` (strategia `injectManifest`), manifest con icone/maskable, installabile (`display: standalone`). ⚠️ **`orientation: 'portrait'` fissato nel manifest** — da rivedere per il supporto tablet (vedi §11).
 - **CI/CD**: push su GitHub → Cloudflare Workers deploy automatico
 
 ## 10. Fuori scope per la v1
@@ -432,15 +438,19 @@ La condivisione avviene solo verso utenti già registrati. Accesso tramite Edge 
 - Integrazione con bilance elettroniche o sensori IoT in arnia
 - Gestione finanziaria (costi/ricavi)
 - Login OAuth (Google, Apple)
-- Offline-first (sync engine, outbox queue)
-- Installabilità PWA (manifest, precache)
+- Offline-first per la scrittura (sync engine, outbox queue) — la lettura offline via precache/IndexedDB è invece già implementata (§8.2)
 
 ## 11. Decisioni aperte
 
 1. ~~**Nome dell'app**~~ ✅ Apidiario.
 2. ~~**Identità visiva**~~ ✅ palette caldo legno-miele, Inter, Fraunces per wordmark.
 3. ~~**Audio dettato**~~ ✅ risolto: Web Speech API del browser per v1. Limite noto su iOS Safari, accettato.
-4. **Offline sync**: Dexie presente nelle dipendenze ma non utilizzato. Decisione rimandata.
+4. **Offline sync (scrittura)**: Dexie presente nelle dipendenze ma non utilizzato. Decisione rimandata.
+5. **Layout tablet/desktop**: in progettazione (mockup via Claude Design). Stato tecnico di partenza, verificato nel codice:
+   - Oggi l'intera app (`src/routes/_auth.tsx`) è incapsulata in un `<main className="max-w-lg mx-auto ...">`: su schermi larghi resta una colonna stretta centrata con molto spazio vuoto ai lati. Nessuna route applicativa (fuori dall'admin) ha classi responsive (`md:`/`lg:`) oggi.
+   - Navigazione attuale: `BottomNav` fisso in basso con 5 voci (Home, Calendario, FAB "Visita" per nuova ispezione, Trattamenti, Più) — pattern pensato per pollice/mano singola, da ripensare per mouse/tastiera su schermi grandi.
+   - **Precedente da NON riusare visivamente**: il pannello admin (`/admin/*`) ha già un layout desktop (sidebar fissa + drawer mobile) ma usa una palette scura amber/stone completamente diversa dal design system cream/wood/honey descritto in DESIGN.md. È uno strumento interno, non un riferimento per il layout tablet/desktop dell'app principale.
+   - ⚠️ **Conflitto da risolvere**: il manifest PWA ha `orientation: 'portrait'` fisso (vedi §9). Se l'app installata deve supportare l'uso in landscape su tablet, questo vincolo va rimosso o reso condizionale.
 
 ## 12. Glossario
 

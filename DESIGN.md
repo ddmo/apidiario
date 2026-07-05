@@ -115,6 +115,8 @@ Niente blu, niente celeste, niente grigi neutri. Le ombre sono marroni, mai grig
 - Tipografia Inter per UI, Fraunces solo per wordmark
 - Safe-area per dispositivi con notch
 
+**In progettazione:** layout tablet/desktop complementare all'uso mobile sul campo (uso da scrivania: pianificazione, revisione, gestione multi-apiario). Vedi §7 per lo stato attuale e i vincoli da cui partire.
+
 ## 2. Colors
 
 La palette si ispira ai colori del legno d'apiario e del miele. Toni caldi e terrosi, nessun colore freddo.
@@ -287,3 +289,13 @@ Il sistema usa ombre morbide con tinta marrone per creare profondità. Le superf
 - **Don't** usare `border-left: 3px solid` come accento decorativo (side-tab pattern).
 - **Don't** em dashes (—). Usare virgole, punti, o parentesi.
 - **Don't** niente modali come prima scelta. Esaurire alternative inline/progressive prima.
+
+## 7. Tablet/Desktop (in progettazione)
+
+Oggi l'app **non ha alcun layout responsive**: tutto il contenuto (`src/routes/_auth.tsx`) è dentro un contenitore `max-w-lg mx-auto` (512px), centrato. Su tablet/desktop resta una colonna stretta con molto spazio vuoto ai lati; nessuna route applicativa usa classi `md:`/`lg:`. Il `BottomNav` (Home, Calendario, FAB "Visita", Trattamenti, Più) è pensato per pollice/mano singola, non per mouse/tastiera.
+
+**Precedente da non riusare:** il pannello `/admin` ha già un layout desktop (sidebar fissa a sinistra + drawer mobile) ma usa Tailwind stone/amber di default, non i token cream/wood/honey di questo documento. È utile come riferimento strutturale (sidebar persistente vs bottom nav) ma non come riferimento visivo.
+
+**Vincolo da risolvere:** il manifest PWA ha `orientation: 'portrait'` fisso — da rivedere se l'app installata deve girare in landscape su tablet (vedi SPEC.md §11).
+
+Schermate con più valore da un layout più largo (master-detail, multi-colonna): home/lista apiari, dettaglio apiario+arnie, ispezione, statistiche.
