@@ -17,7 +17,13 @@
     "test:e2e:ui": "playwright test --ui",
     "router:gen": "tsr generate",
     "db:types": "node scripts/gen-db-types.mjs",
-    "deploy": "npm run build && wrangler deploy"
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:pull": "supabase db pull",
+    "deploy": "npm run build && wrangler deploy",
+    "site:build": "cd docs && npm run build && rm -rf ../site/docs && cp -r build ../site/docs",
+    "site:dev": "npm run site:build && wrangler pages dev site"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.5.1",

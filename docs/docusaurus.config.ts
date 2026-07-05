@@ -11,8 +11,8 @@ const config: Config = {
     v4: true,
   },
 
-  url: 'https://apidiario-docs.pages.dev',
-  baseUrl: '/',
+  url: 'https://apidiario-site.pages.dev',
+  baseUrl: '/docs/',
 
   organizationName: 'ddmo',
   projectName: 'apidiario',
@@ -31,6 +31,7 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
+          routeBasePath: '/',
         },
         blog: false,
         theme: {
@@ -73,10 +74,10 @@ const config: Config = {
         {
           title: 'Guida',
           items: [
-            { label: 'Introduzione', to: '/docs/intro' },
-            { label: 'Apiari', to: '/docs/apiari' },
-            { label: 'Arnie', to: '/docs/arnie' },
-            { label: 'Ispezioni', to: '/docs/ispezioni' },
+            { label: 'Introduzione', to: '/intro' },
+            { label: 'Apiari', to: '/apiari' },
+            { label: 'Arnie', to: '/arnie' },
+            { label: 'Ispezioni', to: '/ispezioni' },
           ],
         },
         {
