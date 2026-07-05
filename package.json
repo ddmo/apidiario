@@ -23,7 +23,7 @@
     "db:pull": "supabase db pull",
     "deploy": "npm run build && wrangler deploy",
     "site:build": "cd docs && npm run build && rm -rf ../site/docs && cp -r build ../site/docs",
-    "site:dev": "npm run site:build && wrangler pages dev site"
+    "site:dev": "npm run site:build && npx serve site -l 8788"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.5.1",
