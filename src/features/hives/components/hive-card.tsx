@@ -23,8 +23,12 @@ function relativeDate(iso: string): string {
   if (d === 1) return 'ieri'
   if (d < 7) return `${d} giorni fa`
   if (d < 30) return `${Math.floor(d / 7)} sett. fa`
-  if (d < 365) return `${Math.floor(d / 30)} mesi fa`
-  return `${Math.floor(d / 365)} anni fa`
+  if (d < 365) {
+    const months = Math.floor(d / 30)
+    return `${months} ${months === 1 ? 'mese' : 'mesi'} fa`
+  }
+  const years = Math.floor(d / 365)
+  return `${years} ${years === 1 ? 'anno' : 'anni'} fa`
 }
 
 type SwarmingFeverSeverity = 'info' | 'warning' | 'critical'
@@ -32,6 +36,10 @@ type SwarmingFeverSeverity = 'info' | 'warning' | 'critical'
 interface HiveCardProps {
   hive: HiveListItem
   onDelete?: (hiveId: string) => void
+  /** Se fornita, sostituisce la navigazione alla route di modifica (usata per aprire il form inline nel pannello destro). */
+  onEdit?: (hiveId: string) => void
+  /** Se fornita, sostituisce la navigazione all'elenco visite (usata per aprire l'elenco inline nel pannello destro). */
+  onOpenInspections?: (hiveId: string) => void
   swarmingFeverSeverity?: SwarmingFeverSeverity | null
 }
 
@@ -47,7 +55,7 @@ const FEVER_LABELS: Record<SwarmingFeverSeverity, string> = {
   critical: 'Febbre sciamatoria alta',
 }
 
-export function HiveCard({ hive, onDelete, showSchematic = true, swarmingFeverSeverity }: HiveCardProps & { showSchematic?: boolean }) {
+export function HiveCard({ hive, onDelete, onEdit, onOpenInspections, showSchematic = true, swarmingFeverSeverity }: HiveCardProps & { showSchematic?: boolean }) {
   const navigate = useNavigate()
   const { mutate: toggle } = useToggleHiveAccessory()
   const { mutate: updateMelari } = useUpdateMelariCount()
@@ -166,7 +174,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true, swarmingFeverSe
           {showSchematic ? (
             <div className="px-3 py-2 flex gap-3">
               {/* Schematic */}
-              <div className="w-[96px] shrink-0 flex items-center self-stretch bg-cream-200/50 rounded-lg">
+              <div className="w-[96px] shrink-0 flex items-center self-stretch">
                 <HiveSchematic
                   nidoFrameCount={hive.nidoFrameCount}
                   melariCount={hive.melariCount}
@@ -182,14 +190,14 @@ export function HiveCard({ hive, onDelete, showSchematic = true, swarmingFeverSe
                 {/* Name + Last inspection */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="font-semibold text-wood-800 text-base leading-tight truncate">
+                    <p className="font-semibold text-wood-800 text-base leading-snug truncate">
                       {hive.identifier}
                     </p>
                     {hive.apiaryName && (
                       <p className="text-xs text-honey-600 font-medium truncate">{hive.apiaryName}</p>
                     )}
                   </div>
-                  <p className="text-[10px] text-wood-400 shrink-0 flex items-center gap-1 mt-1">
+                  <p className="text-[10px] text-wood-500 shrink-0 flex items-center gap-1 mt-1">
                     <ClipboardCheck size={10} className="shrink-0" />
                     {hive.lastInspection
                       ? relativeDate(hive.lastInspection.performedAt)
@@ -271,14 +279,58 @@ export function HiveCard({ hive, onDelete, showSchematic = true, swarmingFeverSe
                   </button>
                 </div>
 
-                {/* Inspect button */}
-                <button
-                  type="button"
-                  onClick={() => navigate({ to: '/inspections/$hiveId/new', params: { hiveId: hive.id } })}
-                  className="inline-flex items-center justify-center h-8 px-4 bg-honey-400 text-wood-900 rounded-lg text-sm font-semibold w-full"
-                >
-                  {t.hive.card.inspect}
-                </button>
+                {/* Inspect + quick actions */}
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => navigate({ to: '/inspections/$hiveId/new', params: { hiveId: hive.id } })}
+                    className="flex-1 inline-flex items-center justify-center h-8 px-4 bg-honey-400 text-wood-900 rounded-lg text-sm font-semibold"
+                  >
+                    {t.hive.card.inspect}
+                  </button>
+                  {onOpenInspections ? (
+                    <button
+                      type="button"
+                      onClick={() => onOpenInspections(hive.id)}
+                      aria-label={t.inspection.list.title}
+                      title={t.inspection.list.title}
+                      className="size-8 shrink-0 flex items-center justify-center rounded-lg border border-cream-200 text-wood-600 hover:bg-cream-100 transition-colors"
+                    >
+                      <ClipboardList size={16} strokeWidth={1.75} />
+                    </button>
+                  ) : (
+                    <Link
+                      to="/hives/$hiveId/inspections"
+                      params={{ hiveId: hive.id }}
+                      aria-label={t.inspection.list.title}
+                      title={t.inspection.list.title}
+                      className="size-8 shrink-0 flex items-center justify-center rounded-lg border border-cream-200 text-wood-600 hover:bg-cream-100 transition-colors"
+                    >
+                      <ClipboardList size={16} strokeWidth={1.75} />
+                    </Link>
+                  )}
+                  {onEdit ? (
+                    <button
+                      type="button"
+                      onClick={() => onEdit(hive.id)}
+                      aria-label="Modifica"
+                      title="Modifica"
+                      className="size-8 shrink-0 flex items-center justify-center rounded-lg border border-cream-200 text-wood-600 hover:bg-cream-100 transition-colors"
+                    >
+                      <Pencil size={16} strokeWidth={1.75} />
+                    </button>
+                  ) : (
+                    <Link
+                      to="/hives/$hiveId/edit"
+                      params={{ hiveId: hive.id }}
+                      aria-label="Modifica"
+                      title="Modifica"
+                      className="size-8 shrink-0 flex items-center justify-center rounded-lg border border-cream-200 text-wood-600 hover:bg-cream-100 transition-colors"
+                    >
+                      <Pencil size={16} strokeWidth={1.75} />
+                    </Link>
+                  )}
+                </div>
               </div>
             </div>
           ) : (
@@ -308,7 +360,7 @@ export function HiveCard({ hive, onDelete, showSchematic = true, swarmingFeverSe
                       />
                     )}
                     <div className="min-w-0">
-                      <p className="font-semibold text-wood-800 text-base leading-tight truncate">
+                      <p className="font-semibold text-wood-800 text-base leading-snug truncate">
                         {hive.identifier}
                       </p>
                       {hive.apiaryName && (

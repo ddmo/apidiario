@@ -13,6 +13,8 @@ interface ReminderFormProps {
   onSave: (data: ReminderFormData) => void
   onCancel: () => void
   isPending?: boolean
+  /** Nasconde l'header interno (freccia + titolo) quando il form è incorporato in un pannello che fornisce già il proprio header. */
+  hideHeader?: boolean
 }
 
 const SCOPE_OPTIONS = [
@@ -37,7 +39,7 @@ function toEndOfDayIso(dateStr: string): string {
   return d.toISOString()
 }
 
-export function ReminderForm({ initialData, title, onSave, onCancel, isPending }: ReminderFormProps) {
+export function ReminderForm({ initialData, title, onSave, onCancel, isPending, hideHeader }: ReminderFormProps) {
   const { showToast } = useToast()
   const isEdit = !!initialData?.title
 
@@ -121,24 +123,26 @@ export function ReminderForm({ initialData, title, onSave, onCancel, isPending }
 
   return (
     <div className="flex flex-col h-full">
-      <header className="bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2 shrink-0">
-        <button
-          type="button"
-          aria-label="Indietro"
-          onClick={handleCancel}
-          className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
-        >
-          <ArrowLeft size={22} strokeWidth={1.75} />
-        </button>
-        <div className="flex-1 min-w-0 px-1">
-          <h1 className="font-display text-2xl font-medium text-wood-800 truncate tracking-tight">
-            {title}
-          </h1>
-        </div>
-      </header>
+      {!hideHeader && (
+        <header className="bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            aria-label="Indietro"
+            onClick={handleCancel}
+            className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
+          >
+            <ArrowLeft size={22} strokeWidth={1.75} />
+          </button>
+          <div className="flex-1 min-w-0 px-1">
+            <h1 className="font-display text-2xl font-medium text-wood-800 truncate tracking-tight">
+              {title}
+            </h1>
+          </div>
+        </header>
+      )}
 
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6">
-        <div className="flex flex-col gap-5">
+        <div className={`flex flex-col gap-5${hideHeader ? ' tablet:max-w-lg tablet:mx-auto' : ''}`}>
           {/* Titolo */}
           <Input
             id="reminder-title"
@@ -260,15 +264,17 @@ export function ReminderForm({ initialData, title, onSave, onCancel, isPending }
 
       {/* Sticky CTA */}
       <div
-        className="sticky bottom-0 bg-cream-50/95 backdrop-blur-sm border-t border-cream-200 px-4 py-3 flex items-center gap-2 shrink-0"
+        className="sticky bottom-0 bg-cream-50/95 backdrop-blur-sm border-t border-cream-200 px-4 py-3 shrink-0"
         style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
       >
-        <Button type="button" variant="ghost" size="md" className="flex-none px-4" onClick={handleCancel}>
-          Annulla
-        </Button>
-        <Button type="button" variant="primary" size="md" className="flex-1" onClick={doSubmit} loading={isPending} disabled={isEdit && !isDirty}>
-          {isEdit ? 'Salva modifiche' : 'Salva promemoria'}
-        </Button>
+        <div className={`flex items-center gap-2${hideHeader ? ' tablet:max-w-lg tablet:mx-auto' : ''}`}>
+          <Button type="button" variant="secondary" size="md" className="flex-none px-4" onClick={handleCancel}>
+            Annulla
+          </Button>
+          <Button type="button" variant="primary" size="md" className="flex-1" onClick={doSubmit} loading={isPending} disabled={isEdit && !isDirty}>
+            {isEdit ? 'Salva modifiche' : 'Salva promemoria'}
+          </Button>
+        </div>
       </div>
 
       {/* Unsaved changes sheet */}

@@ -8,7 +8,7 @@ export interface ForecastDay {
   tmin: number
   tmax: number
   precip_sum: number
-  precip_prob: number
+  precip_prob: number | null
   wind_max: number
   beekeeping: BeekeepingDayAssessment
 }
@@ -79,7 +79,7 @@ export function useWeatherForecast(lat: number | null, lng: number | null) {
         const tmax = tmaxArr[i]!
         const tmin = tminArr[i]!
         const wcode = codes[i]!
-        const pProb = precipProb[i]!
+        const pProb = precipProb[i] ?? null
         const wMax = windMax[i]!
 
         days.push({

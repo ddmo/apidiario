@@ -7,6 +7,8 @@ interface ReminderCardProps {
   reminder: ReminderListItem
   onComplete: (id: string) => void
   onDelete: (id: string) => void
+  /** Se fornita, sostituisce la navigazione alla route di modifica (usata per aprire il form inline nel pannello tablet/desktop). */
+  onEdit?: (id: string) => void
 }
 
 const SCOPE_ICONS: Record<string, typeof Globe> = {
@@ -41,7 +43,7 @@ function getScopeLabel(r: ReminderListItem): string {
   return 'Generale'
 }
 
-export function ReminderCard({ reminder, onComplete, onDelete }: ReminderCardProps) {
+export function ReminderCard({ reminder, onComplete, onDelete, onEdit }: ReminderCardProps) {
   const navigate = useNavigate()
   const now = new Date()
   const dueAt = new Date(reminder.due_at)
@@ -50,6 +52,10 @@ export function ReminderCard({ reminder, onComplete, onDelete }: ReminderCardPro
   const ScopeIcon = SCOPE_ICONS[reminder.scope] ?? Globe
 
   function handleTap() {
+    if (onEdit) {
+      onEdit(reminder.id)
+      return
+    }
     void navigate({
       to: '/promemoria/$reminderId/edit',
       params: { reminderId: reminder.id },

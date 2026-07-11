@@ -16,11 +16,15 @@
   --color-wood-900: #1A130C;
 
   /* Honey / accent */
+  --color-honey-tint: #F6ECD6;
   --color-honey-300: #F0C77A;
   --color-honey-400: #E5A938;
   --color-honey-500: #C7891A;
   --color-honey-600: #A06D14;
   --color-honey-700: #76500F;
+
+  /* Breakpoint tablet (layout largo: sidebar sostituisce bottom nav) */
+  --breakpoint-tablet: 834px;
 
   /* Stati semantici */
   --color-success-100: #EAEED9;
@@ -71,6 +75,7 @@
     --color-wood-900:  #050302;
 
     /* Honey — accento */
+    --color-honey-tint: #2A2014;
     --color-honey-300: #7A520C;
     --color-honey-400: #9B6310;
     --color-honey-500: #E5A938;

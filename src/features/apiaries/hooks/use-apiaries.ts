@@ -167,9 +167,9 @@ export function useCreateApiary() {
 
       if (!photoFile) return { id }
 
-      // Step 2: Upload
+      // Step 2: Upload — path versionato (timestamp) per invalidare cache SW/CDN a ogni modifica
       const ext = photoFile.name.split('.').pop()?.toLowerCase() ?? 'jpg'
-      const path = `apiaries/${id}/main.${ext}`
+      const path = `apiaries/${id}/main-${Date.now()}.${ext}`
 
       const { error: uploadError } = await supabase.storage
         .from('apidiario-media')
@@ -232,8 +232,9 @@ export function useUpdateApiary() {
       }
 
       if (photoFile) {
+        // Path versionato (timestamp) per invalidare cache SW/CDN a ogni modifica
         const ext = photoFile.name.split('.').pop()?.toLowerCase() ?? 'jpg'
-        const path = `apiaries/${apiaryId}/main.${ext}`
+        const path = `apiaries/${apiaryId}/main-${Date.now()}.${ext}`
         const { error: uploadError } = await supabase.storage
           .from('apidiario-media')
           .upload(path, photoFile, { upsert: true })

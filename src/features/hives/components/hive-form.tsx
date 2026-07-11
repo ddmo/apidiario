@@ -40,9 +40,11 @@ interface HiveFormProps {
     nido_frame_count: number
     notes: string | null
   }
+  /** Nasconde l'header interno (usato quando il form è incorporato in un pannello che ha già il suo). */
+  hideHeader?: boolean
 }
 
-export function HiveForm({ apiaryId, apiaries, photoUrl, queenData, hive, onSuccess, onCancel }: HiveFormProps) {
+export function HiveForm({ apiaryId, apiaries, photoUrl, queenData, hive, onSuccess, onCancel, hideHeader }: HiveFormProps) {
   const isEdit = !!hive
   const { showToast } = useToast()
   const { mutate: createHive, isPending: creating } = useCreateHive()
@@ -208,25 +210,27 @@ export function HiveForm({ apiaryId, apiaries, photoUrl, queenData, hive, onSucc
   return (
     <div className="flex flex-col h-full">
       {/* Nav header */}
-      <header className="bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2 shrink-0">
-        <button
-          type="button"
-          aria-label="Indietro"
-          onClick={handleCancel}
-          className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
-        >
-          <ArrowLeft size={22} strokeWidth={1.75} />
-        </button>
-        <div className="flex-1 min-w-0 px-1">
-          <h1 className="font-display text-2xl font-medium text-wood-800 truncate tracking-tight">
-            {isEdit ? 'Modifica arnia' : t.hive.new.title}
-          </h1>
-        </div>
-      </header>
+      {!hideHeader && (
+        <header className="bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            aria-label="Indietro"
+            onClick={handleCancel}
+            className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
+          >
+            <ArrowLeft size={22} strokeWidth={1.75} />
+          </button>
+          <div className="flex-1 min-w-0 px-1">
+            <h1 className="font-display text-2xl font-medium text-wood-800 truncate tracking-tight">
+              {isEdit ? 'Modifica arnia' : t.hive.new.title}
+            </h1>
+          </div>
+        </header>
+      )}
 
       {/* Scrollable form body */}
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6">
-        <div className="flex flex-col gap-5">
+        <div className={`flex flex-col gap-5${hideHeader ? ' tablet:max-w-lg tablet:mx-auto' : ''}`}>
 
           {/* Foto */}
           <section>
@@ -409,12 +413,13 @@ export function HiveForm({ apiaryId, apiaries, photoUrl, queenData, hive, onSucc
 
       {/* Sticky CTA bar */}
       <div
-        className="sticky bottom-0 bg-cream-50/95 backdrop-blur-sm border-t border-cream-200 px-4 py-3 flex items-center gap-2 shrink-0"
+        className="sticky bottom-0 bg-cream-50/95 backdrop-blur-sm border-t border-cream-200 px-4 py-3 shrink-0"
         style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
       >
+        <div className={`flex items-center gap-2${hideHeader ? ' tablet:max-w-lg tablet:mx-auto' : ''}`}>
         <Button
           type="button"
-          variant="ghost"
+          variant="secondary"
           size="md"
           className="flex-none px-4"
           onClick={handleCancel}
@@ -432,6 +437,7 @@ export function HiveForm({ apiaryId, apiaries, photoUrl, queenData, hive, onSucc
         >
           {isEdit ? 'Salva modifiche' : t.hive.new.save}
         </Button>
+        </div>
       </div>
 
       {/* Unsaved changes sheet */}

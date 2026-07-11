@@ -7,6 +7,7 @@ import { getAuthUser } from '@/lib/auth-guard'
 import { queryClient } from '@/lib/query-client'
 import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-toast'
+import { useIsTablet } from '@/hooks/use-media-query'
 import { logActivity } from '@/lib/activity-log'
 import { useBatchInspection } from '@/features/inspections/batch/use-batch-inspection'
 import { useInspectionForm } from '@/features/inspections/use-inspection-form'
@@ -39,6 +40,7 @@ function BatchInspectionPage() {
   const navigate = useNavigate()
   const { session } = useAuth()
   const { showToast } = useToast()
+  const isTablet = useIsTablet()
   const batch = useBatchInspection(apiaryId, selected.length > 0 ? selected : undefined)
   const form = useInspectionForm()
 
@@ -150,7 +152,11 @@ function BatchInspectionPage() {
 
   function goBack() {
     if (batch.state.step === 'select-hives') {
-      navigate({ to: '/apiaries/$apiaryId', params: { apiaryId } })
+      if (isTablet) {
+        navigate({ to: '/', search: { apiaryId } })
+      } else {
+        navigate({ to: '/apiaries/$apiaryId', params: { apiaryId } })
+      }
     } else if (batch.state.step === 'base-form') {
       batch.setStep('select-hives')
     } else if (batch.state.step === 'review') {

@@ -1,11 +1,13 @@
 import { createFileRoute, redirect, useNavigate, useRouter } from '@tanstack/react-router'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { asStringArray } from '@/lib/utils'
 import { getAuthUser } from '@/lib/auth-guard'
 import { queryClient } from '@/lib/query-client'
 import { useToast } from '@/hooks/use-toast'
 import { InspectionScreen } from '@/features/inspections/inspection-screen'
 import { useDeleteInspection } from '@/features/inspections/hooks/use-inspections'
+import { useAllHives } from '@/features/hives/hooks/use-hives'
 import { logActivity } from '@/lib/activity-log'
 import type { InspectionFormState, InspectionMode } from '@/features/inspections/types'
 import type { TablesUpdate } from '@/types/database'
@@ -65,6 +67,8 @@ function EditInspectionPage() {
   })
 
   const { mutate: deleteInspection, isPending: isDeleting } = useDeleteInspection()
+  const { data: allHives } = useAllHives()
+  const hiveSchematic = allHives?.find((h) => h.id === hiveId)
 
   const { mutateAsync: updateInspection, isPending: isSaving } = useMutation({
     mutationFn: async ({ formState, mode }: { formState: InspectionFormState; mode: string }) => {
@@ -136,8 +140,8 @@ function EditInspectionPage() {
           vuoti: inspection.empty_frame_count ?? 0,
         },
         hasQueenCells: inspection.has_queen_cells ?? false,
-        queenCellsRemoved: (inspection.queen_cells_removed ?? []) as InspectionFormState['queenCellsRemoved'],
-        queenCellsRemaining: (inspection.queen_cells_remaining ?? []) as InspectionFormState['queenCellsRemaining'],
+        queenCellsRemoved: asStringArray(inspection.queen_cells_removed) as InspectionFormState['queenCellsRemoved'],
+        queenCellsRemaining: asStringArray(inspection.queen_cells_remaining) as InspectionFormState['queenCellsRemaining'],
         pollenIncoming: inspection.pollen_importation ?? false,
         behavior: inspection.behavior ?? 'calmo',
         notes: inspection.notes ?? '',
@@ -184,6 +188,16 @@ function EditInspectionPage() {
       hiveId={hiveId}
       inspectionId={inspectionId}
       hiveInfo={hive && apiary ? { identifier: hive.identifier, apiaryName: apiary.name } : undefined}
+      hiveSchematic={hiveSchematic ? {
+        nidoFrameCount: hiveSchematic.nidoFrameCount,
+        melariCount: hiveSchematic.melariCount,
+        hasApiscampo: hiveSchematic.hasApiscampo,
+        hasPropolisNet: hiveSchematic.hasPropolisNet,
+        hasPollenTrap: hiveSchematic.hasPollenTrap,
+        hasActiveQueen: hiveSchematic.hasActiveQueen,
+        queenMarkingColor: hiveSchematic.queenMarkingColor,
+        queenIsMarked: hiveSchematic.queenIsMarked,
+      } : undefined}
       prefillState={prefillState}
       initialMode={initialMode}
       hasPrefill={false}

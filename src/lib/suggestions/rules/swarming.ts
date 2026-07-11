@@ -1,13 +1,14 @@
 import type { Rule, Inspection } from '../types'
 import { getSeason } from '../seasons'
+import { asStringArray } from '@/lib/utils'
 
 export const swarmingRoyalCellsFollowup: Rule = (ctx) => {
   const insp = ctx.lastInspection
   if (!insp) return null
   if (!insp.has_queen_cells) return null
   if ((ctx.daysSinceLastInspection ?? 0) < 5) return null
-  const removed = (insp.queen_cells_removed as string[] | null) ?? []
-  const remaining = (insp.queen_cells_remaining as string[] | null) ?? []
+  const removed = asStringArray(insp.queen_cells_removed)
+  const remaining = asStringArray(insp.queen_cells_remaining)
   const allTypes = [...removed, ...remaining]
   if (allTypes.length === 0) return null
   const parts: string[] = []
@@ -28,7 +29,7 @@ export const swarmingRoyalCellsFollowup: Rule = (ctx) => {
 function countRemovedInRecent(inspections: Inspection[], n: number): number {
   let count = 0
   for (let i = 0; i < Math.min(n, inspections.length); i++) {
-    const removed = (inspections[i]!.queen_cells_removed as string[] | null) ?? []
+    const removed = asStringArray(inspections[i]!.queen_cells_removed)
     if (removed.length > 0) count++
   }
   return count
@@ -37,7 +38,7 @@ function countRemovedInRecent(inspections: Inspection[], n: number): number {
 export const swarmingFever: Rule = (ctx) => {
   const insp = ctx.lastInspection
   if (!insp) return null
-  const removed = (insp.queen_cells_removed as string[] | null) ?? []
+  const removed = asStringArray(insp.queen_cells_removed)
   if (removed.length === 0) return null
 
   let score = 2 // base: cells removed

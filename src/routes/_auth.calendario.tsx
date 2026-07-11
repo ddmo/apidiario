@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
-import { ChevronLeft, ChevronRight, List, Calendar, Syringe } from 'lucide-react'
+import { ChevronLeft, ChevronRight, List, Calendar, Syringe, Plus } from 'lucide-react'
 import { z } from 'zod'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
@@ -163,32 +163,34 @@ function InspectionEventCard({ ev, showPerformer, className }: { ev: Extract<Cal
     <Link
       to="/hives/$hiveId/inspections/$inspectionId"
       params={{ hiveId: ev.hiveId, inspectionId: ev.id }}
-      className={['flex items-center justify-between gap-3 bg-cream-100 border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-200 transition-colors', className].filter(Boolean).join(' ')}
+      className={['block bg-cream-100 border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-200 transition-colors', className].filter(Boolean).join(' ')}
     >
-      <div className="flex-1 min-w-0">
-        <p className="text-xs font-semibold text-honey-600 truncate">{ev.hiveIdentifier} · {ev.apiaryName}</p>
-        {ev.performerDisplayName && showPerformer && (
-          <p className="text-xs text-wood-400 leading-tight">da {ev.performerDisplayName}</p>
-        )}
-        <p className="text-sm leading-snug mt-0.5">
-          <span className={queenColor}>{queenLabel}</span>
-          {' - '}
-          <span className="text-wood-700">Famiglia {popLabel.toLowerCase()}</span>
-        </p>
-        {ev.notes && (
-          <p className="text-xs text-wood-400 mt-0.5 line-clamp-2">{ev.notes}</p>
-        )}
-        {ev.pathologies.length > 0 && (
-          <div className="flex gap-1 mt-1 flex-wrap">
-            {ev.pathologies.map((p) => (
-              <span key={p} className="text-[10px] bg-danger-100 text-danger-500 px-1.5 py-0.5 rounded-sm font-medium">
-                {PATHOLOGY_LABELS[p] ?? p}
-              </span>
-            ))}
-          </div>
-        )}
+      <div className="flex items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-semibold text-honey-600 truncate">{ev.hiveIdentifier} · {ev.apiaryName}</p>
+          {ev.performerDisplayName && showPerformer && (
+            <p className="text-xs text-wood-400 leading-tight">da {ev.performerDisplayName}</p>
+          )}
+          <p className="text-sm leading-snug mt-0.5">
+            <span className={queenColor}>{queenLabel}</span>
+            {' - '}
+            <span className="text-wood-700">Famiglia {popLabel.toLowerCase()}</span>
+          </p>
+          {ev.notes && (
+            <p className="text-xs text-wood-400 mt-0.5 line-clamp-2">{ev.notes}</p>
+          )}
+          {ev.pathologies.length > 0 && (
+            <div className="flex gap-1 mt-1 flex-wrap">
+              {ev.pathologies.map((p) => (
+                <span key={p} className="text-[10px] bg-danger-100 text-danger-500 px-1.5 py-0.5 rounded-sm font-medium">
+                  {PATHOLOGY_LABELS[p] ?? p}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+        <ArrowIcon />
       </div>
-      <ArrowIcon />
     </Link>
   )
 }
@@ -311,165 +313,302 @@ function CalendarioPage() {
 
   const selectedEvents = selectedDate ? (eventsByDay[selectedDate] ?? []) : []
 
+  function renderMonthNav() {
+    return (
+      <div className="flex items-center justify-between px-4 py-3">
+        <button
+          type="button"
+          onClick={prevMonth}
+          className="size-9 flex items-center justify-center text-wood-600 hover:bg-cream-100 rounded-md transition-colors"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        <div className="flex items-center gap-3">
+          <span className="text-base font-semibold text-wood-800">
+            {MONTH_LABELS[month]} {year}
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedDate(null)
+              navigate({ to: '.', search: (prev) => ({ ...prev, view: viewMode === 'grid' ? 'list' : 'grid', date: undefined }), replace: true })
+            }}
+            className={[
+              'size-8 flex items-center justify-center rounded-md transition-colors',
+              viewMode === 'list'
+                ? 'bg-honey-500 text-white'
+                : 'text-wood-400 hover:bg-cream-100',
+            ].join(' ')}
+            aria-label={viewMode === 'grid' ? 'Vista elenco' : 'Vista calendario'}
+          >
+            {viewMode === 'grid' ? <List size={18} /> : <Calendar size={18} />}
+          </button>
+        </div>
+        <button
+          type="button"
+          onClick={nextMonth}
+          className="size-9 flex items-center justify-center text-wood-600 hover:bg-cream-100 rounded-md transition-colors"
+        >
+          <ChevronRight size={20} />
+        </button>
+      </div>
+    )
+  }
+
+  function TreatmentEventCard({ ev }: { ev: Extract<CalendarEvent, { kind: 'treatment' }> }) {
+    return (
+      <Link
+        to="/trattamenti/$treatmentId/edit"
+        params={{ treatmentId: ev.id }}
+        className="flex items-center justify-between bg-cream-100 border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-200 transition-colors"
+      >
+        <div className="flex items-center gap-2.5">
+          <Syringe size={16} strokeWidth={1.75} className="text-honey-600 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold text-wood-800">{ev.subKind === 'start' ? 'Inizio trattamento' : 'Fine trattamento'} {ev.productName}</p>
+            <p className="text-xs text-honey-600">{ev.apiaryName}</p>
+          </div>
+        </div>
+        <ArrowIcon />
+      </Link>
+    )
+  }
+
+  function renderAgendaRich() {
+    const dayTitle = selectedDate
+      ? new Date(selectedDate + 'T12:00:00').toLocaleDateString('it-IT', {
+          weekday: 'long', day: 'numeric', month: 'long',
+        })
+      : null
+    const dayTitleCap = dayTitle ? dayTitle.charAt(0).toUpperCase() + dayTitle.slice(1) : null
+    const count = selectedEvents.length
+
+    const upcoming = selectedDate
+      ? Object.entries(eventsByDay)
+          .filter(([iso]) => iso > selectedDate)
+          .sort(([a], [b]) => a.localeCompare(b))
+          .flatMap(([iso, evs]) => evs.map((ev) => ({ iso, ev })))
+          .slice(0, 4)
+      : []
+
+    return (
+      <div className="flex flex-col h-full min-h-0">
+        <div className="flex-1 overflow-y-auto min-h-0">
+          {!selectedDate ? (
+            <p className="text-sm text-wood-400">Seleziona un giorno per vedere gli eventi</p>
+          ) : (
+            <>
+              <div className="mb-4">
+                <p className="text-lg font-semibold text-wood-800">{dayTitleCap}</p>
+                <p className="text-xs text-wood-400 mt-0.5">
+                  {count === 0 ? 'Nessuna attività programmata' : `${count} attività ${count === 1 ? 'programmata' : 'programmate'}`}
+                </p>
+              </div>
+
+              {selectedEvents.length > 0 && (
+                <ul className="flex flex-col gap-2">
+                  {selectedEvents.map((ev) =>
+                    ev.kind === 'inspection' ? (
+                      <li key={`i-${ev.id}`}>
+                        <InspectionEventCard ev={ev} showPerformer={showPerformer(ev.performedBy)} />
+                      </li>
+                    ) : (
+                      <li key={`t-${ev.id}`}>
+                        <TreatmentEventCard ev={ev} />
+                      </li>
+                    ),
+                  )}
+                </ul>
+              )}
+
+              {upcoming.length > 0 && (
+                <div className="mt-5 pt-4 border-t border-dashed border-cream-200">
+                  <p className="text-[10px] font-semibold text-wood-400 uppercase tracking-wider mb-2">Prossimi</p>
+                  <ul className="flex flex-col gap-2">
+                    {upcoming.map(({ iso, ev }) => {
+                      const label = new Date(iso + 'T12:00:00').toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })
+                      const desc = ev.kind === 'inspection' ? `Ispezione ${ev.hiveIdentifier}` : `Trattamento ${ev.productName}`
+                      return (
+                        <li key={`${iso}-${ev.kind}-${ev.id}`} className="flex items-center gap-2 text-sm text-wood-700">
+                          <span className={`size-1.5 rounded-full shrink-0 ${ev.kind === 'treatment' ? 'bg-warning-500' : 'bg-honey-500'}`} />
+                          {label} · {desc}
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        <Link
+          to="/promemoria"
+          className="shrink-0 mt-4 h-11 rounded-md bg-honey-500 text-cream-50 text-sm font-medium flex items-center justify-center gap-1.5 hover:bg-honey-600 transition-colors"
+        >
+          <Plus size={16} strokeWidth={2} />
+          Nuovo promemoria
+        </Link>
+      </div>
+    )
+  }
+
+  function renderAgenda() {
+    if (!selectedDate) {
+      return <p className="text-sm text-wood-400">Seleziona un giorno per vedere gli eventi</p>
+    }
+    return (
+      <>
+        <p className="text-xs font-semibold text-wood-400 uppercase tracking-wider mb-2">
+          {new Date(selectedDate + 'T12:00:00').toLocaleDateString('it-IT', {
+            weekday: 'long', day: 'numeric', month: 'long',
+          })}
+        </p>
+        {selectedEvents.length === 0 ? (
+          <p className="text-sm text-wood-400">Nessun evento</p>
+        ) : (
+          <ul className="flex flex-col gap-2">
+            {selectedEvents.map((ev) =>
+              ev.kind === 'inspection' ? (
+                <li key={`i-${ev.id}`}>
+                  <InspectionEventCard ev={ev} showPerformer={showPerformer(ev.performedBy)} />
+                </li>
+              ) : (
+                <li key={`t-${ev.id}`}>
+                  <Link
+                    to="/trattamenti/$treatmentId/edit"
+                    params={{ treatmentId: ev.id }}
+                    className="flex items-center justify-between bg-cream-100 border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-200 transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Syringe size={16} strokeWidth={1.75} className="text-honey-600 shrink-0" />
+                      <div>
+                        <p className="text-sm font-semibold text-wood-800">{ev.subKind === 'start' ? 'Inizio trattamento' : 'Fine trattamento'} {ev.productName}</p>
+                        <p className="text-xs text-honey-600">{ev.apiaryName}</p>
+                        {ev.performerDisplayName && showPerformer(ev.performedBy) && (
+                          <p className="text-xs text-wood-400 mt-0.5">da {ev.performerDisplayName}</p>
+                        )}
+                      </div>
+                    </div>
+                    <ArrowIcon />
+                  </Link>
+                </li>
+              ),
+            )}
+          </ul>
+        )}
+      </>
+    )
+  }
+
   return (
     <div className="flex flex-col h-full bg-cream-50">
       {/* Header */}
-      <header className="shrink-0 bg-cream-50 border-b border-cream-200 pl-1 pr-2 h-14 flex items-center gap-1">
-        <img src="/icons/icon-no-bg.svg" alt="" className="h-14 w-14 shrink-0" />
-        <h1 className="font-display text-2xl font-medium text-wood-800 tracking-tight flex-1">{t.nav.calendario}</h1>
+      <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-4 h-14 flex items-center">
+        <h1 className="font-display text-lg font-medium text-wood-800 tracking-tight">{t.nav.calendario}</h1>
       </header>
 
-      <div className="flex-1 overflow-y-auto pb-24">
-        {/* Month nav + view toggle */}
-        <div className="flex items-center justify-between px-4 py-3">
-          <button
-            type="button"
-            onClick={prevMonth}
-            className="size-9 flex items-center justify-center text-wood-600 hover:bg-cream-100 rounded-md transition-colors"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <div className="flex items-center gap-3">
-            <span className="text-base font-semibold text-wood-800">
-              {MONTH_LABELS[month]} {year}
-            </span>
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedDate(null)
-                navigate({ to: '.', search: (prev) => ({ ...prev, view: viewMode === 'grid' ? 'list' : 'grid', date: undefined }), replace: true })
-              }}
-              className={[
-                'size-8 flex items-center justify-center rounded-md transition-colors',
-                viewMode === 'list'
-                  ? 'bg-honey-500 text-white'
-                  : 'text-wood-400 hover:bg-cream-100',
-              ].join(' ')}
-              aria-label={viewMode === 'grid' ? 'Vista elenco' : 'Vista calendario'}
-            >
-              {viewMode === 'grid' ? <List size={18} /> : <Calendar size={18} />}
-            </button>
-          </div>
-          <button
-            type="button"
-            onClick={nextMonth}
-            className="size-9 flex items-center justify-center text-wood-600 hover:bg-cream-100 rounded-md transition-colors"
-          >
-            <ChevronRight size={20} />
-          </button>
-        </div>
-
+      <div className="flex-1 min-h-0">
         {viewMode === 'grid' ? (
-          <>
-            {/* Day-of-week header */}
-            <div className="grid grid-cols-7 px-2 mb-1">
-              {DOW_LABELS.map((d) => (
-                <div key={d} className="text-center text-xs font-semibold text-wood-400 py-1">
-                  {d}
-                </div>
-              ))}
-            </div>
+          <div className="h-full tablet:flex">
+            <div className="h-full overflow-y-auto pb-24 tablet:pb-4 tablet:flex-1 tablet:min-w-0 tablet:border-r tablet:border-cream-200 tablet:pr-4">
+              {/* Month nav + view toggle */}
+              {renderMonthNav()}
 
-            {/* Calendar grid */}
-            <div className="px-2">
-              {isLoading ? (
-                <div className="py-12 text-center text-sm text-wood-400">{t.common.loading}</div>
-              ) : (
-                grid.map((row, ri) => (
-                  <div key={ri} className="grid grid-cols-7">
-                    {row.map((day, ci) => {
-                      if (day === 0) return <div key={ci} />
-                      const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-                      const dayEvents = eventsByDay[iso] ?? []
-                      const isToday = iso === todayIso
-                      const isSelected = iso === selectedDate
-                      const hasEvents = dayEvents.length > 0
+              {/* Day-of-week header */}
+              <div className="grid grid-cols-7 gap-1 tablet:gap-1.5 px-2 mb-1">
+                {DOW_LABELS.map((d) => (
+                  <div key={d} className="text-center text-xs font-semibold text-wood-400 py-1">
+                    {d}
+                  </div>
+                ))}
+              </div>
 
-                      return (
-                        <button
-                          key={ci}
-                          type="button"
-                          onClick={() => selectDate(isSelected ? null : iso)}
-                          className="flex flex-col items-center py-1.5 gap-0.5"
-                        >
-                          <span
+              {/* Calendar grid */}
+              <div className="px-2">
+                {isLoading ? (
+                  <div className="py-12 text-center text-sm text-wood-400">{t.common.loading}</div>
+                ) : (
+                  <div className="grid grid-cols-7 gap-1 tablet:gap-1.5">
+                    {grid.flat().map((day, ci) => {
+                        if (day === 0) return <div key={ci} />
+                        const iso = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+                        const dayEvents = eventsByDay[iso] ?? []
+                        const isToday = iso === todayIso
+                        const isSelected = iso === selectedDate
+                        const hasEvents = dayEvents.length > 0
+                        const primaryKind = dayEvents.some((e) => e.kind === 'inspection') ? 'inspection' : 'treatment'
+
+                        return (
+                          <button
+                            key={ci}
+                            type="button"
+                            onClick={() => selectDate(isSelected ? null : iso)}
                             className={[
-                              'size-8 flex items-center justify-center rounded-full text-sm font-medium transition-colors',
-                              isSelected
-                                ? 'bg-honey-500 text-white'
-                                : isToday
-                                ? 'bg-cream-200 text-wood-800 font-semibold'
-                                : 'text-wood-700',
+                              'flex flex-col items-center py-1.5 gap-0.5',
+                              'tablet:h-16 tablet:items-start tablet:justify-between tablet:rounded-lg tablet:border tablet:px-2 tablet:py-1.5 tablet:gap-1 tablet:transition-colors',
+                              isToday
+                                ? 'tablet:bg-honey-tint tablet:border-honey-500'
+                                : 'tablet:bg-cream-50 tablet:border-cream-200',
+                              isSelected && !isToday ? 'tablet:ring-2 tablet:ring-honey-500' : '',
                             ].join(' ')}
                           >
-                            {day}
-                          </span>
-                          {hasEvents && (
-                            <span className="flex gap-0.5">
-                              {dayEvents.slice(0, 3).map((_ev, i) => (
-                                <span
-                                  key={i}
-                                  className={`size-1 rounded-full ${isSelected ? 'bg-white/70' : 'bg-honey-500'}`}
-                                />
-                              ))}
+                            <span
+                              className={[
+                                'size-8 flex items-center justify-center rounded-full text-sm font-medium transition-colors',
+                                'tablet:size-auto tablet:rounded-none tablet:bg-transparent tablet:justify-start tablet:text-base tablet:font-semibold',
+                                isSelected
+                                  ? 'bg-honey-500 text-white'
+                                  : isToday
+                                  ? 'bg-cream-200 text-wood-800 font-semibold'
+                                  : 'text-wood-700',
+                                isToday ? 'tablet:text-honey-600' : 'tablet:text-wood-800',
+                              ].join(' ')}
+                            >
+                              {day}
                             </span>
-                          )}
-                        </button>
-                      )
+                            {hasEvents && (
+                              <span className="flex gap-0.5 tablet:hidden">
+                                {dayEvents.slice(0, 3).map((_ev, i) => (
+                                  <span
+                                    key={i}
+                                    className={`size-1 rounded-full ${isSelected ? 'bg-white/70' : dayEvents[i]?.kind === 'treatment' ? 'bg-warning-500' : 'bg-honey-500'}`}
+                                  />
+                                ))}
+                              </span>
+                            )}
+                            {hasEvents && (
+                              <span className="hidden tablet:flex items-center gap-1 text-[10px] font-medium">
+                                <span className={`size-1.5 rounded-full ${primaryKind === 'treatment' ? 'bg-warning-500' : 'bg-honey-500'}`} />
+                                <span className={isToday ? 'text-honey-600' : primaryKind === 'treatment' ? 'text-warning-500' : 'text-wood-500'}>
+                                  {primaryKind === 'treatment' ? 'Tratt.' : 'Ispez.'}
+                                </span>
+                              </span>
+                            )}
+                          </button>
+                        )
                     })}
                   </div>
-                ))
+                )}
+              </div>
+
+              {/* Selected day events — inline, solo mobile/tablet-portrait */}
+              {selectedDate && (
+                <div className="px-4 mt-4 tablet:hidden">
+                  {renderAgenda()}
+                </div>
               )}
             </div>
 
-            {/* Selected day events */}
-            {selectedDate && (
-              <div className="px-4 mt-4">
-                <p className="text-xs font-semibold text-wood-400 uppercase tracking-wider mb-2">
-                  {new Date(selectedDate + 'T12:00:00').toLocaleDateString('it-IT', {
-                    weekday: 'long', day: 'numeric', month: 'long',
-                  })}
-                </p>
-                {selectedEvents.length === 0 ? (
-                  <p className="text-sm text-wood-400">Nessun evento</p>
-                ) : (
-                  <ul className="flex flex-col gap-2">
-                    {selectedEvents.map((ev) =>
-                      ev.kind === 'inspection' ? (
-                        <li key={`i-${ev.id}`}>
-                          <InspectionEventCard ev={ev} showPerformer={showPerformer(ev.performedBy)} />
-                        </li>
-                      ) : (
-                        <li key={`t-${ev.id}`}>
-                          <Link
-                            to="/trattamenti/$treatmentId/edit"
-                            params={{ treatmentId: ev.id }}
-                            className="flex items-center justify-between bg-cream-100 border border-cream-200 rounded-xl px-4 py-3 active:bg-cream-200 transition-colors"
-                          >
-                            <div className="flex items-center gap-2.5">
-                              <Syringe size={16} strokeWidth={1.75} className="text-honey-600 shrink-0" />
-                              <div>
-                                <p className="text-sm font-semibold text-wood-800">{ev.subKind === 'start' ? 'Inizio trattamento' : 'Fine trattamento'} {ev.productName}</p>
-                                <p className="text-xs text-honey-600">{ev.apiaryName}</p>
-                                {ev.performerDisplayName && showPerformer(ev.performedBy) && (
-                                  <p className="text-xs text-wood-400 mt-0.5">da {ev.performerDisplayName}</p>
-                                )}
-                              </div>
-                            </div>
-                            <svg width="7" height="12" viewBox="0 0 7 12" fill="none" className="text-wood-300 shrink-0">
-                              <path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                          </Link>
-                        </li>
-                      ),
-                    )}
-                  </ul>
-                )}
-              </div>
-            )}
-          </>
+            {/* Agenda a destra — tablet landscape/desktop */}
+            <div className="hidden tablet:flex tablet:flex-col tablet:h-full tablet:w-[320px] lg:w-[440px] tablet:shrink-0 tablet:pl-4 tablet:pr-4 tablet:pt-3 tablet:pb-4">
+              {renderAgendaRich()}
+            </div>
+          </div>
         ) : (
           /* ── List view: all events this month, grouped by day ── */
+          <div className="h-full overflow-y-auto pb-24">
+            {renderMonthNav()}
           <div className="px-4">
             {isLoading ? (
               <div className="py-12 text-center text-sm text-wood-400">{t.common.loading}</div>
@@ -527,6 +666,7 @@ function CalendarioPage() {
                   )
                 })
             )}
+          </div>
           </div>
         )}
       </div>

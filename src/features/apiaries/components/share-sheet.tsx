@@ -80,13 +80,14 @@ export function ShareSheet({ open, apiaryId, apiaryName, onClose }: ShareSheetPr
         onClick={handleClose}
         aria-hidden="true"
       />
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Condividi apiario"
-        className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg max-h-[80dvh] flex flex-col animate-slide-up"
-      >
-        <div className="flex justify-center pt-2.5 pb-1 shrink-0">
+      <div className="fixed inset-0 z-40 flex items-end justify-center tablet:items-center pointer-events-none">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Condividi apiario"
+          className="pointer-events-auto w-full bg-cream-50 rounded-t-xl shadow-lg max-h-[80dvh] flex flex-col animate-slide-up tablet:w-full tablet:max-w-[440px] tablet:max-h-[85dvh] tablet:rounded-xl tablet:animate-fade-in"
+        >
+        <div className="flex justify-center pt-2.5 pb-1 shrink-0 tablet:hidden">
           <span className="block w-9 h-1 rounded-full bg-cream-200" aria-hidden="true" />
         </div>
         <div className="px-5 pt-3 shrink-0 flex items-start justify-between gap-2">
@@ -192,6 +193,7 @@ export function ShareSheet({ open, apiaryId, apiaryName, onClose }: ShareSheetPr
               </Button>
             )}
           </div>
+        </div>
         </div>
       </div>
     </>

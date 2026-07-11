@@ -269,6 +269,28 @@ export function useUpdateTreatment() {
   })
 }
 
+export function useConcludeTreatment() {
+  return useMutation<void, Error, { treatmentId: string; productName: string }>({
+    mutationFn: async ({ treatmentId }) => {
+      const { error } = await supabase
+        .from('treatments')
+        .update({ end_date: new Date().toISOString().slice(0, 10) })
+        .eq('id', treatmentId)
+      if (error) throw error
+    },
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: ['treatments'] })
+      void queryClient.invalidateQueries({ queryKey: ['treatment', variables.treatmentId] })
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user?.id) {
+          void logActivity(session.user.id, 'update', 'treatment', variables.treatmentId, `Trattamento "${variables.productName}" concluso`)
+        }
+      })
+    },
+    onError: (err) => { console.error('[useConcludeTreatment] failed', err) },
+  })
+}
+
 export function useDeleteTreatment() {
   return useMutation<string, Error, string>({
     mutationFn: async (id) => {

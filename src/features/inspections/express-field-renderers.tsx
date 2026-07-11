@@ -178,7 +178,7 @@ function renderPollenSection(ctx: SectionContext): ReactNode {
 
 function renderPathologiesSection(ctx: SectionContext): ReactNode {
   return (
-    <section key="pathologies">
+    <section key="pathologies" className="tablet:col-span-2">
       <SectionLabel>Segni patologici</SectionLabel>
       <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1 [scrollbar-width:none]">
         {PATHOLOGY_OPTIONS.map(([value, label]) => (
@@ -260,7 +260,7 @@ function renderInterventionsSection(ctx: SectionContext): ReactNode {
 
 function renderNotesSection(ctx: SectionContext): ReactNode {
   return (
-    <section key="notes">
+    <section key="notes" className="tablet:col-span-2">
       <SectionLabel>Note</SectionLabel>
       <InspectionNoteField
         value={ctx.state.notes}

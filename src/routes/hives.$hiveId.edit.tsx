@@ -1,9 +1,7 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
-import { useQuery } from '@tanstack/react-query'
-import { supabase } from '@/lib/supabase'
 import { getAuthUser } from '@/lib/auth-guard'
-import { useAuth } from '@/hooks/use-auth'
-import { HiveForm } from '@/features/hives/components/hive-form'
+import { EditHivePanel } from '@/features/hives/components/edit-hive-panel'
+import { Sidebar } from '@/components/layout/sidebar'
 
 export const Route = createFileRoute('/hives/$hiveId/edit')({
   beforeLoad: async () => {
@@ -16,84 +14,17 @@ export const Route = createFileRoute('/hives/$hiveId/edit')({
 function EditHivePage() {
   const navigate = useNavigate()
   const { hiveId } = Route.useParams()
-  const { session } = useAuth()
-
-  const { data: allApiaries } = useQuery({
-    queryKey: ['apiaries', 'all-for-move'],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('apiaries')
-        .select('id, name')
-        .is('archived_at', null)
-        .order('name')
-      return data ?? []
-    },
-  })
-
-  const { data: hive, isLoading } = useQuery({
-    queryKey: ['hive', hiveId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('hives')
-        .select('id, identifier, hive_type, bee_race, installed_on, origin_notes, nido_frame_count, notes, apiary_id, main_photo_path')
-        .eq('id', hiveId)
-        .single()
-      if (error) throw error
-      if (!data) throw new Error('Hive not found')
-
-      let photoUrl: string | null = null
-      const path = (data as unknown as { main_photo_path: string | null }).main_photo_path
-      if (path) {
-        const { data: signed } = await supabase.storage
-          .from('apidiario-media')
-          .createSignedUrl(path, 3600)
-        photoUrl = signed?.signedUrl ?? null
-      }
-
-      return { ...data, photoUrl }
-    },
-    refetchOnWindowFocus: false,
-    staleTime: 0,
-  })
-
-  const { data: queenData } = useQuery({
-    queryKey: ['queen', hiveId],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('queens')
-        .select('is_marked, birth_year')
-        .eq('hive_id', hiveId)
-        .is('end_date', null)
-        .maybeSingle()
-      return data ?? null
-    },
-    enabled: !!hiveId,
-  })
-
-  if (!session?.user?.id || isLoading) {
-    return (
-      <div className="flex flex-col h-dvh bg-cream-50 items-center justify-center">
-        <div className="text-sm text-wood-400">Caricamento…</div>
-      </div>
-    )
-  }
-
-  if (!hive) return null
-
-  const goToApiary = () => void navigate({ to: '/apiaries/$apiaryId', params: { apiaryId: hive.apiary_id } })
 
   return (
-    <div className="flex flex-col h-dvh bg-cream-50">
-      <HiveForm
-        apiaryId={hive.apiary_id}
-        apiaries={allApiaries}
-        userId={session.user.id}
-        photoUrl={(hive as unknown as { photoUrl: string | null }).photoUrl}
-        queenData={queenData}
-        hive={hive}
-        onSuccess={goToApiary}
-        onCancel={goToApiary}
-      />
+    <div className="flex h-dvh">
+      <Sidebar />
+      <div className="flex flex-col flex-1 min-w-0 bg-cream-50">
+        <EditHivePanel
+          hiveId={hiveId}
+          onSuccess={() => void navigate({ to: '/' })}
+          onCancel={() => void navigate({ to: '/' })}
+        />
+      </div>
     </div>
   )
 }

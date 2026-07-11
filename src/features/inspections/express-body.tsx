@@ -34,12 +34,34 @@ export function ExpressBody({
     disabledExtra: disableVoiceAndMedia,
   }
 
+  const colA = fields.filter((_, i) => i % 2 === 0)
+  const colB = fields.filter((_, i) => i % 2 === 1)
+
   return (
-    <div className="px-4 py-4 flex flex-col gap-5">
-      {fields.map((key) => {
-        const renderFn = EXPRESS_FIELD_RENDERERS[key]
-        return renderFn ? renderFn(ctx) : null
-      })}
+    <div className="px-4 py-4">
+      {/* Mobile: colonna singola nell'ordine configurato */}
+      <div className="flex flex-col gap-5 tablet:hidden">
+        {fields.map((key) => {
+          const renderFn = EXPRESS_FIELD_RENDERERS[key]
+          return renderFn ? renderFn(ctx) : null
+        })}
+      </div>
+
+      {/* Tablet/desktop: due colonne indipendenti, ciascuna scorre per la propria altezza (niente grid: evita righe con gap causate da campi di altezza diversa) */}
+      <div className="hidden tablet:flex tablet:gap-x-8 tablet:items-start">
+        <div className="flex-1 min-w-0 flex flex-col gap-5">
+          {colA.map((key) => {
+            const renderFn = EXPRESS_FIELD_RENDERERS[key]
+            return renderFn ? renderFn(ctx) : null
+          })}
+        </div>
+        <div className="flex-1 min-w-0 flex flex-col gap-5">
+          {colB.map((key) => {
+            const renderFn = EXPRESS_FIELD_RENDERERS[key]
+            return renderFn ? renderFn(ctx) : null
+          })}
+        </div>
+      </div>
     </div>
   )
 }

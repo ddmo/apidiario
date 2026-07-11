@@ -347,8 +347,9 @@ export function useUpdateHive() {
       }
 
       if (photoFile) {
+        // Path versionato (timestamp) per invalidare cache SW/CDN a ogni modifica
         const ext = photoFile.name.split('.').pop()?.toLowerCase() ?? 'jpg'
-        const path = `hives/${hiveId}/main.${ext}`
+        const path = `hives/${hiveId}/main-${Date.now()}.${ext}`
 
         const { error: uploadError } = await supabase.storage
           .from('apidiario-media')

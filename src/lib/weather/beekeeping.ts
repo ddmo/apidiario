@@ -9,7 +9,7 @@ export function assessForBeekeeping(day: {
   tmax: number
   tmin: number
   weather_code: number
-  precip_prob: number
+  precip_prob: number | null
   wind_max: number
 }): BeekeepingDayAssessment {
   const reasons: string[] = []
@@ -17,9 +17,13 @@ export function assessForBeekeeping(day: {
 
   if (day.tmax < 15) { score = 0; reasons.push('Troppo freddo per aprire') }
   else if (day.tmax < 18) { score = Math.min(score, 1); reasons.push('Temperatura bassa') }
+  else if (day.tmax > 38) { score = 0; reasons.push('Troppo caldo, rischio per api e cera') }
+  else if (day.tmax > 32) { score = Math.min(score, 1); reasons.push('Caldo intenso') }
 
-  if (day.precip_prob >= 60) { score = 0; reasons.push('Pioggia probabile') }
-  else if (day.precip_prob >= 30) { score = Math.min(score, 1); reasons.push('Pioggia possibile') }
+  if (day.precip_prob != null) {
+    if (day.precip_prob >= 60) { score = 0; reasons.push('Pioggia probabile') }
+    else if (day.precip_prob >= 30) { score = Math.min(score, 1); reasons.push('Pioggia possibile') }
+  }
 
   if (day.wind_max > 30) { score = Math.min(score, 1); reasons.push('Vento forte') }
   else if (day.wind_max > 20) { score = Math.min(score, 2); reasons.push('Vento moderato') }

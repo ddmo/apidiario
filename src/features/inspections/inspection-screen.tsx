@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { ArrowLeft, MoreVertical, Sun, Trash2, Mic, Square, Loader2, Sparkles, AlertCircle, Speech, WifiOff } from 'lucide-react'
+import { MoreVertical, Sun, Trash2, Mic, Square, Loader2, Sparkles, AlertCircle, Speech, WifiOff } from 'lucide-react'
 import { useOnlineStatus } from '@/hooks/use-online-status'
 import { cn } from '@/lib/utils'
 import { SegmentedControl } from '@/components/ui/segmented-control'
@@ -13,7 +13,24 @@ import { useInspectionForm } from './use-inspection-form'
 import { useVoiceNotes } from './hooks/use-voice-notes'
 import { useInspectionMedia } from './hooks/use-inspection-media'
 import { useVoiceInspection } from '@/features/voice-inspection/hooks/use-voice-inspection'
+import { Sidebar } from '@/components/layout/sidebar'
+import { HiveSchematic } from '@/features/hives/components/hive-schematic'
+import { t } from '@/i18n/it'
 import type { InspectionFormState, InspectionMode } from './types'
+import type { Database } from '@/types/database'
+
+type QueenMarkingColor = Database['public']['Enums']['queen_marking_color']
+
+interface HiveSchematicInfo {
+  nidoFrameCount: number
+  melariCount: number
+  hasApiscampo: boolean
+  hasPropolisNet: boolean
+  hasPollenTrap: boolean
+  hasActiveQueen: boolean
+  queenMarkingColor: QueenMarkingColor | null
+  queenIsMarked: boolean
+}
 
 const MODE_OPTIONS = [
   { value: 'express', label: 'Express' },
@@ -29,6 +46,7 @@ interface InspectionScreenProps {
   hiveId: string
   inspectionId?: string | null
   hiveInfo?: HiveInfo
+  hiveSchematic?: HiveSchematicInfo
   prefillState?: Partial<InspectionFormState>
   initialMode?: InspectionMode
   hasPrefill: boolean
@@ -46,6 +64,7 @@ interface InspectionScreenProps {
 export function InspectionScreen({
   hiveId,
   hiveInfo,
+  hiveSchematic,
   inspectionId,
   prefillState,
   initialMode,
@@ -136,20 +155,14 @@ export function InspectionScreen({
   }
 
   return (
-    <div className="fixed inset-0 bg-cream-50 text-wood-700 flex flex-col">
+    <>
+      <Sidebar />
+      <div className="fixed inset-0 bg-cream-50 text-wood-700 flex flex-col tablet:left-[72px] lg:left-[232px]">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-cream-50/95 backdrop-blur-sm border-b border-cream-200">
         <div className="flex items-center gap-3 h-14 px-2">
-          <button
-            type="button"
-            aria-label="Indietro"
-            onClick={handleBack}
-            className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
-          >
-            <ArrowLeft size={22} />
-          </button>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-semibold text-wood-800 truncate">
+          <div className="flex-1 min-w-0 flex flex-col tablet:flex-row tablet:items-baseline tablet:gap-3">
+            <div className="font-display text-sm font-semibold tablet:text-lg tablet:font-medium tablet:tracking-tight text-wood-800 truncate">
               {hiveInfo ? (
                 <>
                   {hiveInfo.apiaryName} ·{' '}
@@ -159,7 +172,7 @@ export function InspectionScreen({
                 <span className="text-wood-400">Caricamento…</span>
               )}
             </div>
-            <div className="flex items-center gap-2 text-xs text-wood-500">
+            <div className="flex items-center gap-2 text-xs text-wood-500 shrink-0">
               <span>{datetime}</span>
               {weather && (
                 <>
@@ -172,6 +185,16 @@ export function InspectionScreen({
               )}
             </div>
           </div>
+          {!showingVoice && (
+            <div className="hidden tablet:block w-56 shrink-0">
+              <SegmentedControl
+                ariaLabel="Modalità ispezione"
+                options={MODE_OPTIONS}
+                value={mode}
+                onChange={(v) => setMode(v as 'express' | 'standard')}
+              />
+            </div>
+          )}
           <button
             type="button"
             aria-label={showingVoice ? 'Chiudi registrazione vocale' : 'Ispezione vocale'}
@@ -227,9 +250,9 @@ export function InspectionScreen({
         </div>
       </header>
 
-      {/* Mode tabs — hidden during voice recording */}
+      {/* Mode tabs — hidden during voice recording; su tablet+ il toggle vive nell'header */}
       {!showingVoice && (
-        <div className="px-4 pt-3 pb-2">
+        <div className="px-4 pt-3 pb-2 tablet:hidden">
           <SegmentedControl
             ariaLabel="Modalità ispezione"
             options={MODE_OPTIONS}
@@ -250,49 +273,129 @@ export function InspectionScreen({
       </div>
 
       {/* Scrollable body */}
-      <div className="flex-1 overflow-y-auto min-h-0">
-        {showingVoice ? (
-          <VoiceModeView
-            status={voiceInsp.status}
-            error={voiceInsp.error}
-            transcript={voiceInsp.transcript}
-            onStart={voiceInsp.startRecording}
-            onStop={voiceInsp.stopRecording}
-            onReset={voiceInsp.reset}
-          />
-        ) : mode === 'express' ? (
-          <ExpressBody
-            state={state}
-            dirtyFields={dirtyFields}
-            onUpdate={update}
-            voiceNotes={voiceNotes}
-            isRecording={isRecording}
-            canRecord={canRecord}
-            onStartRecording={startRecording}
-            onStopRecording={stopRecording}
-            onPickAudioFile={pickAudioFile}
-            onDeleteVoiceNote={removeVoiceNote}
-          />
-        ) : (
-          <StandardBody
-            state={state}
-            dirtyFields={dirtyFields}
-            onUpdate={update}
-            weather={weather}
-            voiceNotes={voiceNotes}
-            isRecording={isRecording}
-            canRecord={canRecord}
-            onStartRecording={startRecording}
-            onStopRecording={stopRecording}
-            onPickAudioFile={pickAudioFile}
-            onDeleteVoiceNote={removeVoiceNote}
-            inspectionMedia={inspectionMedia}
-            pendingMedia={pendingMedia}
-            mediaUploading={mediaUploading}
-            onMediaFilesSelected={onMediaFilesSelected}
-            onRemoveMedia={removeMedia}
-            onRemovePendingMedia={removePending}
-          />
+      <div className="flex-1 overflow-y-auto min-h-0 xl:flex xl:flex-row xl:items-start">
+        <div className="xl:flex-1 xl:min-w-0">
+          {showingVoice ? (
+            <VoiceModeView
+              status={voiceInsp.status}
+              error={voiceInsp.error}
+              transcript={voiceInsp.transcript}
+              onStart={voiceInsp.startRecording}
+              onStop={voiceInsp.stopRecording}
+              onReset={voiceInsp.reset}
+            />
+          ) : mode === 'express' ? (
+            <ExpressBody
+              state={state}
+              dirtyFields={dirtyFields}
+              onUpdate={update}
+              voiceNotes={voiceNotes}
+              isRecording={isRecording}
+              canRecord={canRecord}
+              onStartRecording={startRecording}
+              onStopRecording={stopRecording}
+              onPickAudioFile={pickAudioFile}
+              onDeleteVoiceNote={removeVoiceNote}
+            />
+          ) : (
+            <StandardBody
+              state={state}
+              dirtyFields={dirtyFields}
+              onUpdate={update}
+              weather={weather}
+              voiceNotes={voiceNotes}
+              isRecording={isRecording}
+              canRecord={canRecord}
+              onStartRecording={startRecording}
+              onStopRecording={stopRecording}
+              onPickAudioFile={pickAudioFile}
+              onDeleteVoiceNote={removeVoiceNote}
+              inspectionMedia={inspectionMedia}
+              pendingMedia={pendingMedia}
+              mediaUploading={mediaUploading}
+              onMediaFilesSelected={onMediaFilesSelected}
+              onRemoveMedia={removeMedia}
+              onRemovePendingMedia={removePending}
+            />
+          )}
+        </div>
+
+        {/* Aside contesto — solo desktop */}
+        {!showingVoice && (
+          <aside className="hidden xl:block xl:w-[300px] xl:shrink-0 border-l border-cream-200 px-5 py-5">
+            {hiveSchematic && (
+              <div className="flex flex-col items-center gap-2 mb-4">
+                <div className="w-24">
+                  <HiveSchematic {...hiveSchematic} />
+                </div>
+                {hiveInfo && (
+                  <div className="text-center">
+                    <p className="text-base font-semibold text-wood-800">{hiveInfo.identifier}</p>
+                    <p className="text-xs text-wood-500">{hiveInfo.apiaryName}</p>
+                  </div>
+                )}
+              </div>
+            )}
+            {!hiveSchematic && hiveInfo && (
+              <div className="mb-4">
+                <p className="text-sm font-semibold text-wood-800">{hiveInfo.identifier}</p>
+                <p className="text-xs text-wood-500">{hiveInfo.apiaryName}</p>
+              </div>
+            )}
+
+            {prefillDate && prefillState ? (
+              <div className="border-t border-cream-200 pt-4 mb-4">
+                <p className="text-xs font-semibold text-wood-400 uppercase tracking-wide mb-2.5">
+                  {hasPrefill ? 'Ultima ispezione' : 'Questa ispezione'} · {prefillDate}
+                </p>
+                <div className="flex flex-col gap-2">
+                  {prefillState.queen && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-wood-500">Regina</span>
+                      <span className={cn(
+                        'text-xs font-semibold',
+                        prefillState.queen === 'vista' ? 'text-success-600'
+                          : prefillState.queen === 'non_vista' ? 'text-danger-500'
+                          : 'text-wood-700',
+                      )}>
+                        {(t.inspection.queenSeen as Record<string, string>)[prefillState.queen] ?? prefillState.queen}
+                      </span>
+                    </div>
+                  )}
+                  {prefillState.hasBrood != null && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-wood-500">Covata</span>
+                      <span className="text-xs font-semibold text-wood-800">
+                        {prefillState.hasBrood ? 'Presente' : 'Assente'}
+                      </span>
+                    </div>
+                  )}
+                  {prefillState.population && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-wood-500">Popolazione</span>
+                      <span className="text-xs font-semibold text-warning-500">
+                        {(t.inspection.population as Record<string, string>)[prefillState.population] ?? prefillState.population}
+                      </span>
+                    </div>
+                  )}
+                  {hiveSchematic && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-wood-500">Melari</span>
+                      <span className="text-xs font-semibold text-wood-800">{hiveSchematic.melariCount}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-wood-500 mb-4">Prima ispezione per questa arnia.</p>
+            )}
+
+            <div className="rounded-lg bg-cream-100 border border-cream-200 px-3 py-2.5">
+              <p className="text-xs text-wood-600 leading-relaxed">
+                I campi obbligatori non compilati bloccano il salvataggio. Le sezioni modificate rispetto all&rsquo;ultima ispezione sono evidenziate con bordo tratteggiato.
+              </p>
+            </div>
+          </aside>
         )}
       </div>
 
@@ -353,7 +456,8 @@ export function InspectionScreen({
           </div>
         </>
       )}
-    </div>
+      </div>
+    </>
   )
 }
 
@@ -511,8 +615,8 @@ function RecordingControls({
           <p className="text-xl font-mono tabular-nums text-wood-700">{fmtElapsed(elapsed)}</p>
           <div className="w-full h-1 rounded-full bg-cream-200 overflow-hidden">
             <div
-              className="h-full bg-danger-500 transition-all duration-1000"
-              style={{ width: `${Math.min((elapsed / 60) * 100, 100)}%` }}
+              className="h-full w-full origin-left bg-danger-500 transition-transform duration-1000"
+              style={{ transform: `scaleX(${Math.min(elapsed / 60, 1)})` }}
             />
           </div>
           <p className="text-xs text-wood-400">max 1:00</p>

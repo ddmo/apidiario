@@ -1,24 +1,255 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Trees, Share2, Trash2, Pencil, AlertTriangle, CloudRain, FlaskRound, X, Flower2, Syringe, Bell } from 'lucide-react'
-import { useState, Fragment } from 'react'
+import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
+import { z } from 'zod'
+import { Trees, Share2, Trash2, Pencil, AlertTriangle, CloudRain, FlaskRound, X, Flower2, Syringe, Bell, Box, Plus, CloudSun, Lightbulb } from 'lucide-react'
+import { useState, useEffect, Fragment } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useApiaryCards } from '@/features/home/hooks/use-apiary-cards'
 import { useTodaysAlerts } from '@/features/home/hooks/use-home-alerts'
 import { useRecentActivityByOthers, type ActivityItem } from '@/features/home/hooks/use-recent-activity'
 import { useUpcomingReminders } from '@/features/reminders/hooks/use-reminders'
-import { useApiaries, useDeleteApiary } from '@/features/apiaries/hooks/use-apiaries'
+import { useApiaries, useDeleteApiary, useApiary } from '@/features/apiaries/hooks/use-apiaries'
+import { useHivesByApiary, useDeleteHive } from '@/features/hives/hooks/use-hives'
+import { HiveCard } from '@/features/hives/components/hive-card'
+import { HiveForm } from '@/features/hives/components/hive-form'
+import { EditHivePanel } from '@/features/hives/components/edit-hive-panel'
+import { InspectionsContent } from '@/features/inspections/components/inspections-content'
 import { ApiaryListItem } from '@/features/apiaries/components/apiary-list-item'
 import { EmptyState } from '@/components/ui/empty-state'
 import { SwipeableRow } from '@/components/ui/swipeable-row'
 import { ShareSheet } from '@/features/apiaries/components/share-sheet'
+import { ForecastCard } from '@/features/weather/components/forecast-card'
+import { SuggestionsContent } from '@/features/suggestions/components/suggestions-content'
+import { useApiarySuggestions } from '@/features/suggestions/hooks/use-apiary-suggestions'
+import { ApiaryForm } from '@/features/apiaries/components/apiary-form'
 import { useToast } from '@/hooks/use-toast'
 import { useAuth } from '@/hooks/use-auth'
 import { useOnlineStatus } from '@/hooks/use-online-status'
+import { useIsTablet } from '@/hooks/use-media-query'
 import { cn } from '@/lib/utils'
 import { t } from '@/i18n/it'
 
+type PreviewView = 'hives' | 'meteo' | 'suggerimenti' | 'edit' | 'new-hive' | 'edit-hive' | 'inspections' | 'new-apiario'
+
+/** Pannello destro (tablet/desktop): arnie dell'apiario selezionato, senza cambio pagina. */
+function ApiaryPreviewPanel({ apiaryId, view, onViewChange }: { apiaryId: string; view: PreviewView; onViewChange: (v: PreviewView) => void }) {
+  const { showToast } = useToast()
+  const { session } = useAuth()
+  const { data: apiary } = useApiary(apiaryId)
+  const { data: hives = [], isLoading } = useHivesByApiary(apiaryId)
+  const { mutate: deleteHive } = useDeleteHive()
+  const [deleteHiveId, setDeleteHiveId] = useState<string | null>(null)
+  const [editHiveId, setEditHiveId] = useState<string | null>(null)
+  const [visitHiveId, setVisitHiveId] = useState<string | null>(null)
+  const { data: suggestions } = useApiarySuggestions(apiaryId)
+  const criticalCount = suggestions?.reduce((acc, hs) => acc + hs.suggestions.filter((s) => s.severity === 'critical').length, 0)
+  const hasLocation = apiary?.latitude != null && apiary?.longitude != null
+
+  function toggle(v: PreviewView) {
+    onViewChange(view === v ? 'hives' : v)
+  }
+
+  return (
+    <div className="flex flex-col h-full w-full min-w-0">
+      <header className="shrink-0 border-b border-cream-200 px-5 h-14 flex items-center justify-between gap-2">
+        {view === 'edit' ? (
+          <h2 className="font-display text-xl font-medium text-wood-800 tracking-tight truncate">
+            Modifica apiario {apiary?.name ?? ''}
+          </h2>
+        ) : view === 'new-hive' ? (
+          <h2 className="font-display text-xl font-medium text-wood-800 tracking-tight truncate">
+            Nuova arnia
+          </h2>
+        ) : view === 'edit-hive' ? (
+          <h2 className="font-display text-xl font-medium text-wood-800 tracking-tight truncate">
+            Modifica arnia
+          </h2>
+        ) : view === 'inspections' ? (
+          <h2 className="font-display text-xl font-medium text-wood-800 tracking-tight truncate">
+            Visite
+          </h2>
+        ) : (
+          <>
+            <div className="flex items-center gap-2 min-w-0">
+              <h2 className="font-display text-xl font-medium text-wood-800 tracking-tight truncate">{apiary?.name ?? '…'}</h2>
+              <button
+                type="button"
+                aria-label="Modifica apiario"
+                onClick={() => toggle('edit')}
+                className="hidden tablet:flex size-11 shrink-0 items-center justify-center text-wood-500 hover:text-wood-800 hover:bg-cream-100 rounded-md transition-colors"
+              >
+                <Pencil size={16} strokeWidth={1.75} />
+              </button>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              {hasLocation && (
+                <button
+                  type="button"
+                  aria-label="Previsioni meteo"
+                  onClick={() => toggle('meteo')}
+                  className={cn(
+                    'size-9 flex items-center justify-center rounded-md transition-colors',
+                    view === 'meteo' ? 'bg-honey-tint text-honey-700' : 'text-wood-500 hover:bg-cream-100',
+                  )}
+                >
+                  <CloudSun size={18} strokeWidth={1.75} />
+                </button>
+              )}
+              <button
+                type="button"
+                aria-label="Suggerimenti"
+                onClick={() => toggle('suggerimenti')}
+                className={cn(
+                  'relative size-9 flex items-center justify-center rounded-md transition-colors',
+                  view === 'suggerimenti' ? 'bg-honey-tint text-honey-700' : 'text-wood-500 hover:bg-cream-100',
+                )}
+              >
+                <Lightbulb size={18} strokeWidth={1.75} />
+                {!!criticalCount && criticalCount > 0 && (
+                  <span className="absolute top-0.5 right-0.5 min-w-[16px] h-[16px] flex items-center justify-center rounded-full bg-danger-500 text-[9px] font-bold text-cream-50 px-1 leading-none">
+                    {criticalCount}
+                  </span>
+                )}
+              </button>
+            </div>
+          </>
+        )}
+      </header>
+      <div className={cn('flex-1 overflow-y-auto', view === 'edit' || view === 'new-hive' || view === 'edit-hive' || view === 'inspections' ? '' : 'p-5')}>
+        {view === 'edit' && session?.user?.id && (
+          <ApiaryForm
+            userId={session.user.id}
+            initialData={apiary ?? null}
+            hideHeader
+            onSuccess={() => onViewChange('hives')}
+            onCancel={() => onViewChange('hives')}
+          />
+        )}
+
+        {view === 'new-hive' && session?.user?.id && (
+          <HiveForm
+            apiaryId={apiaryId}
+            userId={session.user.id}
+            hideHeader
+            onSuccess={() => onViewChange('hives')}
+            onCancel={() => onViewChange('hives')}
+          />
+        )}
+
+        {view === 'edit-hive' && editHiveId && (
+          <EditHivePanel
+            hiveId={editHiveId}
+            hideHeader
+            onSuccess={() => onViewChange('hives')}
+            onCancel={() => onViewChange('hives')}
+          />
+        )}
+
+        {view === 'inspections' && visitHiveId && (
+          <InspectionsContent hiveId={visitHiveId} hideHeader />
+        )}
+
+        {view === 'meteo' && <ForecastCard apiaryId={apiaryId} />}
+        {view === 'suggerimenti' && <SuggestionsContent apiaryId={apiaryId} />}
+
+        {view === 'hives' && (
+          isLoading ? (
+            <p className="text-sm text-wood-500">{t.common.loading}</p>
+          ) : hives.length === 0 ? (
+            <EmptyState icon={<Box size={40} strokeWidth={1.25} />} title={t.apiary.detail.emptyTitle} description={t.apiary.detail.emptyDescription} />
+          ) : (
+            <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
+              {hives.map((hive) => (
+                <div key={hive.id} className="tablet:max-w-[340px] tablet:mx-auto w-full">
+                  <HiveCard
+                    hive={hive}
+                    showSchematic
+                    onDelete={(id) => setDeleteHiveId(id)}
+                    onEdit={(id) => { setEditHiveId(id); onViewChange('edit-hive') }}
+                    onOpenInspections={(id) => { setVisitHiveId(id); onViewChange('inspections') }}
+                  />
+                </div>
+              ))}
+            </div>
+          )
+        )}
+      </div>
+
+      {view === 'hives' && (
+        <div className="shrink-0 border-t border-cream-200 px-5 py-3 flex justify-end">
+          <button
+            type="button"
+            onClick={() => onViewChange('new-hive')}
+            className="h-9 px-4 inline-flex items-center justify-center gap-1.5 rounded-md text-sm font-medium bg-honey-500 text-cream-50 hover:bg-honey-600 transition-colors"
+          >
+            <Plus size={16} strokeWidth={2} />
+            Aggiungi arnia
+          </button>
+        </div>
+      )}
+
+      {view === 'inspections' && visitHiveId && (
+        <div className="shrink-0 border-t border-cream-200 px-5 py-3 flex justify-end">
+          <Link
+            to="/inspections/$hiveId/new"
+            params={{ hiveId: visitHiveId }}
+            className="h-9 px-4 inline-flex items-center justify-center gap-1.5 rounded-md text-sm font-medium bg-honey-500 text-cream-50 hover:bg-honey-600 transition-colors"
+          >
+            <Plus size={16} strokeWidth={2} />
+            Nuova ispezione
+          </Link>
+        </div>
+      )}
+
+      {/* Conferma eliminazione arnia */}
+      {deleteHiveId && (
+        <>
+          <div className="fixed inset-0 z-30 bg-wood-900/40" onClick={() => setDeleteHiveId(null)} aria-hidden="true" />
+          <div role="dialog" aria-modal="true" aria-label="Elimina arnia" className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg animate-slide-up">
+            <div className="flex justify-center pt-2.5 pb-1">
+              <span className="block w-9 h-1 rounded-full bg-cream-200" aria-hidden="true" />
+            </div>
+            <div className="px-5 pt-3 pb-4">
+              <h2 className="text-lg font-semibold text-wood-800 mb-1">Elimina arnia</h2>
+              <p className="text-sm text-wood-500 leading-relaxed">
+                Eliminare questa arnia? Tutte le ispezioni associate verranno rimosse. L&rsquo;operazione non pu&ograve; essere annullata.
+              </p>
+            </div>
+            <div className="px-4 flex flex-col gap-2 [padding-bottom:calc(1rem+env(safe-area-inset-bottom))]">
+              <button
+                type="button"
+                onClick={() => {
+                  deleteHive(deleteHiveId, {
+                    onSuccess: () => showToast('Arnia eliminata', 'success'),
+                    onError: () => showToast('Eliminazione fallita', 'error'),
+                  })
+                  setDeleteHiveId(null)
+                }}
+                className="w-full h-13 flex items-center justify-center gap-2 rounded-md font-medium bg-danger-500 text-cream-50 hover:bg-danger-500/90 transition-colors"
+              >
+                Elimina
+              </button>
+              <button
+                type="button"
+                onClick={() => setDeleteHiveId(null)}
+                className="w-full h-11 flex items-center justify-center rounded-md font-medium bg-transparent text-wood-700 hover:bg-cream-100 transition-colors"
+              >
+                Annulla
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+const homeSearchSchema = z.object({
+  apiaryId: z.string().optional(),
+})
+
 export const Route = createFileRoute('/_auth/')({
+  validateSearch: homeSearchSchema,
   component: HomePage,
 })
 
@@ -43,8 +274,7 @@ function AlertIcon({ type }: { type: string }) {
 
 function SkeletonCard() {
   return (
-    <div className="rounded-lg px-3.5 py-3 bg-cream-100 border border-cream-200 animate-pulse shadow-xs"
-      style={{ borderLeft: '3px solid #BA7517' }}>
+    <div className="rounded-lg px-3.5 py-3 bg-cream-100 border border-cream-200 animate-pulse shadow-xs">
       <div className="flex items-center gap-2">
         <div className="h-4 bg-cream-200 rounded w-2/5" />
         <div className="h-3 bg-cream-200 rounded w-1/6 ml-auto" />
@@ -56,16 +286,40 @@ function SkeletonCard() {
 
 function HomePage() {
   const navigate = useNavigate()
+  const { apiaryId: apiaryIdParam } = Route.useSearch()
   const { showToast } = useToast()
-  useAuth()
+  const { session } = useAuth()
 
   const online = useOnlineStatus()
+  const isTablet = useIsTablet()
   const { data: apiaries, isLoading, isError, refetch } = useApiaries()
   const { mutate: deleteApiary } = useDeleteApiary()
 
   const [shareTarget, setShareTarget] = useState<{ id: string; name: string } | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null)
   const [swipeResetKey, setSwipeResetKey] = useState(0)
+  const [selectedApiaryId, setSelectedApiaryId] = useState<string | null>(null)
+  const [previewView, setPreviewView] = useState<PreviewView>('hives')
+
+  // Selezione apiario passata via URL (es. da un'altra route che su tablet/desktop
+  // deve aprire il pannello inline invece di navigare a /apiaries/$apiaryId).
+  useEffect(() => {
+    if (apiaryIdParam) {
+      setSelectedApiaryId(apiaryIdParam)
+      setPreviewView('hives')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [apiaryIdParam])
+
+  function openApiary(apiaryId: string) {
+    if (isTablet) {
+      // Click su un apiario (anche lo stesso già selezionato) riporta il pannello alle arnie
+      setPreviewView('hives')
+      setSelectedApiaryId(apiaryId)
+    } else {
+      void navigate({ to: '/apiaries/$apiaryId', params: { apiaryId } })
+    }
+  }
 
   const { data: targetHiveCount } = useQuery({
     queryKey: ['apiary-hive-count', deleteTarget?.id],
@@ -131,14 +385,20 @@ function HomePage() {
   }, {})
 
   return (
-    <div className="flex flex-col h-full bg-cream-50">
-      {/* Top bar */}
-      <header className="shrink-0 bg-cream-50 border-b border-cream-200 pl-1 pr-2 h-14 flex items-center gap-1">
+    <div className="flex flex-col tablet:flex-row h-full bg-cream-50">
+      <div className="flex flex-col tablet:w-[360px] tablet:shrink-0 tablet:h-full tablet:border-r tablet:border-cream-200 min-h-0">
+      {/* Top bar — solo mobile, su tablet+ il wordmark vive nella sidebar */}
+      <header className="tablet:hidden shrink-0 bg-cream-50 border-b border-cream-200 pl-1 pr-2 h-14 flex items-center gap-1">
         <img src="/icons/icon-no-bg.svg" alt="" className="h-14 w-14" />
         <h1 className="font-display text-2xl font-medium text-wood-800 tracking-tight">
           Apidiario
         </h1>
       </header>
+      <div className="hidden tablet:flex shrink-0 border-b border-cream-200 h-14 items-center px-4">
+        <h1 className="font-display text-lg font-medium text-wood-800 tracking-tight">
+          I tuoi apiari
+        </h1>
+      </div>
       <div className="flex-1 overflow-y-auto">
         {/* ── Oggi (alert section) ── */}
         {!alertsLoading && activeAlerts.length > 0 && (
@@ -168,7 +428,7 @@ function HomePage() {
                         <button
                           key={alert.id}
                           type="button"
-                          onClick={() => void navigate({ to: '/apiaries/$apiaryId', params: { apiaryId: alert.apiaryId } })}
+                          onClick={() => openApiary(alert.apiaryId)}
                           className={cn(
                             'w-full rounded-lg px-3 py-2.5 flex items-start gap-2.5 text-left transition-colors',
                             isTreatment ? 'bg-warning-100' : 'bg-danger-100',
@@ -213,7 +473,7 @@ function HomePage() {
                             <button
                               key={alert.id}
                               type="button"
-                              onClick={() => void navigate({ to: '/apiaries/$apiaryId', params: { apiaryId: alert.apiaryId } })}
+                              onClick={() => openApiary(alert.apiaryId)}
                               className="w-full text-left text-xs text-wood-600 leading-relaxed hover:text-wood-800 transition-colors"
                             >
                               {alert.message}
@@ -249,7 +509,7 @@ function HomePage() {
                   {upcomingReminders.map((r) => (
                     <p key={r.id} className="text-xs text-wood-500 leading-relaxed">
                       {r.title}
-                      <span className={new Date(r.due_at) < new Date() ? 'text-danger-500' : 'text-wood-400'}>
+                      <span className={new Date(r.due_at) < new Date() ? 'text-danger-500' : 'text-wood-500'}>
                         {' · '}{new Date(r.due_at).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}
                       </span>
                     </p>
@@ -266,7 +526,7 @@ function HomePage() {
                 <Bell size={16} className="text-honey-600 shrink-0" />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-wood-800 truncate">{upcomingReminders[0]!.title}</p>
-                  <p className={`text-xs ${new Date(upcomingReminders[0]!.due_at) < new Date() ? 'text-danger-500' : 'text-wood-400'}`}>
+                  <p className={`text-xs ${new Date(upcomingReminders[0]!.due_at) < new Date() ? 'text-danger-500' : 'text-wood-500'}`}>
                     {new Date(upcomingReminders[0]!.due_at).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}
                     {upcomingReminders[0]!.recurrence !== 'none' && (
                       <> · {upcomingReminders[0]!.recurrence === 'weekly' ? 'settimanale' : upcomingReminders[0]!.recurrence === 'monthly' ? 'mensile' : 'annuale'}</>
@@ -280,7 +540,7 @@ function HomePage() {
 
         {/* ── I tuoi apiari ── */}
         <section className="px-4 pt-5">
-          <p className="text-xs text-wood-500 mb-2 px-0.5">I tuoi apiari</p>
+          <p className="tablet:hidden text-xs text-wood-500 mb-2 px-0.5">I tuoi apiari</p>
 
           {isLoading && (
             <div className="flex flex-col gap-2">
@@ -292,7 +552,7 @@ function HomePage() {
 
           {isError && (
             <div className="flex flex-col items-center gap-3 py-10">
-              <p className="text-sm text-wood-400">
+              <p className="text-sm text-wood-500">
                 {online ? t.common.error : 'Dati non disponibili offline'}
               </p>
               {online && (
@@ -336,7 +596,8 @@ function HomePage() {
                     ownerDisplayName={cardData?.ownerDisplayName}
                     weather={cardData?.weather}
                     photoUrl={cardData?.photoUrl}
-                    onClick={() => void navigate({ to: '/apiaries/$apiaryId', params: { apiaryId: apiary.id } })}
+                    selected={selectedApiaryId === apiary.id}
+                    onClick={() => openApiary(apiary.id)}
                   />
                 )
 
@@ -418,7 +679,7 @@ function HomePage() {
                             <span className="text-xs font-semibold text-wood-700">
                               {item.hiveIdentifier} · {item.apiaryName}
                             </span>
-                            <span className="text-[10px] text-wood-400 shrink-0">
+                            <span className="text-[10px] text-wood-500 shrink-0">
                               {formatTimeAgo(item.inspectedAt)}
                             </span>
                           </div>
@@ -449,7 +710,7 @@ function HomePage() {
                             <span className="text-xs text-wood-700">
                               Trattamento <strong>{item.productName}</strong> · {item.apiaryName}
                             </span>
-                            <span className="text-[10px] text-wood-400 shrink-0 ml-auto">
+                            <span className="text-[10px] text-wood-500 shrink-0 ml-auto">
                               {formatTimeAgo(item.inspectedAt)}
                             </span>
                           </div>
@@ -464,7 +725,47 @@ function HomePage() {
         )}
 
         {/* Bottom spacer per fixed nav + iOS safe area */}
-        <div style={{ height: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }} />
+        <div className="tablet:hidden" style={{ height: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }} />
+      </div>
+
+      {/* Footer — tablet/desktop */}
+      <div className="hidden tablet:flex shrink-0 border-t border-cream-200 px-4 py-3 justify-end">
+        <button
+          type="button"
+          onClick={() => { setSelectedApiaryId(null); setPreviewView('new-apiario') }}
+          className="h-9 px-4 inline-flex items-center justify-center gap-1.5 rounded-md text-sm font-medium bg-honey-500 text-cream-50 hover:bg-honey-600 transition-colors"
+        >
+          <Plus size={16} strokeWidth={2} />
+          Aggiungi apiario
+        </button>
+      </div>
+      </div>
+
+      {/* Pannello destro (tablet/desktop): arnie dell'apiario selezionato, oppure creazione nuovo apiario */}
+      <div className="hidden tablet:flex tablet:flex-1 tablet:min-w-0 bg-cream-50">
+        {previewView === 'new-apiario' && session?.user?.id ? (
+          <div className="flex flex-col h-full w-full min-w-0">
+            <header className="shrink-0 border-b border-cream-200 px-5 h-14 flex items-center">
+              <h2 className="font-display text-xl font-medium text-wood-800 tracking-tight truncate">
+                Nuovo apiario
+              </h2>
+            </header>
+            <div className="flex-1 overflow-y-auto">
+              <ApiaryForm
+                userId={session.user.id}
+                hideHeader
+                onSuccess={() => setPreviewView('hives')}
+                onCancel={() => setPreviewView('hives')}
+              />
+            </div>
+          </div>
+        ) : selectedApiaryId ? (
+          <ApiaryPreviewPanel apiaryId={selectedApiaryId} view={previewView} onViewChange={setPreviewView} />
+        ) : (
+          <div className="flex-1 flex items-center justify-center px-8">
+            <p className="text-sm text-wood-500 text-center">Seleziona un apiario per vedere le sue arnie</p>
+          </div>
+        )}
       </div>
 
       <ShareSheet

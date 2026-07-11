@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
-import { ArrowLeft, MapPin, Map, Flower2 } from 'lucide-react'
+import { ArrowLeft, MapPin, Map, Flower2, Share2, Trash2 } from 'lucide-react'
 import imageCompression from 'browser-image-compression'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { MainPhotoSlot } from '@/components/ui/main-photo-slot'
 import { LocationPreview } from '@/components/ui/location-preview'
 import { MapPickerSheet } from '@/components/ui/map-picker-sheet'
-import { useCreateApiary, useUpdateApiary, type ApiaryDetail } from '../hooks/use-apiaries'
+import { ShareSheet } from './share-sheet'
+import { useCreateApiary, useUpdateApiary, useDeleteApiary, type ApiaryDetail } from '../hooks/use-apiaries'
 import { useGeolocation } from '../hooks/use-geolocation'
 import { useApiarySpecies, useSetApiarySpecies } from '../hooks/use-apiary-species'
 import { usePhenologySpecies } from '@/features/phenology/hooks/use-phenology'
@@ -20,16 +21,21 @@ interface ApiaryFormProps {
   onSuccess: () => void
   onCancel: () => void
   initialData?: ApiaryDetail | null
+  /** Nasconde l'header interno (usato quando il form è incorporato in un pannello che ha già il suo). */
+  hideHeader?: boolean
 }
 
-export function ApiaryForm({ userId, onSuccess, onCancel, initialData }: ApiaryFormProps) {
+export function ApiaryForm({ userId, onSuccess, onCancel, initialData, hideHeader }: ApiaryFormProps) {
   const isEdit = !!initialData
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { showToast } = useToast()
   const { mutate: createApiary, isPending: isCreating } = useCreateApiary()
   const { mutate: updateApiary, isPending: isUpdating } = useUpdateApiary()
+  const { mutate: deleteApiary, isPending: isDeleting } = useDeleteApiary()
   const isPending = isCreating || isUpdating
   const { state: geoState, request: requestLocation } = useGeolocation()
+  const [showShareSheet, setShowShareSheet] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   // Form fields — prefilled when editing
   const [photoFile, setPhotoFile] = useState<File | null>(null)
@@ -198,6 +204,20 @@ export function ApiaryForm({ userId, onSuccess, onCancel, initialData }: ApiaryF
     }
   }
 
+  // ── Delete ───────────────────────────────────────────────────
+
+  const handleDelete = () => {
+    if (!initialData) return
+    deleteApiary(initialData.id, {
+      onSuccess: () => {
+        setShowDeleteConfirm(false)
+        showToast('Apiario eliminato', 'success')
+        onSuccess()
+      },
+      onError: () => showToast('Eliminazione fallita', 'error'),
+    })
+  }
+
   // ── Render ───────────────────────────────────────────────────
 
   return (
@@ -217,6 +237,7 @@ export function ApiaryForm({ userId, onSuccess, onCancel, initialData }: ApiaryF
       />
 
       {/* Nav header */}
+      {!hideHeader && (
       <header className="bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2 shrink-0">
         <button
           type="button"
@@ -232,10 +253,11 @@ export function ApiaryForm({ userId, onSuccess, onCancel, initialData }: ApiaryF
           </h1>
         </div>
       </header>
+      )}
 
       {/* Scrollable form body */}
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-6">
-        <div className="flex flex-col gap-5">
+        <div className={`flex flex-col gap-5${hideHeader ? ' tablet:max-w-lg tablet:mx-auto' : ''}`}>
 
           {/* Foto */}
           <section>
@@ -451,12 +473,35 @@ export function ApiaryForm({ userId, onSuccess, onCancel, initialData }: ApiaryF
 
       {/* Sticky CTA bar */}
       <div
-        className="sticky bottom-0 bg-cream-50/95 backdrop-blur-sm border-t border-cream-200 px-4 py-3 flex items-center gap-2 shrink-0"
+        className="sticky bottom-0 bg-cream-50/95 backdrop-blur-sm border-t border-cream-200 px-4 py-3 shrink-0"
         style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
       >
+        <div className={`flex items-center gap-2${hideHeader ? ' tablet:max-w-lg tablet:mx-auto' : ''}`}>
+        {isEdit && initialData && (
+          <>
+            <button
+              type="button"
+              aria-label="Condividi apiario"
+              title="Condividi"
+              onClick={() => setShowShareSheet(true)}
+              className="size-11 shrink-0 flex items-center justify-center rounded-md border border-cream-200 text-wood-600 hover:bg-cream-100 transition-colors"
+            >
+              <Share2 size={18} strokeWidth={1.75} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              aria-label="Elimina apiario"
+              title="Elimina"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="size-11 shrink-0 flex items-center justify-center rounded-md bg-danger-500 text-cream-50 hover:bg-danger-500/90 transition-colors"
+            >
+              <Trash2 size={18} strokeWidth={1.75} aria-hidden="true" />
+            </button>
+          </>
+        )}
         <Button
           type="button"
-          variant="ghost"
+          variant="secondary"
           size="md"
           className="flex-none px-4"
           onClick={handleCancel}
@@ -471,8 +516,9 @@ export function ApiaryForm({ userId, onSuccess, onCancel, initialData }: ApiaryF
           onClick={doSubmit}
           loading={isPending}
         >
-          {isEdit ? 'Aggiorna apiario' : t.apiary.new.save}
+          {isEdit ? 'Aggiorna' : t.apiary.new.save}
         </Button>
+        </div>
       </div>
 
       {/* Map picker sheet */}
@@ -541,6 +587,64 @@ export function ApiaryForm({ userId, onSuccess, onCancel, initialData }: ApiaryF
                 className="w-full"
               >
                 {t.apiary.new.unsavedCancel}
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Condivisione */}
+      {initialData && (
+        <ShareSheet
+          open={showShareSheet}
+          apiaryId={initialData.id}
+          apiaryName={initialData.name}
+          onClose={() => setShowShareSheet(false)}
+        />
+      )}
+
+      {/* Conferma eliminazione */}
+      {showDeleteConfirm && initialData && (
+        <>
+          <div
+            className="fixed inset-0 z-30 bg-wood-900/40"
+            onClick={() => setShowDeleteConfirm(false)}
+            aria-hidden="true"
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Elimina apiario"
+            className="fixed inset-x-0 bottom-0 z-40 bg-cream-50 rounded-t-xl shadow-lg animate-slide-up"
+          >
+            <div className="flex justify-center pt-2.5 pb-1">
+              <span className="block w-9 h-1 rounded-full bg-cream-200" aria-hidden="true" />
+            </div>
+            <div className="px-5 pt-3 pb-4">
+              <h2 className="text-lg font-semibold text-wood-800 mb-1">Elimina apiario</h2>
+              <p className="text-sm text-wood-500 leading-relaxed">
+                Eliminare <strong>{initialData.name}</strong>? Tutte le arnie e ispezioni associate verranno rimosse. L&rsquo;operazione non pu&ograve; essere annullata.
+              </p>
+            </div>
+            <div className="px-4 flex flex-col gap-2" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}>
+              <Button
+                type="button"
+                variant="destructive"
+                size="lg"
+                onClick={handleDelete}
+                loading={isDeleting}
+                className="w-full"
+              >
+                Elimina
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="md"
+                onClick={() => setShowDeleteConfirm(false)}
+                className="w-full"
+              >
+                Annulla
               </Button>
             </div>
           </div>

@@ -4,6 +4,7 @@ import { getAuthUser } from '@/lib/auth-guard'
 import { useReminder, useUpdateReminder } from '@/features/reminders/hooks/use-reminders'
 import { ReminderForm } from '@/features/reminders/components/reminder-form'
 import { useToast } from '@/hooks/use-toast'
+import { Sidebar } from '@/components/layout/sidebar'
 import type { ReminderFormData } from '@/features/reminders/types'
 
 export const Route = createFileRoute('/promemoria/$reminderId/edit')({
@@ -59,29 +60,35 @@ function EditReminderPage() {
 
   if (isLoading || !reminder) {
     return (
-      <div className="fixed inset-0 z-20 bg-cream-50 flex items-center justify-center">
-        <p className="text-sm text-wood-400">Caricamento...</p>
-      </div>
+      <>
+        <Sidebar />
+        <div className="fixed inset-0 z-20 bg-cream-50 tablet:left-[72px] lg:left-[232px] flex items-center justify-center">
+          <p className="text-sm text-wood-400">Caricamento...</p>
+        </div>
+      </>
     )
   }
 
   return (
-    <div className="fixed inset-0 z-20 bg-cream-50">
-      <ReminderForm
-        title="Modifica promemoria"
-        initialData={{
-          title: reminder.title,
-          description: reminder.description ?? '',
-          due_at: reminder.due_at,
-          recurrence: reminder.recurrence,
-          scope: reminder.scope,
-          apiary_id: reminder.apiary_id ?? '',
-          hive_id: reminder.hive_id ?? '',
-        }}
-        onSave={handleSave}
-        onCancel={handleCancel}
-        isPending={updateReminder.isPending}
-      />
-    </div>
+    <>
+      <Sidebar />
+      <div className="fixed inset-0 z-20 bg-cream-50 tablet:left-[72px] lg:left-[232px]">
+        <ReminderForm
+          title="Modifica promemoria"
+          initialData={{
+            title: reminder.title,
+            description: reminder.description ?? '',
+            due_at: reminder.due_at,
+            recurrence: reminder.recurrence,
+            scope: reminder.scope,
+            apiary_id: reminder.apiary_id ?? '',
+            hive_id: reminder.hive_id ?? '',
+          }}
+          onSave={handleSave}
+          onCancel={handleCancel}
+          isPending={updateReminder.isPending}
+        />
+      </div>
+    </>
   )
 }

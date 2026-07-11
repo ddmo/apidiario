@@ -1,0 +1,92 @@
+import { useQuery } from '@tanstack/react-query'
+import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/hooks/use-auth'
+import { HiveForm } from './hive-form'
+
+interface EditHivePanelProps {
+  hiveId: string
+  onSuccess: () => void
+  onCancel: () => void
+  hideHeader?: boolean
+}
+
+/** Form di modifica arnia con i propri dati (query hive/regina/apiari) — riusato dalla route /hives/$hiveId/edit e dal pannello Home desktop/tablet. */
+export function EditHivePanel({ hiveId, onSuccess, onCancel, hideHeader }: EditHivePanelProps) {
+  const { session } = useAuth()
+
+  const { data: allApiaries } = useQuery({
+    queryKey: ['apiaries', 'all-for-move'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('apiaries')
+        .select('id, name')
+        .is('archived_at', null)
+        .order('name')
+      return data ?? []
+    },
+  })
+
+  const { data: hive, isLoading } = useQuery({
+    queryKey: ['hive', hiveId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('hives')
+        .select('id, identifier, hive_type, bee_race, installed_on, origin_notes, nido_frame_count, notes, apiary_id, main_photo_path')
+        .eq('id', hiveId)
+        .single()
+      if (error) throw error
+      if (!data) throw new Error('Hive not found')
+
+      let photoUrl: string | null = null
+      const path = (data as unknown as { main_photo_path: string | null }).main_photo_path
+      if (path) {
+        const { data: signed } = await supabase.storage
+          .from('apidiario-media')
+          .createSignedUrl(path, 3600)
+        photoUrl = signed?.signedUrl ?? null
+      }
+
+      return { ...data, photoUrl }
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+  })
+
+  const { data: queenData } = useQuery({
+    queryKey: ['queen', hiveId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('queens')
+        .select('is_marked, birth_year')
+        .eq('hive_id', hiveId)
+        .is('end_date', null)
+        .maybeSingle()
+      return data ?? null
+    },
+    enabled: !!hiveId,
+  })
+
+  if (!session?.user?.id || isLoading) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <div className="text-sm text-wood-400">Caricamento…</div>
+      </div>
+    )
+  }
+
+  if (!hive) return null
+
+  return (
+    <HiveForm
+      apiaryId={hive.apiary_id}
+      apiaries={allApiaries}
+      userId={session.user.id}
+      photoUrl={(hive as unknown as { photoUrl: string | null }).photoUrl}
+      queenData={queenData}
+      hive={hive}
+      hideHeader={hideHeader}
+      onSuccess={onSuccess}
+      onCancel={onCancel}
+    />
+  )
+}

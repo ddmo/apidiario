@@ -5,6 +5,7 @@ import { useTreatment, useUpdateTreatment } from '@/features/treatments/hooks/us
 import { TreatmentForm } from '@/features/treatments/components/treatment-form'
 import type { TreatmentFormData } from '@/features/treatments/components/treatment-form'
 import { useToast } from '@/hooks/use-toast'
+import { Sidebar } from '@/components/layout/sidebar'
 
 export const Route = createFileRoute('/trattamenti/$treatmentId/edit')({
   beforeLoad: async () => {
@@ -24,8 +25,11 @@ function EditTreatmentPage() {
 
   if (!session?.user?.id || isLoading) {
     return (
-      <div className="flex flex-col h-dvh bg-cream-50 items-center justify-center">
-        <div className="text-sm text-wood-400">Caricamento…</div>
+      <div className="flex h-dvh">
+        <Sidebar />
+        <div className="flex flex-col flex-1 min-w-0 bg-cream-50 items-center justify-center">
+          <div className="text-sm text-wood-400">Caricamento…</div>
+        </div>
       </div>
     )
   }
@@ -45,14 +49,17 @@ function EditTreatmentPage() {
   }
 
   return (
-    <div className="flex flex-col h-dvh bg-cream-50">
-      <TreatmentForm
-        userId={session.user.id}
-        treatment={treatment}
-        onSave={handleSave}
-        onCancel={() => router.history.back()}
-        isPending={isPending}
-      />
+    <div className="flex h-dvh">
+      <Sidebar />
+      <div className="flex flex-col flex-1 min-w-0 bg-cream-50">
+        <TreatmentForm
+          userId={session.user.id}
+          treatment={treatment}
+          onSave={handleSave}
+          onCancel={() => router.history.back()}
+          isPending={isPending}
+        />
+      </div>
     </div>
   )
 }

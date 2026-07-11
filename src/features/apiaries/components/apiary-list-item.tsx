@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Syringe, ClipboardCheck, Hexagon, Trees, Edit3, Eye } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import type { ApiaryListItem as ApiaryListItemData } from '../hooks/use-apiaries'
 import type { AccessLevel, WeatherInfo } from '@/features/home/hooks/use-apiary-cards'
 
@@ -12,6 +13,8 @@ interface ApiaryListItemProps {
   ownerDisplayName?: string | null
   weather?: WeatherInfo | null
   photoUrl?: string | null
+  /** Evidenzia la riga come selezionata (pannello destro tablet/desktop). */
+  selected?: boolean
 }
 
 function formatRelativeDate(iso: string): string {
@@ -38,7 +41,7 @@ function WeatherIcon({ code }: { code: number }) {
   return '☀️'
 }
 
-export function ApiaryListItem({ apiary, onClick, lastInspectionAt, hasActiveTreatment, accessLevel, ownerDisplayName, weather, photoUrl }: ApiaryListItemProps) {
+export function ApiaryListItem({ apiary, onClick, lastInspectionAt, hasActiveTreatment, accessLevel, ownerDisplayName, weather, photoUrl, selected }: ApiaryListItemProps) {
   const { name, hiveCount } = apiary
   const [imgError, setImgError] = useState(false)
 
@@ -46,19 +49,21 @@ export function ApiaryListItem({ apiary, onClick, lastInspectionAt, hasActiveTre
     <button
       type="button"
       onClick={onClick}
-      className="w-full bg-cream-100 border border-cream-200 rounded-lg text-left transition-colors duration-150 hover:bg-cream-50 active:bg-cream-200 shadow-xs overflow-hidden"
-      style={{ borderLeft: '3px solid #BA7517' }}
+      className={cn(
+        'w-full bg-cream-100 border border-cream-200 rounded-lg text-left transition-colors duration-150 hover:bg-cream-50 active:bg-cream-200 shadow-xs overflow-hidden',
+        selected && 'tablet:ring-2 tablet:ring-honey-500',
+      )}
     >
       <div className="flex items-stretch">
         {photoUrl && !imgError ? (
           <img
             src={photoUrl}
             alt=""
-            className="w-16 shrink-0 object-cover"
+            className="w-16 shrink-0 rounded-l-lg object-cover"
             onError={() => setImgError(true)}
           />
         ) : (
-          <div className="w-16 shrink-0 flex items-center justify-center bg-cream-200">
+          <div className="w-16 shrink-0 rounded-l-lg flex items-center justify-center bg-cream-200">
             <Trees size={20} className="text-wood-400" strokeWidth={1.5} />
           </div>
         )}
@@ -70,7 +75,7 @@ export function ApiaryListItem({ apiary, onClick, lastInspectionAt, hasActiveTre
               <Syringe size={13} className="text-warning-600 shrink-0" />
             )}
             {lastInspectionAt && (
-              <span className="text-[10px] text-wood-400 shrink-0 ml-auto flex items-center gap-1">
+              <span className="text-[10px] text-wood-500 shrink-0 ml-auto flex items-center gap-1">
                 <ClipboardCheck size={10} className="shrink-0" />
                 {formatRelativeDate(lastInspectionAt)}
               </span>
@@ -85,7 +90,7 @@ export function ApiaryListItem({ apiary, onClick, lastInspectionAt, hasActiveTre
               ) : (
                 <Eye size={10} className="text-wood-400 shrink-0" />
               )}
-              <span className="text-[10px] text-wood-400">di {ownerDisplayName ?? '—'}</span>
+              <span className="text-[10px] text-wood-500">di {ownerDisplayName ?? '—'}</span>
             </div>
           )}
 

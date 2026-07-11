@@ -1,12 +1,14 @@
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
+import { asStringArray } from '@/lib/utils'
 import { getAuthUser } from '@/lib/auth-guard'
 import { queryClient } from '@/lib/query-client'
 import { offlineQueue } from '@/lib/offline-queue'
 import { useAuth } from '@/hooks/use-auth'
 import { useToast } from '@/hooks/use-toast'
 import { InspectionScreen } from '@/features/inspections/inspection-screen'
+import { useAllHives } from '@/features/hives/hooks/use-hives'
 import { useWeatherSnapshot } from '@/lib/weather/snapshot'
 import { logActivity } from '@/lib/activity-log'
 import type { InspectionFormState } from '@/features/inspections/types'
@@ -54,6 +56,8 @@ function NewInspectionPage() {
   })
 
   const { data: weather } = useWeatherSnapshot(apiary?.latitude, apiary?.longitude)
+  const { data: allHives } = useAllHives()
+  const hiveSchematic = allHives?.find((h) => h.id === hiveId)
 
   // isPending = true while loading, false once settled (null or object)
   const { data: lastInspection, isPending: isLoadingHistory } = useQuery({
@@ -157,8 +161,8 @@ function NewInspectionPage() {
           vuoti: lastInspection.empty_frame_count ?? 0,
         },
         hasQueenCells: lastInspection.has_queen_cells ?? false,
-        queenCellsRemoved: (lastInspection.queen_cells_removed ?? []) as InspectionFormState['queenCellsRemoved'],
-        queenCellsRemaining: (lastInspection.queen_cells_remaining ?? []) as InspectionFormState['queenCellsRemaining'],
+        queenCellsRemoved: asStringArray(lastInspection.queen_cells_removed) as InspectionFormState['queenCellsRemoved'],
+        queenCellsRemaining: asStringArray(lastInspection.queen_cells_remaining) as InspectionFormState['queenCellsRemaining'],
         pollenIncoming: lastInspection.pollen_importation ?? false,
         behavior: lastInspection.behavior ?? 'calmo',
       }
@@ -176,6 +180,16 @@ function NewInspectionPage() {
       hiveId={hiveId}
       inspectionId={null}
       hiveInfo={hive && apiary ? { identifier: hive.identifier, apiaryName: apiary.name } : undefined}
+      hiveSchematic={hiveSchematic ? {
+        nidoFrameCount: hiveSchematic.nidoFrameCount,
+        melariCount: hiveSchematic.melariCount,
+        hasApiscampo: hiveSchematic.hasApiscampo,
+        hasPropolisNet: hiveSchematic.hasPropolisNet,
+        hasPollenTrap: hiveSchematic.hasPollenTrap,
+        hasActiveQueen: hiveSchematic.hasActiveQueen,
+        queenMarkingColor: hiveSchematic.queenMarkingColor,
+        queenIsMarked: hiveSchematic.queenIsMarked,
+      } : undefined}
       prefillState={prefillState}
       hasPrefill={lastInspection !== null && lastInspection !== undefined}
       prefillDate={prefillDate}

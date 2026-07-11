@@ -14,6 +14,7 @@ import { Route as SetPasswordRouteImport } from './routes/set-password'
 import { Route as PrevisioniRouteImport } from './routes/previsioni'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AuthIndexRouteImport } from './routes/_auth.index'
@@ -72,6 +73,11 @@ const LoginRoute = LoginRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -256,6 +262,7 @@ const AuthHivesHiveIdInspectionsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthIndexRoute
+  '/account': typeof AccountRoute
   '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
   '/previsioni': typeof PrevisioniRoute
@@ -295,6 +302,7 @@ export interface FileRoutesByFullPath {
   '/hives/$hiveId/inspections/$inspectionId': typeof HivesHiveIdInspectionsInspectionIdRoute
 }
 export interface FileRoutesByTo {
+  '/account': typeof AccountRoute
   '/login': typeof LoginRoute
   '/previsioni': typeof PrevisioniRoute
   '/set-password': typeof SetPasswordRoute
@@ -336,6 +344,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteWithChildren
+  '/account': typeof AccountRoute
   '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
   '/previsioni': typeof PrevisioniRoute
@@ -379,6 +388,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account'
     | '/admin'
     | '/login'
     | '/previsioni'
@@ -418,6 +428,7 @@ export interface FileRouteTypes {
     | '/hives/$hiveId/inspections/$inspectionId'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/account'
     | '/login'
     | '/previsioni'
     | '/set-password'
@@ -458,6 +469,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_auth'
+    | '/account'
     | '/admin'
     | '/login'
     | '/previsioni'
@@ -500,6 +512,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
+  AccountRoute: typeof AccountRoute
   AdminRoute: typeof AdminRouteWithChildren
   LoginRoute: typeof LoginRoute
   PrevisioniRoute: typeof PrevisioniRoute
@@ -558,6 +571,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth': {
@@ -853,6 +873,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
+  AccountRoute: AccountRoute,
   AdminRoute: AdminRouteWithChildren,
   LoginRoute: LoginRoute,
   PrevisioniRoute: PrevisioniRoute,

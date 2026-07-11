@@ -1,0 +1,270 @@
+import { useState, useCallback, useEffect } from 'react'
+import { ArrowLeft, Save, Droplet, Trees, X } from 'lucide-react'
+import { HONEY_TYPES } from '../honey-types'
+import { useApiaries } from '@/features/apiaries/hooks/use-apiaries'
+
+export interface HarvestFormData {
+  apiaryId: string
+  harvestedOn: string
+  honeyType: string
+  totalKg: number
+  humidityPct: number | null
+  batchCode: string | null
+  notes: string | null
+}
+
+interface HarvestFormProps {
+  initialData?: {
+    apiaryId: string
+    harvestedOn: string
+    honeyType: string
+    totalKg: string
+    humidityPct: string
+    batchCode: string
+    notes: string
+  }
+  title: string
+  onSave: (data: HarvestFormData) => void
+  onCancel: () => void
+  isPending?: boolean
+  /** Nasconde l'header interno (freccia + titolo) quando il form è incorporato in un pannello che fornisce già il proprio header. */
+  hideHeader?: boolean
+}
+
+export function HarvestForm({ initialData, title, onSave, onCancel, isPending, hideHeader }: HarvestFormProps) {
+  const { data: apiaries } = useApiaries()
+
+  const [apiaryId, setApiaryId] = useState(initialData?.apiaryId ?? '')
+  const [date, setDate] = useState(initialData?.harvestedOn ?? new Date().toISOString().slice(0, 10))
+  const [honeyType, setHoneyType] = useState(initialData?.honeyType ?? '')
+  const [totalKg, setTotalKg] = useState(initialData?.totalKg ?? '')
+  const [humidityPct, setHumidityPct] = useState(initialData?.humidityPct ?? '')
+  const [batchCode, setBatchCode] = useState(initialData?.batchCode ?? '')
+  const [notes, setNotes] = useState(initialData?.notes ?? '')
+  const [showApiaryPicker, setShowApiaryPicker] = useState(false)
+  const [showHoneyPicker, setShowHoneyPicker] = useState(false)
+
+  // Riallinea i campi quando cambia il record da modificare (pannello inline riusato tra selezioni diverse)
+  useEffect(() => {
+    setApiaryId(initialData?.apiaryId ?? '')
+    setDate(initialData?.harvestedOn ?? new Date().toISOString().slice(0, 10))
+    setHoneyType(initialData?.honeyType ?? '')
+    setTotalKg(initialData?.totalKg ?? '')
+    setHumidityPct(initialData?.humidityPct ?? '')
+    setBatchCode(initialData?.batchCode ?? '')
+    setNotes(initialData?.notes ?? '')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialData?.apiaryId, initialData?.harvestedOn, initialData?.honeyType, initialData?.totalKg, initialData?.humidityPct, initialData?.batchCode, initialData?.notes])
+
+  const selectedApiary = apiaries?.find((a) => a.id === apiaryId)
+
+  const handleSave = useCallback(() => {
+    if (!apiaryId || !totalKg || !honeyType) return
+    onSave({
+      apiaryId,
+      harvestedOn: date,
+      honeyType,
+      totalKg: parseFloat(totalKg.replace(',', '.')),
+      humidityPct: humidityPct ? parseFloat(humidityPct.replace(',', '.')) : null,
+      batchCode: batchCode || null,
+      notes: notes || null,
+    })
+  }, [apiaryId, date, honeyType, totalKg, humidityPct, batchCode, notes, onSave])
+
+  return (
+    <div className="flex flex-col h-full">
+      {!hideHeader && (
+        <header className="shrink-0 bg-cream-50 border-b border-cream-200 px-2 h-14 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="size-11 flex items-center justify-center text-wood-700 hover:bg-cream-100 rounded-md transition-colors"
+          >
+            <ArrowLeft size={22} strokeWidth={1.75} />
+          </button>
+          <h1 className="font-display text-2xl font-medium text-wood-800 tracking-tight flex-1 px-1">
+            {title}
+          </h1>
+        </header>
+      )}
+
+      <div className="flex-1 px-4 py-6 overflow-y-auto">
+        <div className={`max-w-lg mx-auto${hideHeader ? ' tablet:max-w-lg' : ''}`}>
+
+        <div className="flex flex-col gap-5">
+          {/* Apiario */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-wood-700">Apiario *</label>
+            <button
+              type="button"
+              onClick={() => setShowApiaryPicker(true)}
+              className="flex items-center gap-2 rounded-lg border border-cream-200 bg-cream-50 px-4 py-2.5 text-left text-sm text-wood-800 hover:bg-cream-100 transition-colors"
+            >
+              <Trees size={16} className="text-wood-400 shrink-0" />
+              <span className={selectedApiary ? '' : 'text-wood-400'}>
+                {selectedApiary ? selectedApiary.name : 'Seleziona apiario…'}
+              </span>
+            </button>
+          </div>
+
+          {/* Data */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-wood-700">Data raccolto *</label>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="rounded-lg border border-cream-200 bg-cream-50 px-4 py-2.5 text-sm text-wood-800"
+            />
+          </div>
+
+          {/* Tipo miele */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-wood-700">Tipo di miele *</label>
+            <button
+              type="button"
+              onClick={() => setShowHoneyPicker(true)}
+              className="flex items-center gap-2 rounded-lg border border-cream-200 bg-cream-50 px-4 py-2.5 text-left text-sm text-wood-800 hover:bg-cream-100 transition-colors"
+            >
+              <Droplet size={16} className="text-wood-400 shrink-0" />
+              <span className={honeyType ? '' : 'text-wood-400'}>
+                {honeyType || 'Seleziona tipo…'}
+              </span>
+            </button>
+          </div>
+
+          {/* Kg totali */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-wood-700">Kg totali *</label>
+            <input
+              type="number"
+              inputMode="decimal"
+              step="0.1"
+              min="0.1"
+              placeholder="es. 14,5"
+              value={totalKg}
+              onChange={(e) => setTotalKg(e.target.value)}
+              className="rounded-lg border border-cream-200 bg-cream-50 px-4 py-2.5 text-sm text-wood-800"
+            />
+          </div>
+
+          {/* Umidità */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-wood-500">Umidità % (opzionale)</label>
+            <input
+              type="number"
+              inputMode="decimal"
+              step="0.1"
+              min="0"
+              max="100"
+              placeholder="es. 17,5"
+              value={humidityPct}
+              onChange={(e) => setHumidityPct(e.target.value)}
+              className="rounded-lg border border-cream-200 bg-cream-50 px-4 py-2.5 text-sm text-wood-800"
+            />
+          </div>
+
+          {/* Codice lotto */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-wood-500">Codice lotto (opzionale)</label>
+            <input
+              type="text"
+              placeholder="es. A-001"
+              value={batchCode}
+              onChange={(e) => setBatchCode(e.target.value)}
+              maxLength={30}
+              className="rounded-lg border border-cream-200 bg-cream-50 px-4 py-2.5 text-sm text-wood-800"
+            />
+          </div>
+
+          {/* Note */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-wood-500">Note (opzionale)</label>
+            <textarea
+              rows={3}
+              placeholder="Colore, aroma, condizioni del raccolto…"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="rounded-lg border border-cream-200 bg-cream-50 px-4 py-2.5 text-sm text-wood-800 resize-none"
+            />
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={isPending || !apiaryId || !totalKg || !honeyType}
+          className="mt-8 w-full flex items-center justify-center gap-2 rounded-lg bg-honey-500 px-4 py-3 text-sm font-medium text-cream-50 hover:bg-honey-600 disabled:opacity-40 transition-colors"
+        >
+          <Save size={16} />
+          {isPending ? 'Salvataggio…' : 'Salva raccolto'}
+        </button>
+      </div>
+      </div>
+
+      {/* Apiary picker bottom sheet */}
+      {showApiaryPicker && (
+        <div className="fixed inset-0 z-50 flex items-end">
+          <div className="absolute inset-0 bg-wood-900/30" onClick={() => setShowApiaryPicker(false)} />
+          <div className="relative w-full rounded-t-xl bg-cream-50 px-4 pb-8 pt-4 max-h-[60vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-medium text-wood-700">Seleziona apiario</h3>
+              <button type="button" onClick={() => setShowApiaryPicker(false)}>
+                <X size={18} className="text-wood-400" />
+              </button>
+            </div>
+            <div className="flex flex-col gap-1">
+              {apiaries?.map((a) => (
+                <button
+                  key={a.id}
+                  type="button"
+                  onClick={() => { setApiaryId(a.id); setShowApiaryPicker(false) }}
+                  className={`flex items-center gap-3 rounded-lg px-4 py-3 text-left text-sm transition-colors ${
+                    apiaryId === a.id
+                      ? 'bg-honey-500/10 text-wood-800'
+                      : 'hover:bg-cream-100 text-wood-600'
+                  }`}
+                >
+                  <Trees size={16} className="text-wood-400 shrink-0" />
+                  <span className="font-medium">{a.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Honey type picker bottom sheet */}
+      {showHoneyPicker && (
+        <div className="fixed inset-0 z-50 flex items-end">
+          <div className="absolute inset-0 bg-wood-900/30" onClick={() => setShowHoneyPicker(false)} />
+          <div className="relative w-full rounded-t-xl bg-cream-50 px-4 pb-8 pt-4 max-h-[60vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-medium text-wood-700">Seleziona tipo miele</h3>
+              <button type="button" onClick={() => setShowHoneyPicker(false)}>
+                <X size={18} className="text-wood-400" />
+              </button>
+            </div>
+            <div className="flex flex-col gap-1">
+              {HONEY_TYPES.map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => { setHoneyType(type); setShowHoneyPicker(false) }}
+                  className={`flex items-center gap-3 rounded-lg px-4 py-3 text-left text-sm transition-colors ${
+                    honeyType === type
+                      ? 'bg-honey-500/10 text-wood-800'
+                      : 'hover:bg-cream-100 text-wood-600'
+                  }`}
+                >
+                  <Droplet size={16} className="text-wood-400 shrink-0" />
+                  <span className="font-medium">{type}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}

@@ -4,6 +4,7 @@ import { getAuthUser } from '@/lib/auth-guard'
 import { useCreateReminder } from '@/features/reminders/hooks/use-reminders'
 import { ReminderForm } from '@/features/reminders/components/reminder-form'
 import { useToast } from '@/hooks/use-toast'
+import { Sidebar } from '@/components/layout/sidebar'
 import type { ReminderFormData } from '@/features/reminders/types'
 
 export const Route = createFileRoute('/promemoria/new')({
@@ -53,13 +54,16 @@ function NewReminderPage() {
   }
 
   return (
-    <div className="fixed inset-0 z-20 bg-cream-50">
-      <ReminderForm
-        title="Nuovo promemoria"
-        onSave={handleSave}
-        onCancel={handleCancel}
-        isPending={createReminder.isPending}
-      />
-    </div>
+    <>
+      <Sidebar />
+      <div className="fixed inset-0 z-20 bg-cream-50 tablet:left-[72px] lg:left-[232px]">
+        <ReminderForm
+          title="Nuovo promemoria"
+          onSave={handleSave}
+          onCancel={handleCancel}
+          isPending={createReminder.isPending}
+        />
+      </div>
+    </>
   )
 }
