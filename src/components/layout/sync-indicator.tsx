@@ -57,7 +57,7 @@ export function SyncIndicator() {
       style={{ bottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))' }}
     >
       <div className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm
-        ${showOffline ? 'bg-wood-800/90 text-cream-100' : showDead ? 'bg-danger-500/90 text-cream-50' : 'bg-honey-500/90 text-wood-900'}`}
+        ${showOffline ? 'bg-wood-800/90 text-cream-100' : showDead ? 'bg-danger-500/90 text-cream-50' : 'bg-honey-500/90 text-primary-text'}`}
       >
         {showDead && (
           <>

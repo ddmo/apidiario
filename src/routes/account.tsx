@@ -6,13 +6,21 @@ import { getAuthUser } from '@/lib/auth-guard'
 import { Sidebar } from '@/components/layout/sidebar'
 import { ExpressSettingsContent } from '@/features/settings/components/express-settings-content'
 import { SuggestionSettingsContent } from '@/features/settings/components/suggestion-settings-content'
-import { setThemeMode, getThemeMode, type ThemeMode } from '@/lib/theme'
+import { setThemeMode, getThemeMode, setPalette, getPalette, type ThemeMode, type PaletteId } from '@/lib/theme'
 import { cn } from '@/lib/utils'
 
 const THEME_OPTIONS: { mode: ThemeMode; icon: typeof Sun; label: string }[] = [
   { mode: 'light', icon: Sun, label: 'Chiaro' },
   { mode: 'system', icon: Monitor, label: 'Sistema' },
   { mode: 'dark', icon: Moon, label: 'Scuro' },
+]
+
+const PALETTE_OPTIONS: { id: PaletteId; label: string; swatch: string }[] = [
+  { id: 'classico', label: 'Classico', swatch: '#C7891A' },
+  { id: 'miele-notturno', label: 'Miele Notturno', swatch: '#E08A2C' },
+  { id: 'prato-fiorito', label: 'Prato Fiorito', swatch: '#6E8863' },
+  { id: 'terracotta-mediterranea', label: 'Terracotta Mediterranea', swatch: '#C1613F' },
+  { id: 'ambra-contemporanea', label: 'Ambra Contemporanea', swatch: '#A13F23' },
 ]
 
 export const Route = createFileRoute('/account')({
@@ -30,10 +38,16 @@ function AccountPage() {
   const [loggingOut, setLoggingOut] = useState(false)
   const [panelView, setPanelView] = useState<PanelView>(null)
   const [themeMode, setThemeLocal] = useState<ThemeMode>(getThemeMode())
+  const [palette, setPaletteLocal] = useState<PaletteId>(getPalette())
 
   function handleThemeChange(mode: ThemeMode) {
     setThemeLocal(mode)
     setThemeMode(mode)
+  }
+
+  function handlePaletteChange(id: PaletteId) {
+    setPaletteLocal(id)
+    setPalette(id)
   }
 
   const [newPassword, setNewPassword] = useState('')
@@ -138,6 +152,32 @@ function AccountPage() {
                       }`}
                     >
                       <Icon size={16} strokeWidth={1.75} />
+                      <span>{label}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2 rounded-lg border border-cream-200 bg-cream-100 px-4 py-3">
+              <span className="text-sm font-medium text-wood-700">Palette colori</span>
+              <div className="grid grid-cols-1 gap-1.5">
+                {PALETTE_OPTIONS.map(({ id, label, swatch }) => {
+                  const active = palette === id
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => handlePaletteChange(id)}
+                      className={`flex items-center gap-2.5 h-10 px-2.5 rounded-md text-sm font-medium transition-colors text-left ${
+                        active ? 'bg-honey-tint text-honey-700' : 'text-wood-500 hover:bg-cream-200'
+                      }`}
+                    >
+                      <span
+                        className="size-4 rounded-full shrink-0 border border-cream-200"
+                        style={{ backgroundColor: swatch }}
+                        aria-hidden="true"
+                      />
                       <span>{label}</span>
                     </button>
                   )

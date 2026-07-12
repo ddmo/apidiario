@@ -23,6 +23,9 @@
   --color-honey-600: #A06D14;
   --color-honey-700: #76500F;
 
+  /* Testo su superficie primary piena (bottoni, chip attivi) */
+  --color-primary-text: #1A130C;
+
   /* Breakpoint tablet (layout largo: sidebar sostituisce bottom nav) */
   --breakpoint-tablet: 834px;
 
@@ -48,11 +51,12 @@
   /* Spaziatura aggiuntiva */
   --spacing-13: 3.25rem; /* 52px — bottone lg */
 
-  /* Ombre (nota marrone, mai grigio puro) */
-  --shadow-xs: 0 1px 2px rgba(60, 40, 20, 0.04);
-  --shadow-sm: 0 2px 8px rgba(60, 40, 20, 0.06);
-  --shadow-lg: 0 12px 32px rgba(60, 40, 20, 0.12);
-  --shadow-fab: 0 4px 12px rgba(60, 40, 20, 0.15);
+  /* Ombre (nota marrone, mai grigio puro). RGB parametrico per palette. */
+  --color-shadow-rgb: 60, 40, 20;
+  --shadow-xs: 0 1px 2px rgba(var(--color-shadow-rgb), 0.04);
+  --shadow-sm: 0 2px 8px rgba(var(--color-shadow-rgb), 0.06);
+  --shadow-lg: 0 12px 32px rgba(var(--color-shadow-rgb), 0.12);
+  --shadow-fab: 0 4px 12px rgba(var(--color-shadow-rgb), 0.15);
 }
 
 /* Tema scuro: stessi token, valori invertiti.
@@ -89,6 +93,235 @@
     --color-warning-500: #E5A050;
     --color-danger-100:  #2D1818;
     --color-danger-500:  #E07060;
+
+    --color-primary-text: #050302;
+    --color-shadow-rgb: 0, 0, 0;
+  }
+}
+
+/* ── Palette alternative (rebrand) ────────────────────────
+   Selezionabili in Account → Tema. Stessi ruoli semantici e
+   stessi nomi token della palette Classico sopra: cambia solo
+   il colore, non spacing/radius/componenti. */
+@layer base {
+  :root[data-palette="miele-notturno"] {
+    --color-cream-50: #F5EEE0;
+    --color-cream-100: #EFE4CE;
+    --color-cream-200: #E3D6BC;
+    --color-cream-300: #D4C7AD;
+    --color-wood-300: #B79E6E;
+    --color-wood-400: #A98D47;
+    --color-wood-500: #8A7530;
+    --color-wood-600: #594322;
+    --color-wood-700: #2B1D12;
+    --color-wood-800: #120C07;
+    --color-wood-900: #1C130C;
+    --color-honey-tint: #F1DBB8;
+    --color-honey-300: #F6DFC4;
+    --color-honey-400: #EDBA82;
+    --color-honey-500: #E08A2C;
+    --color-honey-600: #B2691A;
+    --color-honey-700: #844E13;
+    --color-success-100: #E4E6CE;
+    --color-success-500: #6E8347;
+    --color-warning-100: #F2DCCE;
+    --color-warning-500: #B5461F;
+    --color-danger-100: #F2DCCE;
+    --color-danger-500: #B5461F;
+    --color-primary-text: #2B1D12;
+    --color-shadow-rgb: 43, 29, 18;
+  }
+  :root[data-palette="miele-notturno"][data-theme="dark"] {
+    --color-cream-50: #1C130C;
+    --color-cream-100: #2B1D12;
+    --color-cream-200: #3A2718;
+    --color-cream-300: #49311E;
+    --color-wood-300: #8A7530;
+    --color-wood-400: #B89244;
+    --color-wood-500: #C9A574;
+    --color-wood-600: #E0CBA9;
+    --color-wood-700: #F5EEE0;
+    --color-wood-800: #FBF9F3;
+    --color-wood-900: #070503;
+    --color-honey-tint: #3A2718;
+    --color-honey-300: #6C3F0D;
+    --color-honey-400: #8A5010;
+    --color-honey-500: #E8973E;
+    --color-honey-600: #EEB474;
+    --color-honey-700: #F4CDA2;
+    --color-success-100: #2A3323;
+    --color-success-500: #8FAE80;
+    --color-warning-100: #3A2718;
+    --color-warning-500: #C85B2E;
+    --color-danger-100: #3A2718;
+    --color-danger-500: #C85B2E;
+    --color-primary-text: #1C130C;
+    --color-shadow-rgb: 0, 0, 0;
+  }
+
+  :root[data-palette="prato-fiorito"] {
+    --color-cream-50: #FAF6EC;
+    --color-cream-100: #EDEFE2;
+    --color-cream-200: #E4DEC9;
+    --color-cream-300: #DBC0AE;
+    --color-wood-300: #9BAE8F;
+    --color-wood-400: #849D77;
+    --color-wood-500: #6E8863;
+    --color-wood-600: #566C4D;
+    --color-wood-700: #3E4F38;
+    --color-wood-800: #2E3A29;
+    --color-wood-900: #1B2117;
+    --color-honey-tint: #E1E7D6;
+    --color-honey-300: #BECCB9;
+    --color-honey-400: #9BB092;
+    --color-honey-500: #6E8863;
+    --color-honey-600: #54674B;
+    --color-honey-700: #3E4D38;
+    --color-success-100: #DCE3D4;
+    --color-success-500: #3E4F38;
+    --color-warning-100: #F5E7C9;
+    --color-warning-500: #D9A441;
+    --color-danger-100: #F3DED2;
+    --color-danger-500: #C1613F;
+    --color-primary-text: #FAF6EC;
+    --color-shadow-rgb: 62, 79, 56;
+  }
+  :root[data-palette="prato-fiorito"][data-theme="dark"] {
+    --color-cream-50: #1B2117;
+    --color-cream-100: #2A3323;
+    --color-cream-200: #3B4730;
+    --color-cream-300: #4D5B3D;
+    --color-wood-300: #7C8870;
+    --color-wood-400: #9BA68D;
+    --color-wood-500: #B9C2AC;
+    --color-wood-600: #DADDC5;
+    --color-wood-700: #F2EFE3;
+    --color-wood-800: #FAF9F5;
+    --color-wood-900: #050604;
+    --color-honey-tint: #3B4730;
+    --color-honey-300: #3A4C31;
+    --color-honey-400: #49613E;
+    --color-honey-500: #8FAE80;
+    --color-honey-600: #B1C6A6;
+    --color-honey-700: #CDDBC6;
+    --color-success-100: #2A3323;
+    --color-success-500: #8FAE80;
+    --color-warning-100: #3B3320;
+    --color-warning-500: #D9A441;
+    --color-danger-100: #3B2C24;
+    --color-danger-500: #E29C86;
+    --color-primary-text: #1B2117;
+    --color-shadow-rgb: 0, 0, 0;
+  }
+
+  :root[data-palette="terracotta-mediterranea"] {
+    --color-cream-50: #F7EFE4;
+    --color-cream-100: #EFE2CE;
+    --color-cream-200: #E7D8C2;
+    --color-cream-300: #DECEB7;
+    --color-wood-300: #B99C74;
+    --color-wood-400: #AA8451;
+    --color-wood-500: #8B6A3F;
+    --color-wood-600: #835331;
+    --color-wood-700: #7A3A24;
+    --color-wood-800: #5E2D1C;
+    --color-wood-900: #20110A;
+    --color-honey-tint: #EAD3C0;
+    --color-honey-300: #EAC9BD;
+    --color-honey-400: #D89C87;
+    --color-honey-500: #C1613F;
+    --color-honey-600: #934A30;
+    --color-honey-700: #6D3723;
+    --color-success-100: #E5E2C9;
+    --color-success-500: #7C7A4A;
+    --color-warning-100: #F0DACB;
+    --color-warning-500: #C1613F;
+    --color-danger-100: #F0DACB;
+    --color-danger-500: #B5461F;
+    --color-primary-text: #F7EFE4;
+    --color-shadow-rgb: 122, 58, 36;
+  }
+  :root[data-palette="terracotta-mediterranea"][data-theme="dark"] {
+    --color-cream-50: #20110A;
+    --color-cream-100: #3A2013;
+    --color-cream-200: #4A2814;
+    --color-cream-300: #5B3114;
+    --color-wood-300: #8B6A3F;
+    --color-wood-400: #B48A57;
+    --color-wood-500: #C9A883;
+    --color-wood-600: #E3CCB1;
+    --color-wood-700: #F7EFE4;
+    --color-wood-800: #FCF8F3;
+    --color-wood-900: #080402;
+    --color-honey-tint: #4A2814;
+    --color-honey-300: #672F18;
+    --color-honey-400: #833C1E;
+    --color-honey-500: #D9805A;
+    --color-honey-600: #E5A88D;
+    --color-honey-700: #EFC9B9;
+    --color-success-100: #3A3722;
+    --color-success-500: #918F5E;
+    --color-warning-100: #4A2814;
+    --color-warning-500: #D9805A;
+    --color-danger-100: #4A2814;
+    --color-danger-500: #D9805A;
+    --color-primary-text: #20110A;
+    --color-shadow-rgb: 0, 0, 0;
+  }
+
+  :root[data-palette="ambra-contemporanea"] {
+    --color-cream-50: #FAF3E7;
+    --color-cream-100: #F3E4CB;
+    --color-cream-200: #EEDCC0;
+    --color-cream-300: #E8D4B6;
+    --color-wood-300: #8A7350;
+    --color-wood-400: #755C39;
+    --color-wood-500: #5C4526;
+    --color-wood-600: #45311E;
+    --color-wood-700: #2E2016;
+    --color-wood-800: #160F0A;
+    --color-wood-900: #201409;
+    --color-honey-tint: #F0D9B4;
+    --color-honey-300: #DE8166;
+    --color-honey-400: #D45B39;
+    --color-honey-500: #A13F23;
+    --color-honey-600: #7A301B;
+    --color-honey-700: #5B2414;
+    --color-success-100: #E4E6CE;
+    --color-success-500: #6E8347;
+    --color-warning-100: #F6E7C4;
+    --color-warning-500: #E0A63A;
+    --color-danger-100: #F0DACB;
+    --color-danger-500: #A13F23;
+    --color-primary-text: #FAF3E7;
+    --color-shadow-rgb: 46, 32, 22;
+  }
+  :root[data-palette="ambra-contemporanea"][data-theme="dark"] {
+    --color-cream-50: #201409;
+    --color-cream-100: #2E1F10;
+    --color-cream-200: #43301A;
+    --color-cream-300: #574225;
+    --color-wood-300: #8A7350;
+    --color-wood-400: #B18F5C;
+    --color-wood-500: #C9A877;
+    --color-wood-600: #E6CFAB;
+    --color-wood-700: #FAF3E7;
+    --color-wood-800: #FCF9F2;
+    --color-wood-900: #080502;
+    --color-honey-tint: #43301A;
+    --color-honey-300: #7F580D;
+    --color-honey-400: #A27011;
+    --color-honey-500: #EFC066;
+    --color-honey-600: #F6DAA6;
+    --color-honey-700: #FBF0DC;
+    --color-success-100: #2A3323;
+    --color-success-500: #8FAE80;
+    --color-warning-100: #43301A;
+    --color-warning-500: #EFC066;
+    --color-danger-100: #43301A;
+    --color-danger-500: #C45C39;
+    --color-primary-text: #201409;
+    --color-shadow-rgb: 0, 0, 0;
   }
 }
 

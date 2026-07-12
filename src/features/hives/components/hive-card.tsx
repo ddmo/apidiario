@@ -271,7 +271,7 @@ export function HiveCard({ hive, onDelete, onEdit, onOpenInspections, showSchema
                     }
                     className={`size-9 flex items-center justify-center rounded-md border transition-colors active:scale-[0.97] ${
                       hive.hasPollenTrap
-                        ? 'bg-honey-500 border-honey-600 text-wood-900'
+                        ? 'bg-honey-500 border-honey-600 text-primary-text'
                         : 'bg-cream-50 border-cream-200 text-wood-400'
                     }`}
                   >
@@ -284,7 +284,7 @@ export function HiveCard({ hive, onDelete, onEdit, onOpenInspections, showSchema
                   <button
                     type="button"
                     onClick={() => navigate({ to: '/inspections/$hiveId/new', params: { hiveId: hive.id } })}
-                    className="flex-1 inline-flex items-center justify-center h-8 px-4 bg-honey-400 text-wood-900 rounded-lg text-sm font-semibold"
+                    className="flex-1 inline-flex items-center justify-center h-8 px-4 bg-honey-400 text-primary-text rounded-lg text-sm font-semibold"
                   >
                     {t.hive.card.inspect}
                   </button>
@@ -431,7 +431,7 @@ export function HiveCard({ hive, onDelete, onEdit, onOpenInspections, showSchema
                       }
                       className={`size-9 flex items-center justify-center rounded-md border transition-colors active:scale-[0.97] ${
                         hive.hasPollenTrap
-                          ? 'bg-honey-500 border-honey-600 text-wood-900'
+                          ? 'bg-honey-500 border-honey-600 text-primary-text'
                           : 'bg-cream-50 border-cream-200 text-wood-400'
                       }`}
                     >
